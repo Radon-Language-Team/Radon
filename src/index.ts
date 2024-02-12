@@ -9,7 +9,7 @@ if (fileToRead) {
   const path = join(__dirname, `../${fileToRead}`);
 
   if (!path) {
-    //
+
     console.log('File not found');
     process.exit(1);
 
