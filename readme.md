@@ -3,6 +3,9 @@
 Radium is my own attempt at creating a programming language. <br>
 Radium is a compiled language and is designed to be simple and easy to use.
 
+The compiler is written in TypeScript and is compiled to JavaScript. <br>
+The JavaScript code is then run using Node.js. <br>
+
 ## Features
 
 - [x] Basic arithmetic
