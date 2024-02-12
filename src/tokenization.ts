@@ -44,15 +44,14 @@ const tokenize = (input: string): Token[] => {
 
     if (isLetter(char)) {
 
-      currentBuffer += char;
-      i++;
-
       while (isLetter(input[i])) {
 
         currentBuffer += input[i];
         i++;
 
       }
+
+      i--;
 
       if (currentBuffer === 'return') {
 
@@ -62,14 +61,11 @@ const tokenize = (input: string): Token[] => {
 
       } else {
 
-        throw new Error(`Unrecognized token: ${currentBuffer}`);
+        throw new Error(`Unrecognized token: ${currentBuffer} - Syntax Error`);
 
       }
 
     } else if (isInt(char)) {
-
-      currentBuffer += char;
-      i++;
 
       while (isInt(input[i])) {
 
@@ -80,15 +76,17 @@ const tokenize = (input: string): Token[] => {
 
       tokens.push({ type: TokenType.int_literal, value: currentBuffer });
       currentBuffer = '';
+      i--;
+      continue;
 
     } else if (char === ';') {
 
-      console.log(`Chars left: ${input.slice(i + 1)}`);
       tokens.push({ type: TokenType.semi_colon, value: ';' });
+      i++;
+      continue;
       
     } else if (char === ' ') {
 
-      console.log('Space');
       continue;
 
     }

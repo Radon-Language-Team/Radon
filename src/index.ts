@@ -31,12 +31,22 @@ if (fileToRead) {
   }
 
   const content = readFileSync(path, 'utf-8');
-  console.log(`File content: \n\n${content}`);
 
-  console.log('Tokens: ', tokenize(content));
+  try {
 
-  process.exit(0);
+    const tokens = tokenize(content);
+    console.log('Tokens: ', tokens);
 
+  } catch (error) {
+
+    console.log('Tokenization', error);
+    process.exit(1);
+
+  } finally {
+
+    process.exit(0);
+
+  }
 } else {
 
   console.log('Incorrect usage: npm  run compile <file-to-compile>');
