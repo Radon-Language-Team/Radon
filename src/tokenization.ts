@@ -84,7 +84,7 @@ const tokenize = (input: string): Token[] => {
       tokens.push({ type: TokenType.semi_colon, value: ';' });
       i++;
       continue;
-      
+
     } else if (char === ' ') {
 
       continue;

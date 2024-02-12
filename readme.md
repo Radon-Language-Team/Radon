@@ -6,11 +6,13 @@ Radium is a compiled language and is designed to be simple and easy to use.
 The compiler is written in TypeScript and is compiled to JavaScript. <br>
 The JavaScript code is then run using Node.js. <br>
 
+This is a hobby project and is not intended to be used in production. <br>
+The goal of this project is to learn more about compilers and programming languages.<br>
+One day, the compiler itself might be written in Radium. Who knows 🤷‍♂️
+
 ## Features
 
-- [x] Basic arithmetic
-- [x] Variables
-- [x] If-statements
+- _nothing yet_ (Working on return statements)
 
 _This is a work in progress and more features will be added soon._
 
@@ -20,7 +22,7 @@ _This is a work in progress and more features will be added soon._
 let x = 5
 let y = 10
 let z = x + y
-out (z) // Prints 15
+return (z) // Prints 15
 ```
 
 ## Usage
