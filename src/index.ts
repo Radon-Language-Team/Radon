@@ -1,6 +1,7 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import tokenize from './tokenization';
+import Parser from './parser';
 
 const fileToRead: string | undefined = process.argv[2];
 console.log('fileToRead', fileToRead ?? 'No file to read');
@@ -37,9 +38,13 @@ if (fileToRead) {
     const tokens = tokenize(content);
     console.log('Tokens: ', tokens);
 
+    const parser = new Parser(tokens);
+    const ast = parser.parse();
+    console.log('AST: ', ast);
+
   } catch (error) {
 
-    console.log('Tokenization', error);
+    console.log('Tokenization || Parser', error);
     process.exit(1);
 
   } finally {

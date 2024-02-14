@@ -5,17 +5,12 @@
  * Copyright (C) 2024 - Marwin Eder
  */
 
+import { Token } from './interfaces/interfaces';
 // eslint-disable-next-line no-shadow
-enum TokenType {
+export enum TokenType {
   _return = 'return',
   int_literal = 'int_literal',
   semi_colon = 'semi_colon',
-}
-
-interface Token {
-  type: TokenType;
-  line: number;
-  value?: string;
 }
 
 class Buffer {
@@ -82,7 +77,6 @@ const isInt = (input: string | number | undefined): boolean => {
   }
 };
 
-
 /**
  * Tokenizes the input.
  *
@@ -134,7 +128,7 @@ const tokenize = (input: string): Token[] => {
       stream.consume();
 
     } else if (stream.peek() === '\n') {
-      
+
       stream.consume();
       lineCount++;
 
