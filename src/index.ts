@@ -1,3 +1,9 @@
+/**
+ * RADIUM COMPILER
+ *
+ * Copyright (C) 2024 - Marwin Eder
+*/
+
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import tokenize from './tokenization';
@@ -9,8 +15,6 @@ console.log('fileToRead', fileToRead ?? 'No file to read');
 if (fileToRead) {
 
   let path: string;
-
-  // const path = join(__dirname, `../${fileToRead}`);
 
   try {
 
@@ -34,6 +38,8 @@ if (fileToRead) {
   const content = readFileSync(path, 'utf-8');
 
   try {
+
+    console.log(content);
 
     const tokens = tokenize(content);
     console.log('Tokens: ', tokens);

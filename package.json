@@ -6,7 +6,8 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "compile": "tsc -p tsconfig.json && node build/index.js",
-    "justCompile": "node build/index.js"
+    "justCompile": "node build/index.js",
+    "testInput": "tsc -p tsconfig.json && node build/testInput.js"
   },
   "author": "Marwin",
   "license": "ISC",

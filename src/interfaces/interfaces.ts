@@ -16,7 +16,7 @@ export interface NodeExpression {
   token: Token;
 }
 
-export interface NodeReturnStatement {
+export interface NodeQuitStatement {
   token: TokenType;
   expression: NodeExpression;
 }

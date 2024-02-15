@@ -7,7 +7,7 @@
 import { Token } from './interfaces/interfaces';
 // eslint-disable-next-line no-shadow
 export enum TokenType {
-  _return = 'return',
+  quit = 'quit',
   open_paren = 'open_paren',
   close_paren = 'close_paren',
   int_literal = 'int_literal',
@@ -86,6 +86,33 @@ const isInt = (input: string | number | undefined): boolean => {
   }
 };
 
+const isWhitespace = (input: string | number | undefined): boolean => {
+  if (input) {
+    if (input.toString().match(/^\s+$/)) {
+      return true;
+    } else {
+      return false;
+    }
+  } else {
+    return false;
+  }
+};
+
+const isNewLine = (input: string | number | undefined): boolean => {
+  if (input) {
+    if (input.toString().match(/^\n+$/)) {
+      return true;
+    } else {
+      return false;
+    }
+  } else {
+    if (input === '') {
+      return true;
+    }
+    return false;
+  }
+};
+
 /**
  * Tokenizes the input.
  *
@@ -103,6 +130,7 @@ const tokenize = (input: string): Token[] => {
   let lineCount = 1;
 
   while (stream.peek()) {
+
     if (isAlnum(stream.peek())) {
 
       buffer.append(stream.consume());
@@ -111,8 +139,8 @@ const tokenize = (input: string): Token[] => {
         buffer.append(stream.consume());
       }
 
-      if (buffer.value === 'return') {
-        tokens.push({ type: TokenType._return, line: lineCount });
+      if (buffer.value === 'quit') {
+        tokens.push({ type: TokenType.quit, line: lineCount });
         buffer.clear();
       }
 
@@ -142,12 +170,14 @@ const tokenize = (input: string): Token[] => {
       tokens.push({ type: TokenType.semi_colon, line: lineCount });
       stream.consume();
 
-    } else if (stream.peek() === ' ') {
+    } else if (isWhitespace(stream.peek())) {
 
+      console.log('Whitespace');
       stream.consume();
 
-    } else if (stream.peek() === '\n') {
+    } else if (isNewLine(stream.peek())) {
 
+      console.log('New line');
       stream.consume();
       lineCount++;
 
