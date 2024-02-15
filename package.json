@@ -11,6 +11,10 @@
   },
   "author": "Marwin",
   "license": "ISC",
+  "repository": {
+    "type:": "git",
+    "url": "https://github.com/xTheFreeZe/Radium"
+  },
   "devDependencies": {
     "@types/node": "^20.11.17",
     "@typescript-eslint/eslint-plugin": "^6.7.4",
