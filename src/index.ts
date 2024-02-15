@@ -39,10 +39,7 @@ if (fileToRead) {
 
   try {
 
-    console.log(content);
-
     const tokens = tokenize(content);
-    console.log('Tokens: ', tokens);
 
     const parser = new Parser(tokens);
     const ast = parser.parse();

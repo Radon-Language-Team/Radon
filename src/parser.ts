@@ -12,6 +12,7 @@ class Parser {
   private tokens: Token[];
   private index: number;
   private currentToken: Token;
+  private parsedStatements: NodeQuitStatement[] = [];
 
   constructor(tokens: Token[]) {
     this.tokens = [...tokens];
@@ -36,7 +37,7 @@ class Parser {
     };
   }
 
-  public parse(): NodeQuitStatement | undefined {
+  public parse(): NodeQuitStatement[] | undefined {
 
     while (this.peek()) {
 
@@ -45,40 +46,42 @@ class Parser {
         this.currentToken = this.consume();
 
         if (this.peek()?.type !== 'open_paren') {
-          throw new Error('Expected `(` after `quit` statement');
+          throw new Error(`On line ${this.currentToken.line}, expected '(' after 'quit' statement`);
         }
 
         this.currentToken = this.consume();
         const expression = this.consume();
 
         if (expression.type !== 'int_literal') {
-          throw new Error('Expected integer literal');
+          throw new Error(`On line ${expression.line}, expected integer literal after '(' in 'quit' statement`);
         }
 
         if (this.peek()?.type !== 'close_paren') {
-          throw new Error('Expected `)` after expression in `quit` statement');
+          throw new Error(`On line ${this.currentToken.line}, expected ')' after integer literal in 'quit' statement`);
         }
 
         this.currentToken = this.consume();
 
         if (this.peek()?.type !== 'semi_colon') {
-          throw new Error('Expected `;` after `quit` statement');
+          throw new Error(`On line ${this.currentToken.line}, expected ';' after 'quit' statement`);
         }
 
         this.currentToken = this.consume();
 
-        return {
+        this.parsedStatements.push({
           token: TokenType.quit,
           expression: {
             token: expression,
           },
-        };
+        });
 
       } else {
         throw new Error('Unexpected token');
       }
 
     }
+
+    return this.parsedStatements;
 
   }
 

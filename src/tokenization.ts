@@ -170,16 +170,14 @@ const tokenize = (input: string): Token[] => {
       tokens.push({ type: TokenType.semi_colon, line: lineCount });
       stream.consume();
 
-    } else if (isWhitespace(stream.peek())) {
-
-      console.log('Whitespace');
-      stream.consume();
-
     } else if (isNewLine(stream.peek())) {
 
-      console.log('New line');
       stream.consume();
       lineCount++;
+
+    } else if (isWhitespace(stream.peek())) {
+
+      stream.consume();
 
     } else {
 
