@@ -1,9 +1,8 @@
 /**
- * RADIUM COMPILER INTERFACES
+ * RADIUM COMPILER
  *
- * Radium is my own programming language. This file contains the interfaces used in the compiler
  * Copyright (C) 2024 - Marwin Eder
- */
+*/
 
 import { TokenType } from '../tokenization';
 
@@ -18,6 +17,6 @@ export interface NodeExpression {
 }
 
 export interface NodeReturnStatement {
-  token: TokenType._return;
+  token: TokenType;
   expression: NodeExpression;
 }

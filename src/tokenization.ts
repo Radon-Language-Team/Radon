@@ -1,14 +1,15 @@
 /**
- * RADIUM COMPILER TOKENIZATION
+ * RADIUM COMPILER
  *
- * Radium is my own programming language. This file contains the tokenization
  * Copyright (C) 2024 - Marwin Eder
- */
+*/
 
 import { Token } from './interfaces/interfaces';
 // eslint-disable-next-line no-shadow
 export enum TokenType {
   _return = 'return',
+  open_paren = 'open_paren',
+  close_paren = 'close_paren',
   int_literal = 'int_literal',
   semi_colon = 'semi_colon',
 }
@@ -61,9 +62,13 @@ class CharacterStream {
   }
 }
 
-const isAlnum = (char: string | undefined): false | RegExpMatchArray | null => {
-  if (char) {
-    return char.match(/[a-zA-Z0-9]/);
+const isAlnum = (inputToTest: string | undefined): boolean => {
+  if (inputToTest) {
+    if (inputToTest.match(/^[a-zA-Z]+$/)) {
+      return true;
+    } else {
+      return false;
+    }
   } else {
     return false;
   }
@@ -71,7 +76,11 @@ const isAlnum = (char: string | undefined): false | RegExpMatchArray | null => {
 
 const isInt = (input: string | number | undefined): boolean => {
   if (input) {
-    return Number.isInteger(+input);
+    if (input.toString().match(/^[0-9]+$/)) {
+      return true;
+    } else {
+      return false;
+    }
   } else {
     return false;
   }
@@ -117,6 +126,16 @@ const tokenize = (input: string): Token[] => {
 
       tokens.push({ type: TokenType.int_literal, line: lineCount, value: buffer.value });
       buffer.clear();
+
+    } else if (stream.peek() === '(') {
+
+      tokens.push({ type: TokenType.open_paren, line: lineCount });
+      stream.consume();
+
+    } else if (stream.peek() === ')') {
+
+      tokens.push({ type: TokenType.close_paren, line: lineCount });
+      stream.consume();
 
     } else if (stream.peek() === ';') {
 
