@@ -1,10 +1,10 @@
 /**
  * RADIUM COMPILER
  *
- * Copyright (C) 2024 - Marwin Eder
+ * Copyright (C) 2024 - Marwin
 */
 
-import { Token, NodeExpression, NodeQuitStatement } from './interfaces/interfaces';
+import { Token, NodeExpression, Nodes } from './interfaces/interfaces';
 import { TokenType } from './tokenization';
 
 class Parser {
@@ -12,7 +12,7 @@ class Parser {
   private tokens: Token[];
   private index: number;
   private currentToken: Token;
-  private parsedStatements: NodeQuitStatement[] = [];
+  private parsedStatements: Nodes[] = [];
 
   constructor(tokens: Token[]) {
     this.tokens = [...tokens];
@@ -37,7 +37,7 @@ class Parser {
     };
   }
 
-  public parse(): NodeQuitStatement[] | undefined {
+  public parse(): Nodes[] | undefined {
 
     while (this.peek()) {
 
@@ -69,9 +69,9 @@ class Parser {
         this.currentToken = this.consume();
 
         this.parsedStatements.push({
-          token: TokenType.quit,
-          expression: {
-            token: expression,
+          quitStatement: {
+            token: TokenType.quit,
+            expression: this.parseExpression(),
           },
         });
 

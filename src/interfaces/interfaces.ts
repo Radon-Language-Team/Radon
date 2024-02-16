@@ -1,7 +1,7 @@
 /**
  * RADIUM COMPILER
  *
- * Copyright (C) 2024 - Marwin Eder
+ * Copyright (C) 2024 - Marwin
 */
 
 import { TokenType } from '../tokenization';
@@ -19,4 +19,8 @@ export interface NodeExpression {
 export interface NodeQuitStatement {
   token: TokenType;
   expression: NodeExpression;
+}
+
+export interface Nodes {
+  quitStatement: NodeQuitStatement;
 }

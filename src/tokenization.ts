@@ -1,7 +1,7 @@
 /**
  * RADIUM COMPILER
  *
- * Copyright (C) 2024 - Marwin Eder
+ * Copyright (C) 2024 - Marwin
 */
 
 import { Token } from './interfaces/interfaces';
