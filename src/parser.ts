@@ -71,7 +71,9 @@ class Parser {
         this.parsedStatements.push({
           quitStatement: {
             token: TokenType.quit,
-            expression: this.parseExpression(),
+            expression: {
+              token: expression,
+            },
           },
         });
 
