@@ -21,6 +21,12 @@ export interface NodeQuitStatement {
   expression: NodeExpression;
 }
 
+export interface NodeLogStatement {
+  token: TokenType;
+  expression: NodeExpression;
+}
+
 export interface Nodes {
-  quitStatement: NodeQuitStatement;
+  quitStatement?: NodeQuitStatement;
+  logStatement?: NodeLogStatement;
 }

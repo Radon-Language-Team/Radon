@@ -14,8 +14,6 @@ class Generator {
     this.parsedStatements = parsedStatements;
   }
 
-  // We generate JS Code. Radium compiles to JavaScript.
-
   public generate(): string {
 
     let generatedCode = '';
@@ -27,11 +25,21 @@ class Generator {
     }
 
     for (const statement of this.parsedStatements) {
-      
-      if (statement.quitStatement.token === 'quit' && statement.quitStatement.expression.token.type === 'int_literal') {
-        generatedCode += `return ${statement.quitStatement.expression.token.value}; \n`;
+
+      if (statement.quitStatement) {
+
+        if (statement.quitStatement.token === 'quit' && statement.quitStatement.expression.token.type === 'int_literal') {
+          generatedCode += `return ${statement.quitStatement.expression.token.value}; \n`;
+        }
+
+      } else if (statement.logStatement) {
+
+        if (statement.logStatement.token === 'log' && statement.logStatement.expression.token.type === 'int_literal') {
+          generatedCode += `console.log(${statement.logStatement.expression.token.value}); \n`;
+        }
+
       }
-    
+
     }
 
     return generatedCode;

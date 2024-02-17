@@ -8,6 +8,7 @@ import { Token } from './interfaces/interfaces';
 // eslint-disable-next-line no-shadow
 export enum TokenType {
   quit = 'quit',
+  log = 'log',
   open_paren = 'open_paren',
   close_paren = 'close_paren',
   int_literal = 'int_literal',
@@ -141,6 +142,9 @@ const tokenize = (input: string): Token[] => {
 
       if (buffer.value === 'quit') {
         tokens.push({ type: TokenType.quit, line: lineCount });
+        buffer.clear();
+      } else if (buffer.value === 'log') {
+        tokens.push({ type: TokenType.log, line: lineCount });
         buffer.clear();
       }
 

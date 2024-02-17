@@ -42,7 +42,6 @@ const compiler = async () => {
     try {
 
       const tokens = tokenize(content);
-
       const parser = new Parser(tokens);
       const ast = parser.parse();
       const generatedCode = new Generator(ast);

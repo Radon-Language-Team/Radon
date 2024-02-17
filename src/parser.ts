@@ -46,24 +46,24 @@ class Parser {
         this.currentToken = this.consume();
 
         if (this.peek()?.type !== 'open_paren') {
-          throw new Error(`On line ${this.currentToken.line}, expected '(' after 'quit' statement`);
+          throw new Error(`On line ${this.currentToken.line} -> expected '(' after 'quit' statement`);
         }
 
         this.currentToken = this.consume();
         const expression = this.consume();
 
         if (expression.type !== 'int_literal') {
-          throw new Error(`On line ${expression.line}, expected integer literal after '(' in 'quit' statement`);
+          throw new Error(`On line ${expression.line} -> expected integer literal after '(' in 'quit' statement`);
         }
 
         if (this.peek()?.type !== 'close_paren') {
-          throw new Error(`On line ${this.currentToken.line}, expected ')' after integer literal in 'quit' statement`);
+          throw new Error(`On line ${this.currentToken.line} -> expected ')' after integer literal in 'quit' statement`);
         }
 
         this.currentToken = this.consume();
 
         if (this.peek()?.type !== 'semi_colon') {
-          throw new Error(`On line ${this.currentToken.line}, expected ';' after 'quit' statement`);
+          throw new Error(`On line ${this.currentToken.line} -> expected ';' after 'quit' statement`);
         }
 
         this.currentToken = this.consume();
@@ -71,6 +71,46 @@ class Parser {
         this.parsedStatements.push({
           quitStatement: {
             token: TokenType.quit,
+            expression: {
+              token: expression,
+            },
+          },
+        });
+
+        if (this.peek()) {
+          throw new Error(`Token '${this.peek()?.type}' on line ${this.peek()?.line} is unreachable -> Expected end of file or scope`);
+        }
+
+      } else if (this.peek()?.type === 'log') {
+
+        this.currentToken = this.consume();
+
+        if (this.peek()?.type !== 'open_paren') {
+          throw new Error(`On line ${this.currentToken.line} -> expected '(' after 'log' statement`);
+        }
+
+        this.currentToken = this.consume();
+        const expression = this.consume();
+
+        if (expression.type !== 'int_literal') {
+          throw new Error(`On line ${expression.line} -> expected integer literal after '(' in 'log' statement`);
+        }
+
+        if (this.peek()?.type !== 'close_paren') {
+          throw new Error(`On line ${this.currentToken.line} -> expected ')' after integer literal in 'log' statement`);
+        }
+
+        this.currentToken = this.consume();
+
+        if (this.peek()?.type !== 'semi_colon') {
+          throw new Error(`On line ${this.currentToken.line} -> expected ';' after 'log' statement`);
+        }
+
+        this.currentToken = this.consume();
+
+        this.parsedStatements.push({
+          logStatement: {
+            token: TokenType.log,
             expression: {
               token: expression,
             },
