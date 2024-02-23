@@ -26,7 +26,15 @@ export interface NodeLogStatement {
   expression: NodeExpression;
 }
 
+export interface NodeVariableDeclaration {
+  token: TokenType;
+  identifier: Token;
+  value: Token;
+  constant: boolean;
+}
+
 export interface Nodes {
   quitStatement?: NodeQuitStatement;
   logStatement?: NodeLogStatement;
+  variableDeclaration?: NodeVariableDeclaration;
 }

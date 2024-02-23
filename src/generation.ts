@@ -38,6 +38,20 @@ class Generator {
           generatedCode += `console.log(${statement.logStatement.expression.token.value}); \n`;
         }
 
+      } else if (statement.variableDeclaration) {
+
+        if (statement.variableDeclaration.token === 'let' && statement.variableDeclaration.identifier.type === 'alpha_numeric') {
+          const identifier = statement.variableDeclaration.identifier.value;
+          const value = statement.variableDeclaration.value.value;
+
+          generatedCode += `let ${identifier} = ${value}; \n`;
+        } else if (statement.variableDeclaration.token === 'const' && statement.variableDeclaration.identifier.type === 'alpha_numeric') {
+          const identifier = statement.variableDeclaration.identifier.value;
+          const value = statement.variableDeclaration.value.value;
+
+          generatedCode += `const ${identifier} = ${value}; \n`;
+        }
+
       }
 
     }

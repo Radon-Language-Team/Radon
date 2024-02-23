@@ -44,6 +44,7 @@ const compiler = async () => {
       const tokens = tokenize(content);
       const parser = new Parser(tokens);
       const ast = parser.parse();
+      console.log('AST: ', ast);
       const generatedCode = new Generator(ast);
       const codeToWrite = generatedCode.generate();
 

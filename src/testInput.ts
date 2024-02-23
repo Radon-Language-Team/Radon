@@ -48,9 +48,22 @@ class TestInput {
     }
   }
 
+  public isOperator(): boolean {
+    if (this.input) {
+      if (this.input.match(/^[=+\-*/]+$/)) {
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
+  }
+
 }
 
-const testInput = new TestInput(')');
+const testInput = new TestInput('=');
 console.log('isAlnum', testInput.isAlnum());
 console.log('isInt', testInput.isInt());
 console.log('isParenthesis', testInput.isParenthesis());
+console.log('isOperator', testInput.isOperator());

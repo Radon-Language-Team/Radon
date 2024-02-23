@@ -12,7 +12,11 @@ export enum TokenType {
   open_paren = 'open_paren',
   close_paren = 'close_paren',
   int_literal = 'int_literal',
+  alpha_numeric = 'alpha_numeric',
   semi_colon = 'semi_colon',
+  _let = 'let',
+  _const = 'const',
+  equal = 'equal',
 }
 
 class Buffer {
@@ -114,6 +118,18 @@ const isNewLine = (input: string | number | undefined): boolean => {
   }
 };
 
+const isOperator = (input: string | number | undefined): boolean => {
+  if (input) {
+    if (input.toString().match(/^[=+\-*/]+$/)) {
+      return true;
+    } else {
+      return false;
+    }
+  } else {
+    return false;
+  }
+};
+
 /**
  * Tokenizes the input.
  *
@@ -146,6 +162,16 @@ const tokenize = (input: string): Token[] => {
       } else if (buffer.value === 'log') {
         tokens.push({ type: TokenType.log, line: lineCount });
         buffer.clear();
+      } else if (buffer.value === 'let') {
+        tokens.push({ type: TokenType._let, line: lineCount });
+        buffer.clear();
+      } else if (buffer.value === 'const') {
+        tokens.push({ type: TokenType._const, line: lineCount });
+        buffer.clear();
+      } else {
+        // This should be used for variable names, function names, etc
+        tokens.push({ type: TokenType.alpha_numeric, line: lineCount, value: buffer.value });
+        buffer.clear();
       }
 
     } else if (isInt(stream.peek())) {
@@ -158,6 +184,15 @@ const tokenize = (input: string): Token[] => {
 
       tokens.push({ type: TokenType.int_literal, line: lineCount, value: buffer.value });
       buffer.clear();
+
+    } else if (isOperator(stream.peek())) {
+
+      if (stream.peek() === '=') {
+
+        tokens.push({ type: TokenType.equal, line: lineCount });
+        stream.consume();
+
+      }
 
     } else if (stream.peek() === '(') {
 
@@ -185,7 +220,7 @@ const tokenize = (input: string): Token[] => {
 
     } else {
 
-      throw new Error(`Unexpected character: ${stream.peek()}`);
+      throw new Error(`Unexpected character -> ${stream.peek()}`);
 
     }
 

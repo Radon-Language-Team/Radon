@@ -4,7 +4,7 @@
  * Copyright (C) 2024 - Marwin
 */
 
-import { Token, NodeExpression, Nodes } from './interfaces/interfaces';
+import { Token, Nodes } from './interfaces/interfaces';
 import { TokenType } from './tokenization';
 
 class Parser {
@@ -29,12 +29,6 @@ class Parser {
 
   public consume(): Token {
     return this.currentToken = this.tokens[this.index++];
-  }
-
-  public parseExpression(): NodeExpression {
-    return {
-      token: this.currentToken,
-    };
   }
 
   public parse(): Nodes[] | undefined {
@@ -114,6 +108,42 @@ class Parser {
             expression: {
               token: expression,
             },
+          },
+        });
+
+      } else if (this.peek()?.type === 'const' || this.peek()?.type === 'let') {
+
+        const constant = this.consume();
+
+        if (this.peek()?.type !== 'alpha_numeric') {
+          throw new Error(`On line ${this.currentToken.line} -> expected variable name after 'let' or 'const' keyword`);
+        }
+
+        const identifier = this.consume();
+
+        if (this.peek()?.type !== 'equal') {
+          throw new Error(`On line ${this.currentToken.line} -> expected '=' after variable name`);
+        }
+
+        this.currentToken = this.consume();
+        const value = this.consume();
+
+        if (this.currentToken.type !== 'int_literal') {
+          throw new Error(`On line ${this.currentToken.line} -> expected integer literal after '=' -> For now, only integer literals are supported`);
+        }
+
+        if (this.peek()?.type !== 'semi_colon') {
+          throw new Error(`On line ${this.currentToken.line} -> expected ';' after integer literal`);
+        }
+
+        this.currentToken = this.consume();
+
+        this.parsedStatements.push({
+          variableDeclaration: {
+            token: constant.type === 'const' ? TokenType._const : TokenType._let,
+            identifier: identifier,
+            value: value,
+            constant: constant.type === 'const' ? true : false,
           },
         });
 
