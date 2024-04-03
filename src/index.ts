@@ -52,6 +52,12 @@ const compiler = async () => {
 
 
       const fileName = fileToRead.split('.')[0];
+
+      if (!fileName) {
+        console.log('File name not found');
+        process.exit(1);
+      }
+
       const outputPath = join(__dirname, `../radium_output/${fileName}.js`);
       const outputDir = 'radium_output';
 
@@ -66,7 +72,7 @@ const compiler = async () => {
 
     } catch (error) {
 
-      console.log('Tokenization || Parser', error);
+        console.log('RADIUM TOKENIZATION || PARSER', error);
       process.exit(1);
 
     } finally {

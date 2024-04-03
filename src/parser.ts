@@ -42,24 +42,24 @@ class Parser {
         this.currentToken = this.consume();
 
         if (this.peek()?.type !== 'open_paren') {
-          throw new Error(`On line ${this.currentToken.line} -> expected '(' after 'quit' statement`);
+          throw new Error(`On line ${this.currentToken.line} -> Expected '(' after 'quit' statement`);
         }
 
         this.currentToken = this.consume();
         const expression = this.consume();
 
         if (expression.type !== 'int_literal') {
-          throw new Error(`On line ${expression.line} -> expected integer literal after '(' in 'quit' statement`);
+          throw new Error(`On line ${expression.line} -> Expected integer literal after '(' in 'quit' statement`);
         }
 
         if (this.peek()?.type !== 'close_paren') {
-          throw new Error(`On line ${this.currentToken.line} -> expected ')' after integer literal in 'quit' statement`);
+          throw new Error(`On line ${this.currentToken.line} -> Expected ')' after integer literal in 'quit' statement`);
         }
 
         this.currentToken = this.consume();
 
         if (this.peek()?.type !== 'semi_colon') {
-          throw new Error(`On line ${this.currentToken.line} -> expected ';' after 'quit' statement`);
+          throw new Error(`On line ${this.currentToken.line} -> Expected ';' after 'quit' statement`);
         }
 
         this.currentToken = this.consume();
@@ -82,24 +82,24 @@ class Parser {
         this.currentToken = this.consume();
 
         if (this.peek()?.type !== 'open_paren') {
-          throw new Error(`On line ${this.currentToken.line} -> expected '(' after 'log' statement`);
+          throw new Error(`On line ${this.currentToken.line} -> Expected '(' after 'log' statement`);
         }
 
         this.currentToken = this.consume();
         const expression = this.consume();
 
         if (!validLogTypes.includes(expression.type)) {
-          throw new Error(`On line ${expression.line} -> expected integer literal or variable name after '(' in 'log' statement`);
+          throw new Error(`On line ${expression.line} -> Expected integer literal or variable name after '(' in 'log' statement`);
         }
 
         if (this.peek()?.type !== 'close_paren') {
-          throw new Error(`On line ${this.currentToken.line} -> expected ')' after integer literal in 'log' statement`);
+          throw new Error(`On line ${this.currentToken.line} -> Expected ')' after integer literal in 'log' statement`);
         }
 
         this.currentToken = this.consume();
 
         if (this.peek()?.type !== 'semi_colon') {
-          throw new Error(`On line ${this.currentToken.line} -> expected ';' after 'log' statement`);
+          throw new Error(`On line ${this.currentToken.line} -> Expected ';' after 'log' statement`);
         }
 
         this.currentToken = this.consume();
@@ -117,25 +117,26 @@ class Parser {
 
         this.currentToken = this.consume();
 
+        // This either happens if the variable name is not an alpha_numeric token or if the token is missing
         if (this.peek()?.type !== 'alpha_numeric') {
-          throw new Error(`On line ${this.currentToken.line} -> expected variable name after 'let' or 'const' keyword`);
+          throw new Error(`On line ${this.currentToken.line} -> Expected variable name after 'var' keyword -> Can not be a number or a reserved keyword of Radium`);
         }
 
         const identifier = this.consume();
 
         if (this.peek()?.type !== 'equal') {
-          throw new Error(`On line ${this.currentToken.line} -> expected '=' after variable name`);
+          throw new Error(`On line ${this.currentToken.line} -> Expected '=' after variable name`);
         }
 
         this.currentToken = this.consume();
         const value = this.consume();
 
         if (this.currentToken.type !== 'int_literal') {
-          throw new Error(`On line ${this.currentToken.line} -> expected integer literal after '=' -> For now, only integer literals are supported`);
+          throw new Error(`On line ${this.currentToken.line} -> Expected integer literal after '=' -> For now, only integer literals are supported`);
         }
 
         if (this.peek()?.type !== 'semi_colon') {
-          throw new Error(`On line ${this.currentToken.line} -> expected ';' after integer literal`);
+          throw new Error(`On line ${this.currentToken.line} -> Expected ';' after integer literal`);
         }
 
         this.currentToken = this.consume();
@@ -149,7 +150,7 @@ class Parser {
         });
 
       } else {
-        throw new Error('Unexpected token');
+        throw new Error(`Unexpected token '${this.currentToken.type}' on line ${this.currentToken.line}`);
       }
 
     }

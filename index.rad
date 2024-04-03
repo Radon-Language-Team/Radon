@@ -1,3 +1,5 @@
-var x = 1000;
 
-log (x);
+var VES = 5;
+log(VES);
+quit (10);
+
