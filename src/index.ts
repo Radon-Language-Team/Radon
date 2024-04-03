@@ -42,9 +42,11 @@ const compiler = async () => {
     try {
 
       const tokens = tokenize(content);
+      // console.log('Tokens: ', tokens);
       const parser = new Parser(tokens);
+      // console.log('Parser: ', parser);
       const ast = parser.parse();
-      console.log('AST: ', ast);
+      // console.log('AST: ', ast);
       const generatedCode = new Generator(ast);
       const codeToWrite = generatedCode.generate();
 
@@ -74,7 +76,7 @@ const compiler = async () => {
     }
   } else {
 
-    console.log('Incorrect usage: npm  run compile <file-to-compile>');
+    console.log('Incorrect usage Radium usage: npm  run compile <file-to-compile>');
     process.exit(1);
 
   }

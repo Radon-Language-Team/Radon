@@ -1,1 +1,3 @@
-let dawda = 4234;
+var x = 1000;
+
+log (x);

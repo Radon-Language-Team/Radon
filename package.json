@@ -2,7 +2,7 @@
   "name": "radium-compiler",
   "version": "1.0.0",
   "description": "",
-  "main": "main.js",
+  "main": "build/index.js",
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "compile": "tsc -p tsconfig.json && node build/index.js",

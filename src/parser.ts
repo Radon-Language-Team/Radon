@@ -33,6 +33,8 @@ class Parser {
 
   public parse(): Nodes[] | undefined {
 
+    const validLogTypes = ['int_literal', 'alpha_numeric'];
+
     while (this.peek()) {
 
       if (this.peek()?.type === 'quit') {
@@ -86,8 +88,8 @@ class Parser {
         this.currentToken = this.consume();
         const expression = this.consume();
 
-        if (expression.type !== 'int_literal') {
-          throw new Error(`On line ${expression.line} -> expected integer literal after '(' in 'log' statement`);
+        if (!validLogTypes.includes(expression.type)) {
+          throw new Error(`On line ${expression.line} -> expected integer literal or variable name after '(' in 'log' statement`);
         }
 
         if (this.peek()?.type !== 'close_paren') {
@@ -111,9 +113,9 @@ class Parser {
           },
         });
 
-      } else if (this.peek()?.type === 'const' || this.peek()?.type === 'let') {
+      } else if (this.peek()?.type === 'var') {
 
-        const constant = this.consume();
+        this.currentToken = this.consume();
 
         if (this.peek()?.type !== 'alpha_numeric') {
           throw new Error(`On line ${this.currentToken.line} -> expected variable name after 'let' or 'const' keyword`);
@@ -140,10 +142,9 @@ class Parser {
 
         this.parsedStatements.push({
           variableDeclaration: {
-            token: constant.type === 'const' ? TokenType._const : TokenType._let,
+            token: TokenType._var,
             identifier: identifier,
             value: value,
-            constant: constant.type === 'const' ? true : false,
           },
         });
 

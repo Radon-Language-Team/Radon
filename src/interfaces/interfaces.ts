@@ -30,7 +30,6 @@ export interface NodeVariableDeclaration {
   token: TokenType;
   identifier: Token;
   value: Token;
-  constant: boolean;
 }
 
 export interface Nodes {

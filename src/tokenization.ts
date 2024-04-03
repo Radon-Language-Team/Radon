@@ -14,8 +14,7 @@ export enum TokenType {
   int_literal = 'int_literal',
   alpha_numeric = 'alpha_numeric',
   semi_colon = 'semi_colon',
-  _let = 'let',
-  _const = 'const',
+  _var = 'var',
   equal = 'equal',
 }
 
@@ -162,13 +161,11 @@ const tokenize = (input: string): Token[] => {
       } else if (buffer.value === 'log') {
         tokens.push({ type: TokenType.log, line: lineCount });
         buffer.clear();
-      } else if (buffer.value === 'let') {
-        tokens.push({ type: TokenType._let, line: lineCount });
+      } else if (buffer.value === 'var') {
+        tokens.push({ type: TokenType._var, line: lineCount });
         buffer.clear();
-      } else if (buffer.value === 'const') {
-        tokens.push({ type: TokenType._const, line: lineCount });
-        buffer.clear();
-      } else {
+      }
+      else {
         // This should be used for variable names, function names, etc
         tokens.push({ type: TokenType.alpha_numeric, line: lineCount, value: buffer.value });
         buffer.clear();
