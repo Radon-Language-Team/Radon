@@ -1,5 +1,2 @@
-
-var VES = 5;
-log(VES);
-quit (10);
-
+let x = 8723648236;
+log(x);

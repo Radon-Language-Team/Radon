@@ -150,7 +150,7 @@ class Parser {
         });
 
       } else {
-        throw new Error(`Unexpected token '${this.currentToken.type}' on line ${this.currentToken.line}`);
+        throw new Error(`Unexpected token '${this.currentToken.value}' on line ${this.currentToken.line}`);
       }
 
     }
