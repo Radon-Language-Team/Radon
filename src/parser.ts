@@ -31,9 +31,27 @@ class Parser {
     return this.currentToken = this.tokens[this.index++];
   }
 
+  public checkIfInitialized(variableName: string | undefined): boolean {
+    if (!variableName) {
+      return false;
+    }
+    for (const statement of this.parsedStatements) {
+      if (statement.variableDeclaration) {
+        if (statement.variableDeclaration.identifier.value === variableName) {
+          return true;
+        } else {
+          continue;
+        }
+      } else {
+        continue;
+      }
+    }
+    return false;
+  }
+
   public parse(): Nodes[] | undefined {
 
-    const validLogTypes = ['int_literal', 'alpha_numeric'];
+    const validExpressionType = ['int_literal', 'alpha_numeric'];
 
     while (this.peek()) {
 
@@ -48,8 +66,15 @@ class Parser {
         this.currentToken = this.consume();
         const expression = this.consume();
 
-        if (expression.type !== 'int_literal') {
-          throw new Error(`On line ${expression.line} -> Expected integer literal after '(' in 'quit' statement`);
+        if (!validExpressionType.includes(expression.type)) {
+          throw new Error(`On line ${expression.line} -> Expected integer literal or variable name after '(' in 'quit' statement`);
+        }
+
+        // Check if the variable is initialized -> Only alpha_numeric tokens can be uninitialized
+        if (expression.type === 'alpha_numeric') {
+          if (!this.checkIfInitialized(expression.value)) {
+            throw new Error(`On line ${expression.line} -> Variable '${expression.value}' is not initialized`);
+          }
         }
 
         if (this.peek()?.type !== 'close_paren') {
@@ -88,8 +113,14 @@ class Parser {
         this.currentToken = this.consume();
         const expression = this.consume();
 
-        if (!validLogTypes.includes(expression.type)) {
+        if (!validExpressionType.includes(expression.type)) {
           throw new Error(`On line ${expression.line} -> Expected integer literal or variable name after '(' in 'log' statement`);
+        }
+
+        if (expression.type === 'alpha_numeric') {
+          if (!this.checkIfInitialized(expression.value)) {
+            throw new Error(`On line ${expression.line} -> Variable '${expression.value}' is not initialized`);
+          }
         }
 
         if (this.peek()?.type !== 'close_paren') {

@@ -189,6 +189,10 @@ const tokenize = (input: string): Token[] => {
         tokens.push({ type: TokenType.equal, line: lineCount });
         stream.consume();
 
+      } else {
+
+        throw new Error(`Unexpected character -> ${stream.peek()}`);
+
       }
 
     } else if (stream.peek() === '(') {

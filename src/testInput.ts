@@ -62,7 +62,7 @@ class TestInput {
 
 }
 
-const testInput = new TestInput('=');
+const testInput = new TestInput('+');
 console.log('isAlnum', testInput.isAlnum());
 console.log('isInt', testInput.isInt());
 console.log('isParenthesis', testInput.isParenthesis());

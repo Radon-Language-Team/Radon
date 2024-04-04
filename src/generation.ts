@@ -16,7 +16,7 @@ class Generator {
 
   public generate(): string {
 
-    const validLogTypes = ['int_literal', 'alpha_numeric'];
+    const validExpressionTypes = ['int_literal', 'alpha_numeric'];
     let generatedCode = '';
 
     if (!this.parsedStatements) {
@@ -29,13 +29,13 @@ class Generator {
 
       if (statement.quitStatement) {
 
-        if (statement.quitStatement.token === 'quit' && statement.quitStatement.expression.token.type === 'int_literal') {
+        if (statement.quitStatement.token === 'quit' && validExpressionTypes.includes(statement.quitStatement.expression.token.type)) {
           generatedCode += `return ${statement.quitStatement.expression.token.value}; \n`;
         }
 
       } else if (statement.logStatement) {
 
-        if (statement.logStatement.token === 'log' && validLogTypes.includes(statement.logStatement.expression.token.type)) {
+        if (statement.logStatement.token === 'log' && validExpressionTypes.includes(statement.logStatement.expression.token.type)) {
           generatedCode += `console.log(${statement.logStatement.expression.token.value}); \n`;
         }
 

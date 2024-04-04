@@ -72,7 +72,7 @@ const compiler = async () => {
 
     } catch (error) {
 
-        console.log('RADIUM TOKENIZATION || PARSER', error);
+      console.log('RADIUM TOKENIZATION || PARSER:\n\n', error);
       process.exit(1);
 
     } finally {
