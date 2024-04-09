@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /**
- * RADIUM COMPILER
+ * Radon COMPILER
  *
  * Copyright (C) 2024 - Marwin
 */
@@ -58,11 +58,11 @@ const compiler = async () => {
         process.exit(1);
       }
 
-      const outputPath = join(__dirname, `../radium_output/${fileName}.js`);
-      const outputDir = 'radium_output';
+      const outputPath = join(__dirname, `../radon_output/${fileName}.js`);
+      const outputDir = 'radon/output';
 
       if (!existsSync(outputDir)) {
-        console.log('[INFO] Radium output directory does not exist. Creating one...');
+        console.log('[INFO] Radon output directory does not exist. Creating one...');
         await mkdirSync(outputDir);
         console.log('[INFO] Directory created successfully! Writing to file...');
       }
@@ -72,7 +72,7 @@ const compiler = async () => {
 
     } catch (error) {
 
-      console.log('RADIUM TOKENIZATION || PARSER:\n\n', error);
+      console.log('Radon TOKENIZATION || PARSER:\n\n', error);
       process.exit(1);
 
     } finally {
@@ -82,7 +82,7 @@ const compiler = async () => {
     }
   } else {
 
-    console.log('Incorrect usage Radium usage: npm  run compile <file-to-compile>');
+    console.log('Incorrect usage Radon usage: npm  run compile <file-to-compile>');
     process.exit(1);
 
   }

@@ -1,5 +1,5 @@
 {
-  "name": "radium-compiler",
+  "name": "Radon-compiler",
   "version": "1.0.0",
   "description": "",
   "main": "build/index.js",
@@ -8,13 +8,13 @@
     "compile": "tsc -p tsconfig.json && node build/index.js",
     "justCompile": "node build/index.js",
     "testInput": "tsc -p tsconfig.json && node build/testInput.js",
-    "runCompiled": "node radium_output/index.js"
+    "runCompiled": "node Radon_output/index.js"
   },
   "author": "Marwin",
   "license": "ISC",
   "repository": {
     "type:": "git",
-    "url": "https://github.com/xTheFreeZe/Radium"
+    "url": "https://github.com/xTheFreeZe/Radon"
   },
   "devDependencies": {
     "@types/node": "^20.11.17",

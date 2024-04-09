@@ -1,7 +1,7 @@
-# Radium Compiler
+# Radon Compiler
 
-Radium is my own attempt at creating a programming language. <br>
-Radium is a compiled language and is designed to be simple and easy to use.
+Radon is my own attempt at creating a programming language. <br>
+Radon is a compiled language and is designed to be simple and easy to use.
 
 The compiler is written in TypeScript and is compiled to JavaScript. <br>
 The JavaScript code is then run using Node.js. <br>
@@ -10,7 +10,7 @@ I am planning to rewrite the compiler in the V Programming Language once it is m
 
 This is a hobby project and is not intended to be used in production. <br>
 The goal of this project is to learn more about compilers and programming languages.<br>
-One day, the compiler itself might be written in Radium. Who knows 🤷‍♂️
+One day, the compiler itself might be written in Radon. Who knows 🤷‍♂️
 
 ## Features
 
@@ -20,7 +20,7 @@ _This is a work in progress and more features will be added soon._
 
 ## Example
 
-```radium
+```Radon
 let x = 5
 let y = 10
 let z = x + y
@@ -29,7 +29,7 @@ return (z) // Prints 15
 
 ## Usage
 
-To compile a Radium file, use the following command:
+To compile a Radon file, use the following command:
 
 ```bash
 npm run compile <file>

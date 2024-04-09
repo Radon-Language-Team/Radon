@@ -1,5 +1,5 @@
 /**
- * RADIUM COMPILER
+ * Radon COMPILER
  *
  * Copyright (C) 2024 - Marwin
 */

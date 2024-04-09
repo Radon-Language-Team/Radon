@@ -1,5 +1,5 @@
 /**
- * RADIUM COMPILER
+ * Radon COMPILER
  *
  * Copyright (C) 2024 - Marwin
 */
@@ -150,7 +150,7 @@ class Parser {
 
         // This either happens if the variable name is not an alpha_numeric token or if the token is missing
         if (this.peek()?.type !== 'alpha_numeric') {
-          throw new Error(`On line ${this.currentToken.line} -> Expected variable name after 'var' keyword -> Can not be a number or a reserved keyword of Radium`);
+          throw new Error(`On line ${this.currentToken.line} -> Expected variable name after 'var' keyword -> Can not be a number or a reserved keyword of Radon`);
         }
 
         const identifier = this.consume();
