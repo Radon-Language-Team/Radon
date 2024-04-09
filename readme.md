@@ -27,7 +27,8 @@ log (x);
 
 _In Radon, all variables must be declared with a type. The only type available right now is integers._ <br>
 _The type declaration is not optional and must be included when declaring a variable._ <br>
-_The syntax for declaring a variable is `var <variable_name>: <type> = <value>;`_
+_The syntax for declaring a variable is `var <variable_name>: $<type> = <value>;`_ <br>
+_Maybe in the future, I will add type inference to the language so that the type declaration is not required._
 
 ## Usage
 
