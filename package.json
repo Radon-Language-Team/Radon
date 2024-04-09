@@ -2,11 +2,11 @@
   "name": "Radon-compiler",
   "version": "1.0.0",
   "description": "",
-  "main": "build/index.js",
+  "main": "build/core/index.js",
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "compile": "tsc -p tsconfig.json && node build/index.js",
-    "justCompile": "node build/index.js",
+    "justCompile": "node build/core/index.js",
     "testInput": "tsc -p tsconfig.json && node build/testInput.js",
     "runCompiled": "node Radon_output/index.js"
   },

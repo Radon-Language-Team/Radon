@@ -21,7 +21,7 @@ const compiler = async () => {
 
     try {
 
-      path = join(__dirname, `../${fileToRead}`);
+      path = join(__dirname, `../../${fileToRead}`);
 
     } catch (error) {
 
@@ -58,8 +58,8 @@ const compiler = async () => {
         process.exit(1);
       }
 
-      const outputPath = join(__dirname, `../radon_output/${fileName}.js`);
-      const outputDir = 'radon/output';
+      const outputPath = join(__dirname, `../../radon_output/${fileName}.js`);
+      const outputDir = 'radon_output';
 
       if (!existsSync(outputDir)) {
         console.log('[INFO] Radon output directory does not exist. Creating one...');

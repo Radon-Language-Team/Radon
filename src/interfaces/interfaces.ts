@@ -1,10 +1,17 @@
+/* eslint-disable no-shadow */
 /**
  * RADON COMPILER
  *
  * Copyright (C) 2024 - Marwin
 */
 
-import { TokenType } from '../tokenization';
+import { TokenType } from '../core/tokenization';
+
+export const validVariableTypes = ['int', 'string'];
+export enum validVariableTypesEnum {
+  int_literal = 'int',
+  alpha_numeric = 'string'
+}
 
 export interface Token {
   type: TokenType;

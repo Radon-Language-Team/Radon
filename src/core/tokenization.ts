@@ -4,7 +4,7 @@
  * Copyright (C) 2024 - Marwin
 */
 
-import { Token } from './interfaces/interfaces';
+import { Token } from '../interfaces/interfaces';
 // eslint-disable-next-line no-shadow
 export enum TokenType {
   quit = 'quit',
@@ -16,6 +16,8 @@ export enum TokenType {
   semi_colon = 'semi_colon',
   _var = 'var',
   equal = 'equal',
+  colon = 'colon',
+  dollar_sign = 'dollar_sign',
 }
 
 class Buffer {
@@ -129,6 +131,18 @@ const isOperator = (input: string | number | undefined): boolean => {
   }
 };
 
+const isSpecialCharacter = (input: string | number | undefined): boolean => {
+  if (input) {
+    if (input.toString().match(/[:$]/)) {
+      return true;
+    } else {
+      return false;
+    }
+  } else {
+    return false;
+  }
+};
+
 /**
  * Tokenizes the input.
  *
@@ -218,6 +232,20 @@ const tokenize = (input: string): Token[] => {
     } else if (isWhitespace(stream.peek())) {
 
       stream.consume();
+
+    } else if (isSpecialCharacter(stream.peek())) {
+
+      if (stream.peek() === ':') {
+
+        tokens.push({ type: TokenType.colon, line: lineCount });
+        stream.consume();
+
+      } else if (stream.peek() === '$') {
+
+        tokens.push({ type: TokenType.dollar_sign, line: lineCount });
+        stream.consume();
+
+      }
 
     } else {
 

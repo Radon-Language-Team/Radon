@@ -1,4 +1,1 @@
-var x = 100;
-var y = 100;
-
-log (x + y);
+var x: $int = 10;

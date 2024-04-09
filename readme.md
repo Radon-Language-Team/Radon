@@ -14,18 +14,20 @@ One day, the compiler itself might be written in Radon. Who knows 🤷‍♂️
 
 ## Features
 
-- _nothing yet_ (Working on return statements)
+- [x] Variables (Only integers for now)
 
 _This is a work in progress and more features will be added soon._
 
 ## Example
 
 ```Radon
-let x = 5
-let y = 10
-let z = x + y
-return (z) // Prints 15
+var x: $int = 5;
+log (x);
 ```
+
+_In Radon, all variables must be declared with a type. The only type available right now is integers._ <br>
+_The type declaration is not optional and must be included when declaring a variable._ <br>
+_The syntax for declaring a variable is `var <variable_name>: <type> = <value>;`_
 
 ## Usage
 

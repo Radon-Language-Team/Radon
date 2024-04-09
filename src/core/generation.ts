@@ -4,7 +4,7 @@
  * Copyright (C) 2024 - Marwin
 */
 
-import { Nodes } from './interfaces/interfaces';
+import { Nodes } from '../interfaces/interfaces';
 
 class Generator {
 

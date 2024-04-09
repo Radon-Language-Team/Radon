@@ -4,7 +4,7 @@
  * Copyright (C) 2024 - Marwin
 */
 
-import { Token, Nodes } from './interfaces/interfaces';
+import { Token, Nodes, validVariableTypes, validVariableTypesEnum } from '../interfaces/interfaces';
 import { TokenType } from './tokenization';
 
 class Parser {
@@ -155,12 +155,37 @@ class Parser {
 
         const identifier = this.consume();
 
+        if (this.peek()?.type !== 'colon') {
+          throw new Error(`On line ${this.currentToken.line} -> Expected ':' after variable name -> Variable type declaration is necessary in Radon`);
+        }
+
+        this.currentToken = this.consume();
+
+        if (this.peek()?.type !== 'dollar_sign') {
+          throw new Error(`On line ${this.currentToken.line} -> Expected '$' after ':' -> Variable type declaration is necessary in Radon`);
+        }
+
+        this.currentToken = this.consume();
+
+        if (validVariableTypes.includes(this.peek()?.value as string) === false) {
+          throw new Error(`On line ${this.currentToken.line} -> Expected valid variable type after identifier ${identifier.value}`);
+        }
+
+        this.currentToken = this.consume();
+        const declaredVariableType = this.currentToken.value;
+
         if (this.peek()?.type !== 'equal') {
           throw new Error(`On line ${this.currentToken.line} -> Expected '=' after variable name`);
         }
 
         this.currentToken = this.consume();
         const value = this.consume();
+
+        const givenValueType = validVariableTypesEnum[value.type as keyof typeof validVariableTypesEnum];
+
+        if (declaredVariableType !== givenValueType) {
+          throw new Error(`On line ${value.line} -> Expected value of type '${declaredVariableType}' but got '${givenValueType}'`);
+        }
 
         if (this.currentToken.type !== 'int_literal') {
           throw new Error(`On line ${this.currentToken.line} -> Expected integer literal after '=' -> For now, only integer literals are supported`);
