@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /**
- * Radon COMPILER
+ * RADON COMPILER
  *
  * Copyright (C) 2024 - Marwin
 */
