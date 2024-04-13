@@ -12,9 +12,12 @@ This is a hobby project and is not intended to be used in production. <br>
 The goal of this project is to learn more about compilers and programming languages.<br>
 One day, the compiler itself might be written in Radon. Who knows 🤷‍♂️
 
+> [!IMPORTANT]
+> As of now, you are required to have Node.js installed on your machine to run the compiler.
+
 ## Features
 
-- [x] Variables (Only integers for now)
+- [x] Variable declaration - You can find a list of valid types [here](#types)
 
 _This is a work in progress and more features will be added soon._
 
@@ -22,13 +25,24 @@ _This is a work in progress and more features will be added soon._
 
 ```Radon
 var x: $int = 5;
+var y: $char = 'a';
+var z: $string = 'Hello, World!'; 
 log (x);
+log (y);
+log (z);
 ```
 
-_In Radon, all variables must be declared with a type. The only type available right now is integers._ <br>
-_The type declaration is not optional and must be included when declaring a variable._ <br>
-_The syntax for declaring a variable is `var <variable_name>: $<type> = <value>;`_ <br>
-_Maybe in the future, I will add type inference to the language so that the type declaration is not required._
+> [!IMPORTANT]
+> In Radon, all variables must be declared with a type.
+> The type declaration is not optional and must be included when declaring a variable.
+> The syntax for declaring a variable is var <variable_name>: $<type> = <value>;
+
+## Types
+```Radon
+$int
+$char
+$string
+```
 
 ## Usage
 
@@ -37,6 +51,8 @@ To compile a Radon file, use the following command:
 ```bash
 npm run compile <file>
 ```
+> [!NOTE]
+> This will build the Compiler and compile the Radon file.
 
 ## License
 
