@@ -35,7 +35,7 @@ log (z);
 > [!IMPORTANT]
 > In Radon, all variables must be declared with a type.<br>
 > The type declaration is not optional and must be included when declaring a variable.<br>
-> The syntax for declaring a variable is var <variable_name>: $<type> = <value>;
+> The syntax for declaring a variable is ```var <variable_name>: $<type> = <value>;```
 
 ## Types
 ```Radon
