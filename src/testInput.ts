@@ -62,7 +62,7 @@ class TestInput {
 
   public isSpecialCharacter(): boolean {
     if (this.input) {
-      if (this.input.match(/[:$]/)) {
+      if (this.input.match(/[:$']/)) {
         return true;
       } else {
         return false;
@@ -73,7 +73,7 @@ class TestInput {
   }
 }
 
-const testInput = new TestInput(':');
+const testInput = new TestInput('wow');
 console.log('isAlnum', testInput.isAlnum());
 console.log('isInt', testInput.isInt());
 console.log('isParenthesis', testInput.isParenthesis());

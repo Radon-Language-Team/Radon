@@ -13,11 +13,15 @@ export enum TokenType {
   close_paren = 'close_paren',
   int_literal = 'int_literal',
   alpha_numeric = 'alpha_numeric',
+  char = 'char',
+  string = 'string',
   semi_colon = 'semi_colon',
   _var = 'var',
   equal = 'equal',
   colon = 'colon',
   dollar_sign = 'dollar_sign',
+  open_quote = 'open_quote',
+  close_quote = 'close_quote',
 }
 
 class Buffer {
@@ -133,7 +137,7 @@ const isOperator = (input: string | number | undefined): boolean => {
 
 const isSpecialCharacter = (input: string | number | undefined): boolean => {
   if (input) {
-    if (input.toString().match(/[:$]/)) {
+    if (input.toString().match(/[:$']/)) {
       return true;
     } else {
       return false;
@@ -244,6 +248,51 @@ const tokenize = (input: string): Token[] => {
 
         tokens.push({ type: TokenType.dollar_sign, line: lineCount });
         stream.consume();
+
+        // eslint-disable-next-line quotes
+      } else if (stream.peek() === "'") {
+
+        tokens.push({ type: TokenType.open_quote, line: lineCount });
+        stream.consume();
+
+        // Instead of leaving the loop when we encounter a single quote, we will keep consuming until we find another single quote
+        // This way we can get the string value / or if the length is 1 then it's a char
+        // eslint-disable-next-line quotes
+        while (stream.peek() && stream.peek() !== "'") {
+
+          buffer.append(stream.consume());
+
+        }
+
+        if (stream.peek() === undefined) {
+          throw new Error('Unexpected end of input -> Expected a closing quote');
+        }
+
+        // eslint-disable-next-line quotes
+        if (stream.peek() === "'") {
+
+          if (buffer.value.length === 1) {
+
+            tokens.push({ type: TokenType.char, line: lineCount, value: buffer.value });
+            buffer.clear();
+
+          } else {
+
+            tokens.push({ type: TokenType.string, line: lineCount, value: buffer.value });
+            buffer.clear();
+
+          }
+
+          stream.consume();
+          tokens.push({ type: TokenType.close_quote, line: lineCount });
+          
+          // we have successfully consumed the string/char and now need to check for the next token
+          // We move out of the loop and continue with the next token
+          continue;
+
+        } else {
+          throw new Error(`Unexpected character at line ${lineCount} -> ${stream.peek()} -> Expected a closing quote`);
+        }
 
       }
 

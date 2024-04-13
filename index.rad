@@ -1,1 +1,7 @@
-var x: $int = 10;
+var eineZahl: $int = 10;
+var einChar: $char = 'a';
+var einString: $string = 'Hallo Welt';
+
+log(eineZahl);
+log(einChar);
+log(einString);

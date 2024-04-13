@@ -5,7 +5,7 @@
   "main": "build/core/index.js",
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "compile": "tsc -p tsconfig.json && node build/index.js",
+    "compile": "tsc -p tsconfig.json && node build/core/index.js",
     "justCompile": "node build/core/index.js",
     "testInput": "tsc -p tsconfig.json && node build/testInput.js",
     "runCompiled": "node Radon_output/index.js"

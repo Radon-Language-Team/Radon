@@ -7,10 +7,12 @@
 
 import { TokenType } from '../core/tokenization';
 
-export const validVariableTypes = ['int', 'string'];
+export const validVariableTypes = ['int', 'string', 'char'];
 export enum validVariableTypesEnum {
   int_literal = 'int',
-  alpha_numeric = 'string'
+  alpha_numeric = 'alpha_numeric',
+  string = 'string',
+  char = 'char'
 }
 
 export interface Token {

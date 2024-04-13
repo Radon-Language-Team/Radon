@@ -45,6 +45,12 @@ class Generator {
           const identifier = statement.variableDeclaration.identifier.value;
           const value = statement.variableDeclaration.value.value;
 
+          // If the value is a string or char, wrap it in quotes
+          if (statement.variableDeclaration.value.type === 'string' || statement.variableDeclaration.value.type === 'char') {
+            generatedCode += `const ${identifier} = '${value}'; \n`;
+            continue;
+          }
+
           generatedCode += `const ${identifier} = ${value}; \n`;
         }
 

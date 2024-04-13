@@ -179,20 +179,43 @@ class Parser {
         }
 
         this.currentToken = this.consume();
-        const value = this.consume();
 
+        // We need to check if the next token is a char/string or the next token after that is a char/string
+        // That way, we can ignore the open_quote and close_quote tokens
+        // Exmaple: var name: $string = 'Marwin';
+        // Example: var name: $char = M;
+        // In case of the second example, we need to throw an error because the open_quote is missing.
+        if (this.peek()!.type === 'open_quote') {
+
+          this.currentToken = this.consume();
+
+        } else if (this.peek()!.type === 'alpha_numeric') {
+
+          // The next token after the = is an alpha numeric token but the open_quote is missing
+          throw new Error(`On line ${this.currentToken.line} -> Provided alpha_numeric token '${this.peek()?.value}' but the open_quote is missing`);
+
+        }
+
+        const value = this.consume();
         const givenValueType = validVariableTypesEnum[value.type as keyof typeof validVariableTypesEnum];
 
         if (declaredVariableType !== givenValueType) {
           throw new Error(`On line ${value.line} -> Expected value of type '${declaredVariableType}' but got '${givenValueType}'`);
         }
 
-        if (this.currentToken.type !== 'int_literal') {
-          throw new Error(`On line ${this.currentToken.line} -> Expected integer literal after '=' -> For now, only integer literals are supported`);
+        // if the last token was of type string/char then we need to check if the next token is a close_quote
+        if (value.type === 'string' || value.type === 'char') {
+
+          if (this.peek()?.type !== 'close_quote') {
+            throw new Error(`On line ${this.currentToken.line} -> Expected closing quote after ${value.type} value`);
+          }
+
+          this.currentToken = this.consume();
+
         }
 
         if (this.peek()?.type !== 'semi_colon') {
-          throw new Error(`On line ${this.currentToken.line} -> Expected ';' after integer literal`);
+          throw new Error(`On line ${this.currentToken.line} -> Expected ';' after variable declaration`);
         }
 
         this.currentToken = this.consume();
