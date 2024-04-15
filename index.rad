@@ -1,7 +1,9 @@
 var x: $int = 5;
-var y: $int = 10;
-
-log (x + y);
-log (x + 20);
-log (10 + y);
-log(12 + 18);
+var y: $char = 'a';
+var z: $string = 'Hello, World!'; 
+var aString: $string = 'This is a string';
+log (x);
+log (x + 5);
+log (y);
+log (z + aString);
+quit(x);

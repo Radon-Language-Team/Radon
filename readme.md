@@ -27,9 +27,11 @@ _This is a work in progress and more features will be added soon._
 var x: $int = 5;
 var y: $char = 'a';
 var z: $string = 'Hello, World!'; 
+var aString: $string = 'This is a string';
 log (x);
+log (x + 5);
 log (y);
-log (z);
+log (z + aString);
 ```
 
 > [!IMPORTANT]

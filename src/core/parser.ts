@@ -168,7 +168,6 @@ class Parser {
 
           this.currentToken = this.consume();
           // This only works for ONE additional expression for now
-          // TODO: Add a while loop to handle multiple additional expressions
           additionalExpressions.push(this.currentToken);
         }
 

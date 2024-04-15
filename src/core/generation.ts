@@ -40,6 +40,8 @@ class Generator {
           let logContent = '';
           logContent += statement.logStatement.expression.token.value;
 
+          // If we find additional expressions, we add them to the log content
+          // We dont need to worry about the type of the additional expressions as the parser has already validated them
           if (statement.logStatement.additionalExpressions) {
 
             for (const expression of statement.logStatement.additionalExpressions.tokens) {
@@ -59,7 +61,6 @@ class Generator {
           const identifier = statement.variableDeclaration.identifier.value;
           const value = statement.variableDeclaration.value.value;
 
-          // If the value is a string or char, wrap it in quotes
           if (statement.variableDeclaration.value.type === 'string' || statement.variableDeclaration.value.type === 'char') {
             generatedCode += `const ${identifier} = '${value}'; \n`;
             continue;
