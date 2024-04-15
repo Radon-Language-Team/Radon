@@ -36,7 +36,21 @@ class Generator {
       } else if (statement.logStatement) {
 
         if (statement.logStatement.token === 'log' && validExpressionTypes.includes(statement.logStatement.expression.token.type)) {
-          generatedCode += `console.log(${statement.logStatement.expression.token.value}); \n`;
+
+          let logContent = '';
+          logContent += statement.logStatement.expression.token.value;
+
+          if (statement.logStatement.additionalExpressions) {
+
+            for (const expression of statement.logStatement.additionalExpressions.tokens) {
+
+              if (validExpressionTypes.includes(expression.type)) {
+                logContent += ` + ${expression.value}`;
+              }
+
+            }
+          }
+          generatedCode += `console.log(${logContent}); \n`;
         }
 
       } else if (statement.variableDeclaration) {

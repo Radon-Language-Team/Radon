@@ -1,7 +1,7 @@
-var eineZahl: $int = 10;
-var einChar: $char = 'a';
-var einString: $string = 'Hallo Welt';
+var x: $int = 5;
+var y: $int = 10;
 
-log(eineZahl);
-log(einChar);
-log(einString);
+log (x + y);
+log (x + 20);
+log (10 + y);
+log(12 + 18);

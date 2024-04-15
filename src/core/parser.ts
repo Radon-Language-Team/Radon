@@ -49,6 +49,24 @@ class Parser {
     return false;
   }
 
+  public returnVariableType(variableName: string | undefined): string | undefined {
+    if (!variableName) {
+      return undefined;
+    }
+    for (const statement of this.parsedStatements) {
+      if (statement.variableDeclaration) {
+        if (statement.variableDeclaration.identifier.value === variableName) {
+          return validVariableTypesEnum[statement.variableDeclaration.value.type as keyof typeof validVariableTypesEnum];
+        } else {
+          continue;
+        }
+      } else {
+        continue;
+      }
+    }
+    return undefined;
+  }
+
   public parse(): Nodes[] | undefined {
 
     const validExpressionType = ['int_literal', 'alpha_numeric'];
@@ -123,6 +141,37 @@ class Parser {
           }
         }
 
+        const additionalExpressions: Token[] = [];
+
+        if (this.peek()?.type === 'plus') {
+          this.currentToken = this.consume();
+
+          // The reason we do this is because the expression might not be a variable at all as it could just be a number or a string
+          // In this case, we simply take the token type provided by the tokenizer
+          const previousExpressionType = this.returnVariableType(expression.value) ?? validVariableTypesEnum[expression.type as keyof typeof validVariableTypesEnum];
+          const nextExpression = this.peek();
+          const nextExpressionType = this.returnVariableType(nextExpression?.value) ?? validVariableTypesEnum[nextExpression?.type as keyof typeof validVariableTypesEnum];
+
+          // We know that the previous expression is initialized because we checked it above
+          // We now need to check if the next expression is initialized
+          if (nextExpression?.type === 'alpha_numeric') {
+            if (!this.checkIfInitialized(nextExpression.value)) {
+              throw new Error(`On line ${nextExpression.line} -> Variable '${nextExpression.value}' is not initialized`);
+            }
+          }
+
+          // Check if the types are the same. Since we compile to JS, JS will handle the addition of strings and numbers
+          // We just need to validate the types / syntax
+          if (previousExpressionType !== nextExpressionType) {
+            throw new Error(`On line ${this.currentToken.line} -> Expected same types for addition & concatenation -> Got '${previousExpressionType}' and '${nextExpressionType}'`);
+          }
+
+          this.currentToken = this.consume();
+          // This only works for ONE additional expression for now
+          // TODO: Add a while loop to handle multiple additional expressions
+          additionalExpressions.push(this.currentToken);
+        }
+
         if (this.peek()?.type !== 'close_paren') {
           throw new Error(`On line ${this.currentToken.line} -> Expected ')' after integer literal in 'log' statement`);
         }
@@ -140,6 +189,9 @@ class Parser {
             token: TokenType.log,
             expression: {
               token: expression,
+            },
+            additionalExpressions: {
+              tokens: additionalExpressions,
             },
           },
         });

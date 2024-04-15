@@ -19,6 +19,7 @@ export enum TokenType {
   _var = 'var',
   equal = 'equal',
   colon = 'colon',
+  plus = 'plus',
   dollar_sign = 'dollar_sign',
   open_quote = 'open_quote',
   close_quote = 'close_quote',
@@ -207,6 +208,11 @@ const tokenize = (input: string): Token[] => {
         tokens.push({ type: TokenType.equal, line: lineCount });
         stream.consume();
 
+      } else if (stream.peek() === '+') {
+
+        tokens.push({ type: TokenType.plus, line: lineCount });
+        stream.consume();
+
       } else {
 
         throw new Error(`Unexpected character -> ${stream.peek()}`);
@@ -285,7 +291,7 @@ const tokenize = (input: string): Token[] => {
 
           stream.consume();
           tokens.push({ type: TokenType.close_quote, line: lineCount });
-          
+
           // we have successfully consumed the string/char and now need to check for the next token
           // We move out of the loop and continue with the next token
           continue;

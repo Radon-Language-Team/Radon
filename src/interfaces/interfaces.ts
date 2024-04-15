@@ -21,6 +21,10 @@ export interface Token {
   value?: string;
 }
 
+export interface AdditionalTokens {
+  tokens: Token[];
+}
+
 export interface NodeExpression {
   token: Token;
 }
@@ -33,6 +37,7 @@ export interface NodeQuitStatement {
 export interface NodeLogStatement {
   token: TokenType;
   expression: NodeExpression;
+  additionalExpressions?: AdditionalTokens;
 }
 
 export interface NodeVariableDeclaration {
