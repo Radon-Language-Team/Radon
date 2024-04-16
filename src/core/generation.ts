@@ -61,12 +61,28 @@ class Generator {
           const identifier = statement.variableDeclaration.identifier.value;
           const value = statement.variableDeclaration.value.value;
 
+          let valueContent = '';
+
+          // If the value is a string or char, we add it to the value content
           if (statement.variableDeclaration.value.type === 'string' || statement.variableDeclaration.value.type === 'char') {
-            generatedCode += `const ${identifier} = '${value}'; \n`;
-            continue;
+            valueContent += `'${value}'`;
+          } else {
+            valueContent += value;
           }
 
-          generatedCode += `const ${identifier} = ${value}; \n`;
+          if (statement.variableDeclaration.additionalExpressions) {
+
+            for (const expression of statement.variableDeclaration.additionalExpressions.tokens) {
+              if (expression.type === 'string' || expression.type === 'char') {
+                valueContent += ` + '${expression.value}'`;
+              } else {
+                valueContent += ` + ${expression.value}`;
+              }
+            }
+
+          }
+
+          generatedCode += `const ${identifier} = ${valueContent}; \n`;
         }
 
       }

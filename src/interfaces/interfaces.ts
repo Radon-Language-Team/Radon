@@ -44,6 +44,7 @@ export interface NodeVariableDeclaration {
   token: TokenType;
   identifier: Token;
   value: Token;
+  additionalExpressions?: AdditionalTokens;
 }
 
 export interface Nodes {

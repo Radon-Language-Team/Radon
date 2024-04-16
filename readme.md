@@ -24,13 +24,20 @@ _This is a work in progress and more features will be added soon._
 ## Example
 
 ```Radon
-var x: $int = 10;
 var a: $string = 'Hello';
-var b: $string = 'World';
+var b: $string = ' World';
 
-log (x + 10 + 5);
+var x: $int = 5;
+var y: $int = 10;
+
 log(a + b);
+log(x + y + 5);
 ```
+
+> [!NOTE]
+> The above code will output:<br>
+> ```Hello World```<br>
+> ```20```
 
 > [!IMPORTANT]
 > In Radon, all variables must be declared with a type.<br>

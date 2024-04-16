@@ -85,7 +85,7 @@ class Parser {
         const expression = this.consume();
 
         if (!validExpressionType.includes(expression.type)) {
-          throw new Error(`On line ${expression.line} -> Expected integer literal or variable name after '(' in 'quit' statement`);
+          throw new Error(`On line ${expression.line} -> Expected integer literal or identifier after '(' in 'quit' statement`);
         }
 
         // Check if the variable is initialized -> Only alpha_numeric tokens can be uninitialized
@@ -132,7 +132,7 @@ class Parser {
         const expression = this.consume();
 
         if (!validExpressionType.includes(expression.type)) {
-          throw new Error(`On line ${expression.line} -> Expected integer literal or variable name after '(' in 'log' statement`);
+          throw new Error(`On line ${expression.line} -> Expected integer literal or identifier after '(' in 'log' statement`);
         }
 
         if (expression.type === 'alpha_numeric') {
@@ -155,7 +155,7 @@ class Parser {
             }
 
             if (!validExpressionType.includes(nextExpression.type)) {
-              throw new Error(`On line ${nextExpression.line} -> Expected integer literal or variable name after '+' in 'log' statement`);
+              throw new Error(`On line ${nextExpression.line} -> Expected integer literal or identifier after '+' in 'log' statement`);
             }
 
             if (nextExpression.type === 'alpha_numeric') {
@@ -206,15 +206,20 @@ class Parser {
 
         this.currentToken = this.consume();
 
-        // This either happens if the variable name is not an alpha_numeric token or if the token is missing
+        // This either happens if the identifier is not an alpha_numeric token or if the token is missing
         if (this.peek()?.type !== 'alpha_numeric') {
-          throw new Error(`On line ${this.currentToken.line} -> Expected variable name after 'var' keyword -> Can not be a number or a reserved keyword of Radon`);
+          throw new Error(`On line ${this.currentToken.line} -> Expected identifier after 'var' keyword -> Can not be a number or a reserved keyword of Radon`);
         }
 
         const identifier = this.consume();
 
+        // Check if the identifier is already declared
+        if (this.checkIfInitialized(identifier.value)) {
+          throw new Error(`On line ${identifier.line} -> Variable '${identifier.value}' has already been declared`);
+        }
+
         if (this.peek()?.type !== 'colon') {
-          throw new Error(`On line ${this.currentToken.line} -> Expected ':' after variable name -> Variable type declaration is necessary in Radon`);
+          throw new Error(`On line ${this.currentToken.line} -> Expected ':' after identifier -> Variable type declaration is necessary in Radon`);
         }
 
         this.currentToken = this.consume();
@@ -233,7 +238,7 @@ class Parser {
         const declaredVariableType = this.currentToken.value;
 
         if (this.peek()?.type !== 'equal') {
-          throw new Error(`On line ${this.currentToken.line} -> Expected '=' after variable name`);
+          throw new Error(`On line ${this.currentToken.line} -> Expected '=' after identifier`);
         }
 
         this.currentToken = this.consume();
@@ -272,6 +277,60 @@ class Parser {
 
         }
 
+        const additionalExpressions: Token[] = [];
+
+        if (this.peek()?.type === 'plus') {
+
+          while (this.peek()?.type === 'plus') {
+
+            this.currentToken = this.consume();
+            let nextExpression = this.peek();
+
+            if (!nextExpression) {
+              throw new Error(`On line ${this.currentToken.line} -> Expected expression after '+' in 'var' statement`);
+            }
+
+            if (this.peek()?.type === 'open_quote') {
+
+              this.currentToken = this.consume();
+              nextExpression = this.consume();
+
+            } else if (this.peek()?.type === 'alpha_numeric') {
+
+              // Could be a variable that is not initialized
+              if (!this.checkIfInitialized(nextExpression.value)) {
+                throw new Error(`On line ${nextExpression.line} -> Variable '${nextExpression.value}' is not initialized`);
+              }
+
+            } else if (this.peek()?.type === 'int_literal') {
+
+              this.currentToken = this.consume();
+
+            }
+
+            if (nextExpression.type === 'string' || nextExpression.type === 'char') {
+
+              if (this.peek()?.type !== 'close_quote') {
+                throw new Error(`On line ${this.currentToken.line} -> Expected closing quote after ${value.type} value`);
+              }
+
+              this.currentToken = this.consume();
+
+            }
+
+            const previousExpressionType = this.returnVariableType(value.value) ?? validVariableTypesEnum[value.type as keyof typeof validVariableTypesEnum];
+            const nextExpressionType = this.returnVariableType(nextExpression.value) ?? validVariableTypesEnum[nextExpression.type as keyof typeof validVariableTypesEnum];
+
+            if (previousExpressionType !== nextExpressionType) {
+              throw new Error(`On line ${this.currentToken.line} -> Expected same types for addition & concatenation -> Got '${previousExpressionType}' and '${nextExpressionType}'`);
+            }
+
+            additionalExpressions.push(nextExpression);
+
+          }
+
+        }
+
         if (this.peek()?.type !== 'semi_colon') {
           throw new Error(`On line ${this.currentToken.line} -> Expected ';' after variable declaration`);
         }
@@ -283,6 +342,9 @@ class Parser {
             token: TokenType._var,
             identifier: identifier,
             value: value,
+            additionalExpressions: {
+              tokens: additionalExpressions,
+            },
           },
         });
 
