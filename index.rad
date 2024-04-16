@@ -1,4 +1,6 @@
-var x: $char = 'a';
-var y: $char = 'b';
+var x: $int = 10;
+var a: $string = 'Hello';
+var b: $string = 'World';
 
-log (x + y);
+log (x + 10 + 5);
+log(a + b);

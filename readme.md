@@ -24,14 +24,12 @@ _This is a work in progress and more features will be added soon._
 ## Example
 
 ```Radon
-var x: $int = 5;
-var y: $char = 'a';
-var z: $string = 'Hello, World!'; 
-var aString: $string = 'This is a string';
-log (x);
-log (x + 5 + 10);
-log (y);
-log (z + aString);
+var x: $int = 10;
+var a: $string = 'Hello';
+var b: $string = 'World';
+
+log (x + 10 + 5);
+log(a + b);
 ```
 
 > [!IMPORTANT]
