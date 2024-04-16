@@ -1,9 +1,4 @@
-var x: $int = 5;
-var y: $char = 'a';
-var z: $string = 'Hello, World!'; 
-var aString: $string = 'This is a string';
-log (x);
-log (x + 200);
-log (y);
-log (z + aString);
-quit(x);
+var x: $char = 'a';
+var y: $char = 'b';
+
+log (x + y);

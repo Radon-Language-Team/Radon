@@ -29,7 +29,7 @@ var y: $char = 'a';
 var z: $string = 'Hello, World!'; 
 var aString: $string = 'This is a string';
 log (x);
-log (x + 5);
+log (x + 5 + 10);
 log (y);
 log (z + aString);
 ```
