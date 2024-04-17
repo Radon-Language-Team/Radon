@@ -242,6 +242,7 @@ class Parser {
         }
 
         this.currentToken = this.consume();
+        let value: Token | undefined = undefined;
 
         // We need to check if the next token is a char/string or the next token after that is a char/string
         // That way, we can ignore the open_quote and close_quote tokens
@@ -251,16 +252,28 @@ class Parser {
         if (this.peek()!.type === 'open_quote') {
 
           this.currentToken = this.consume();
+          value = this.consume();
 
         } else if (this.peek()!.type === 'alpha_numeric') {
 
-          // The next token after the = is an alpha numeric token but the open_quote is missing
-          throw new Error(`On line ${this.currentToken.line} -> Provided alpha_numeric token '${this.peek()?.value}' but the open_quote is missing`);
+          // Check if the variable is initialized
+          if (!this.checkIfInitialized(this.peek()?.value)) {
+            throw new Error(`On line ${this.peek()?.line} -> Variable '${this.peek()?.value}' is not initialized`);
+          } else {
+            value = this.peek();
+            this.currentToken = this.consume();
+          }
 
+        } else {
+          // Last token was not a variable nor a string/char -> It must be an int_literal or something that can be consumed right away
+          value = this.consume();
         }
 
-        const value = this.consume();
-        const givenValueType = validVariableTypesEnum[value.type as keyof typeof validVariableTypesEnum];
+        if (!value) {
+          throw new Error(`On line ${this.currentToken.line} -> Expected value after '=' in 'var' statement`);
+        }
+
+        const givenValueType = this.returnVariableType(value.value) || validVariableTypesEnum[value.type as keyof typeof validVariableTypesEnum];
 
         if (declaredVariableType !== givenValueType) {
           throw new Error(`On line ${value.line} -> Expected value of type '${declaredVariableType}' but got '${givenValueType}'`);
@@ -300,6 +313,8 @@ class Parser {
               // Could be a variable that is not initialized
               if (!this.checkIfInitialized(nextExpression.value)) {
                 throw new Error(`On line ${nextExpression.line} -> Variable '${nextExpression.value}' is not initialized`);
+              } else {
+                nextExpression = this.consume();
               }
 
             } else if (this.peek()?.type === 'int_literal') {
