@@ -5,10 +5,31 @@
  * Copyright (C) 2024 - Marwin
 */
 
-import { TokenType } from '../core/tokenization';
+export enum TokenType {
+  quit = 'quit',
+  log = 'log',
+  int_literal = 'int_literal',
+  alpha_numeric = 'alpha_numeric',
+  char = 'char',
+  string = 'string',
+  _var = 'var',
+  open_paren = '(',
+  close_paren = ')',
+  semi_colon = ';',
+  equal = '=',
+  colon = ':',
+  plus = '+',
+  dollar_sign = '$',
+  quote = '\'',
+}
 
 export const validVariableTypes = ['int', 'string', 'char'];
 
+/**
+ * The validVariableTypesEnum enum is used to categorize the types of variables
+ * 
+ * This way, we can easily identify the type of variable we are dealing with
+ */
 export enum validVariableTypesEnum {
   int_literal = 'int',
   alpha_numeric = 'alpha_numeric',
@@ -16,7 +37,13 @@ export enum validVariableTypesEnum {
   char = 'char'
 }
 
-export enum TokensCategory {
+/**
+ * The TokenCategory enum is used to categorize the tokens
+ * 
+ * This way, we can easily identify the type of token we are dealing with
+ * This will make it much easier to parse the tokens and generate the AST
+ */
+export enum TokenCategory {
   // This is a string, like "Hello, World!"
   string = 'string',
   // This is a char, a single character like 'a'
@@ -33,9 +60,15 @@ export enum TokensCategory {
   keyword = 'keyword',
 }
 
+/**
+ * The Token interface is used to define the structure of a token
+ * 
+ * A token is a single unit of a program, like a variable, a string, a number, or a keyword
+ * Tokens have a type, a category, a line number, and an optional value (for variables, strings, and numbers)
+ */
 export interface Token {
   type: TokenType;
-  category : TokensCategory;
+  category : TokenCategory;
   line: number;
   value?: string;
 }

@@ -4,7 +4,7 @@
  * Copyright (C) 2024 - Marwin
 */
 
-import { Nodes } from '../interfaces/interfaces';
+import { Nodes, TokenCategory, TokenType } from '../interfaces/interfaces';
 
 class Generator {
 
@@ -29,13 +29,13 @@ class Generator {
 
       if (statement.quitStatement) {
 
-        if (statement.quitStatement.token === 'quit' && validExpressionTypes.includes(statement.quitStatement.expression.token.type)) {
+        if (statement.quitStatement.token === TokenType.quit && validExpressionTypes.includes(statement.quitStatement.expression.token.type)) {
           generatedCode += `return ${statement.quitStatement.expression.token.value}; \n`;
         }
 
       } else if (statement.logStatement) {
 
-        if (statement.logStatement.token === 'log' && validExpressionTypes.includes(statement.logStatement.expression.token.type)) {
+        if (statement.logStatement.token === TokenType.log && validExpressionTypes.includes(statement.logStatement.expression.token.type)) {
 
           let logContent = '';
           logContent += statement.logStatement.expression.token.value;
@@ -49,7 +49,6 @@ class Generator {
               if (validExpressionTypes.includes(expression.type)) {
                 logContent += ` + ${expression.value}`;
               }
-
             }
           }
           generatedCode += `console.log(${logContent}); \n`;
@@ -57,14 +56,14 @@ class Generator {
 
       } else if (statement.variableDeclaration) {
 
-        if (statement.variableDeclaration.token === 'var' && statement.variableDeclaration.identifier.type === 'alpha_numeric') {
+        if (statement.variableDeclaration.token === TokenType._var && statement.variableDeclaration.identifier.type === TokenType.alpha_numeric) {
           const identifier = statement.variableDeclaration.identifier.value;
           const value = statement.variableDeclaration.value.value;
 
           let valueContent = '';
 
           // If the value is a string or char, we add it to the value content
-          if (statement.variableDeclaration.value.type === 'string' || statement.variableDeclaration.value.type === 'char') {
+          if (statement.variableDeclaration.value.type === TokenType.char || statement.variableDeclaration.value.type === TokenType.string) {
             valueContent += `'${value}'`;
           } else {
             valueContent += value;
@@ -79,20 +78,13 @@ class Generator {
                 valueContent += ` + ${expression.value}`;
               }
             }
-
           }
-
           generatedCode += `const ${identifier} = ${valueContent}; \n`;
         }
-
       }
-
     }
-
     return generatedCode;
-
   }
-
 }
 
 export default Generator;

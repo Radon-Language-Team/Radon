@@ -5,7 +5,7 @@
 */
 
 import { Token, Nodes, validVariableTypes, validVariableTypesEnum } from '../interfaces/interfaces';
-import { TokenType } from './tokenization';
+import { TokenType } from '../interfaces/interfaces';
 
 class Parser {
 

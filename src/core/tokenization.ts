@@ -4,25 +4,8 @@
  * Copyright (C) 2024 - Marwin
 */
 
-import { Token, TokensCategory } from '../interfaces/interfaces';
-// eslint-disable-next-line no-shadow
-export enum TokenType {
-  quit = 'quit',
-  log = 'log',
-  open_paren = '(',
-  close_paren = ')',
-  int_literal = 'int_literal',
-  alpha_numeric = 'alpha_numeric',
-  char = 'char',
-  string = 'string',
-  semi_colon = ';',
-  _var = 'var',
-  equal = '=',
-  colon = ':',
-  plus = '+',
-  dollar_sign = '$',
-  quote = '\'',
-}
+import { Token, TokenCategory, TokenType } from '../interfaces/interfaces';
+import { isAlnum, isInt, isOperator, isSpecialCharacter, isWhitespace, isNewLine } from '../lib/tokenizer/isWhatToken';
 
 class Buffer {
 
@@ -72,81 +55,6 @@ class CharacterStream {
   }
 }
 
-const isAlnum = (inputToTest: string | undefined): boolean => {
-  if (inputToTest) {
-    if (inputToTest.match(/^[a-zA-Z]+$/)) {
-      return true;
-    } else {
-      return false;
-    }
-  } else {
-    return false;
-  }
-};
-
-const isInt = (input: string | number | undefined): boolean => {
-  if (input) {
-    if (input.toString().match(/^[0-9]+$/)) {
-      return true;
-    } else {
-      return false;
-    }
-  } else {
-    return false;
-  }
-};
-
-const isWhitespace = (input: string | number | undefined): boolean => {
-  if (input) {
-    if (input.toString().match(/^\s+$/)) {
-      return true;
-    } else {
-      return false;
-    }
-  } else {
-    return false;
-  }
-};
-
-const isNewLine = (input: string | number | undefined): boolean => {
-  if (input) {
-    if (input.toString().match(/^\n+$/)) {
-      return true;
-    } else {
-      return false;
-    }
-  } else {
-    if (input === '') {
-      return true;
-    }
-    return false;
-  }
-};
-
-const isOperator = (input: string | number | undefined): boolean => {
-  if (input) {
-    if (input.toString().match(/^[=+\-*/]+$/)) {
-      return true;
-    } else {
-      return false;
-    }
-  } else {
-    return false;
-  }
-};
-
-const isSpecialCharacter = (input: string | number | undefined): boolean => {
-  if (input) {
-    if (input.toString().match(/[:$']/)) {
-      return true;
-    } else {
-      return false;
-    }
-  } else {
-    return false;
-  }
-};
-
 /**
  * Tokenizes the input.
  *
@@ -174,18 +82,18 @@ const tokenize = (input: string): Token[] => {
       }
 
       if (buffer.value === TokenType.quit) {
-        tokens.push({ type: TokenType.quit, line: lineCount, category: TokensCategory.keyword });
+        tokens.push({ type: TokenType.quit, line: lineCount, category: TokenCategory.keyword });
         buffer.clear();
       } else if (buffer.value === TokenType.log) {
-        tokens.push({ type: TokenType.log, line: lineCount, category: TokensCategory.keyword });
+        tokens.push({ type: TokenType.log, line: lineCount, category: TokenCategory.keyword });
         buffer.clear();
       } else if (buffer.value === TokenType._var) {
-        tokens.push({ type: TokenType._var, line: lineCount, category: TokensCategory.keyword });
+        tokens.push({ type: TokenType._var, line: lineCount, category: TokenCategory.keyword });
         buffer.clear();
       }
       else {
         // This should be used for variable names, function names, etc
-        tokens.push({ type: TokenType.alpha_numeric, line: lineCount, value: buffer.value, category: TokensCategory.identifier });
+        tokens.push({ type: TokenType.alpha_numeric, line: lineCount, value: buffer.value, category: TokenCategory.identifier });
         buffer.clear();
       }
 
@@ -197,19 +105,19 @@ const tokenize = (input: string): Token[] => {
         buffer.append(stream.consume());
       }
 
-      tokens.push({ type: TokenType.int_literal, line: lineCount, value: buffer.value, category: TokensCategory.int_literal });
+      tokens.push({ type: TokenType.int_literal, line: lineCount, value: buffer.value, category: TokenCategory.int_literal });
       buffer.clear();
 
     } else if (isOperator(stream.peek())) {
 
       if (stream.peek() === TokenType.equal) {
 
-        tokens.push({ type: TokenType.equal, line: lineCount, category: TokensCategory.expression });
+        tokens.push({ type: TokenType.equal, line: lineCount, category: TokenCategory.expression });
         stream.consume();
 
       } else if (stream.peek() === TokenType.plus) {
 
-        tokens.push({ type: TokenType.plus, line: lineCount, category: TokensCategory.expression });
+        tokens.push({ type: TokenType.plus, line: lineCount, category: TokenCategory.expression });
         stream.consume();
 
       } else {
@@ -220,17 +128,17 @@ const tokenize = (input: string): Token[] => {
 
     } else if (stream.peek() === TokenType.open_paren) {
 
-      tokens.push({ type: TokenType.open_paren, line: lineCount, category: TokensCategory.expression });
+      tokens.push({ type: TokenType.open_paren, line: lineCount, category: TokenCategory.expression });
       stream.consume();
 
     } else if (stream.peek() === TokenType.close_paren) {
 
-      tokens.push({ type: TokenType.close_paren, line: lineCount, category: TokensCategory.expression });
+      tokens.push({ type: TokenType.close_paren, line: lineCount, category: TokenCategory.expression });
       stream.consume();
 
     } else if (stream.peek() === TokenType.semi_colon) {
 
-      tokens.push({ type: TokenType.semi_colon, line: lineCount, category: TokensCategory.expression });
+      tokens.push({ type: TokenType.semi_colon, line: lineCount, category: TokenCategory.expression });
       stream.consume();
 
     } else if (isNewLine(stream.peek())) {
@@ -246,17 +154,17 @@ const tokenize = (input: string): Token[] => {
 
       if (stream.peek() === TokenType.colon) {
 
-        tokens.push({ type: TokenType.colon, line: lineCount, category: TokensCategory.expression });
+        tokens.push({ type: TokenType.colon, line: lineCount, category: TokenCategory.expression });
         stream.consume();
 
       } else if (stream.peek() === TokenType.dollar_sign) {
 
-        tokens.push({ type: TokenType.dollar_sign, line: lineCount, category: TokensCategory.expression });
+        tokens.push({ type: TokenType.dollar_sign, line: lineCount, category: TokenCategory.expression });
         stream.consume();
 
       } else if (stream.peek() === TokenType.quote) {
 
-        tokens.push({ type: TokenType.quote, line: lineCount, category: TokensCategory.expression });
+        tokens.push({ type: TokenType.quote, line: lineCount, category: TokenCategory.expression });
         stream.consume();
 
         // Instead of leaving the loop when we encounter a single quote, we will keep consuming until we find another single quote
@@ -276,18 +184,18 @@ const tokenize = (input: string): Token[] => {
 
           if (buffer.value.length === 1) {
 
-            tokens.push({ type: TokenType.char, line: lineCount, value: buffer.value, category: TokensCategory.char });
+            tokens.push({ type: TokenType.char, line: lineCount, value: buffer.value, category: TokenCategory.char });
             buffer.clear();
 
           } else {
 
-            tokens.push({ type: TokenType.string, line: lineCount, value: buffer.value, category: TokensCategory.string });
+            tokens.push({ type: TokenType.string, line: lineCount, value: buffer.value, category: TokenCategory.string });
             buffer.clear();
 
           }
 
           stream.consume();
-          tokens.push({ type: TokenType.quote, line: lineCount, category: TokensCategory.expression });
+          tokens.push({ type: TokenType.quote, line: lineCount, category: TokenCategory.expression });
 
           // we have successfully consumed the string/char and now need to check for the next token
           // We move out of the loop and continue with the next token
