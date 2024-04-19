@@ -4,7 +4,7 @@
  * Copyright (C) 2024 - Marwin
 */
 
-import { Nodes, TokenCategory, TokenType } from '../interfaces/interfaces';
+import { Nodes, TokenType } from '../interfaces/interfaces';
 
 class Generator {
 
