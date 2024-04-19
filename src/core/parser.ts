@@ -135,7 +135,7 @@ class Parser {
           throw new Error(`On line ${expression.line} -> Expected integer literal or identifier after '(' in 'log' statement`);
         }
 
-        if (expression.type === 'alpha_numeric') {
+        if (expression.type === TokenType.alpha_numeric) {
           if (!this.checkIfInitialized(expression.value)) {
             throw new Error(`On line ${expression.line} -> Variable '${expression.value}' is not initialized`);
           }
@@ -254,7 +254,7 @@ class Parser {
           this.currentToken = this.consume();
           value = this.consume();
 
-        } else if (this.peek()!.type === 'alpha_numeric') {
+        } else if (this.peek()!.type === TokenType.alpha_numeric) {
 
           // Check if the variable is initialized
           if (!this.checkIfInitialized(this.peek()?.value)) {
@@ -280,7 +280,7 @@ class Parser {
         }
 
         // if the last token was of type string/char then we need to check if the next token is a close_quote
-        if (value.type === 'string' || value.type === 'char') {
+        if (value.type === TokenType.string || value.type === TokenType.char) {
 
           if (this.peek()?.type !== TokenType.quote) {
             throw new Error(`On line ${this.currentToken.line} -> Expected closing quote after ${value.type} value`);
@@ -308,7 +308,7 @@ class Parser {
               this.currentToken = this.consume();
               nextExpression = this.consume();
 
-            } else if (this.peek()?.type === 'alpha_numeric') {
+            } else if (this.peek()?.type === TokenType.alpha_numeric) {
 
               // Could be a variable that is not initialized
               if (!this.checkIfInitialized(nextExpression.value)) {
@@ -317,13 +317,13 @@ class Parser {
                 nextExpression = this.consume();
               }
 
-            } else if (this.peek()?.type === 'int_literal') {
+            } else if (this.peek()?.type === TokenType.int_literal) {
 
               this.currentToken = this.consume();
 
             }
 
-            if (nextExpression.type === 'string' || nextExpression.type === 'char') {
+            if (nextExpression.type === TokenType.string || nextExpression.type === TokenType.char) {
 
               if (this.peek()?.type !== TokenType.quote) {
                 throw new Error(`On line ${this.currentToken.line} -> Expected closing quote after ${value.type} value`);
