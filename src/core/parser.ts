@@ -77,7 +77,7 @@ class Parser {
 
         this.currentToken = this.consume();
 
-        if (this.peek()?.type !== 'open_paren') {
+        if (this.peek()?.type !== TokenType.open_paren) {
           throw new Error(`On line ${this.currentToken.line} -> Expected '(' after 'quit' statement`);
         }
 
@@ -95,13 +95,13 @@ class Parser {
           }
         }
 
-        if (this.peek()?.type !== 'close_paren') {
+        if (this.peek()?.type !== TokenType.close_paren) {
           throw new Error(`On line ${this.currentToken.line} -> Expected ')' after integer literal in 'quit' statement`);
         }
 
         this.currentToken = this.consume();
 
-        if (this.peek()?.type !== 'semi_colon') {
+        if (this.peek()?.type !== TokenType.semi_colon) {
           throw new Error(`On line ${this.currentToken.line} -> Expected ';' after 'quit' statement`);
         }
 
@@ -124,7 +124,7 @@ class Parser {
 
         this.currentToken = this.consume();
 
-        if (this.peek()?.type !== 'open_paren') {
+        if (this.peek()?.type !== TokenType.open_paren) {
           throw new Error(`On line ${this.currentToken.line} -> Expected '(' after 'log' statement`);
         }
 
@@ -143,9 +143,9 @@ class Parser {
 
         const additionalExpressions: Token[] = [];
 
-        if (this.peek()?.type === 'plus') {
+        if (this.peek()?.type === TokenType.plus) {
 
-          while (this.peek()?.type === 'plus') {
+          while (this.peek()?.type === TokenType.plus) {
 
             this.currentToken = this.consume();
             const nextExpression = this.peek();
@@ -178,13 +178,13 @@ class Parser {
 
         }
 
-        if (this.peek()?.type !== 'close_paren') {
+        if (this.peek()?.type !== TokenType.close_paren) {
           throw new Error(`On line ${this.currentToken.line} -> Expected ')' after integer literal in 'log' statement`);
         }
 
         this.currentToken = this.consume();
 
-        if (this.peek()?.type !== 'semi_colon') {
+        if (this.peek()?.type !== TokenType.semi_colon) {
           throw new Error(`On line ${this.currentToken.line} -> Expected ';' after 'log' statement`);
         }
 
@@ -202,12 +202,12 @@ class Parser {
           },
         });
 
-      } else if (this.peek()?.type === 'var') {
+      } else if (this.peek()?.type === TokenType._var) {
 
         this.currentToken = this.consume();
 
         // This either happens if the identifier is not an alpha_numeric token or if the token is missing
-        if (this.peek()?.type !== 'alpha_numeric') {
+        if (this.peek()?.type !== TokenType.alpha_numeric) {
           throw new Error(`On line ${this.currentToken.line} -> Expected identifier after 'var' keyword -> Can not be a number or a reserved keyword of Radon`);
         }
 
@@ -218,13 +218,13 @@ class Parser {
           throw new Error(`On line ${identifier.line} -> Variable '${identifier.value}' has already been declared`);
         }
 
-        if (this.peek()?.type !== 'colon') {
+        if (this.peek()?.type !== TokenType.colon) {
           throw new Error(`On line ${this.currentToken.line} -> Expected ':' after identifier -> Variable type declaration is necessary in Radon`);
         }
 
         this.currentToken = this.consume();
 
-        if (this.peek()?.type !== 'dollar_sign') {
+        if (this.peek()?.type !== TokenType.dollar_sign) {
           throw new Error(`On line ${this.currentToken.line} -> Expected '$' after ':' -> Variable type declaration is necessary in Radon`);
         }
 
@@ -237,7 +237,7 @@ class Parser {
         this.currentToken = this.consume();
         const declaredVariableType = this.currentToken.value;
 
-        if (this.peek()?.type !== 'equal') {
+        if (this.peek()?.type !== TokenType.equal) {
           throw new Error(`On line ${this.currentToken.line} -> Expected '=' after identifier`);
         }
 
@@ -249,7 +249,7 @@ class Parser {
         // Exmaple: var name: $string = 'Marwin';
         // Example: var name: $char = M;
         // In case of the second example, we need to throw an error because the open_quote is missing.
-        if (this.peek()!.type === 'open_quote') {
+        if (this.peek()!.type === TokenType.quote) {
 
           this.currentToken = this.consume();
           value = this.consume();
@@ -282,7 +282,7 @@ class Parser {
         // if the last token was of type string/char then we need to check if the next token is a close_quote
         if (value.type === 'string' || value.type === 'char') {
 
-          if (this.peek()?.type !== 'close_quote') {
+          if (this.peek()?.type !== TokenType.quote) {
             throw new Error(`On line ${this.currentToken.line} -> Expected closing quote after ${value.type} value`);
           }
 
@@ -292,9 +292,9 @@ class Parser {
 
         const additionalExpressions: Token[] = [];
 
-        if (this.peek()?.type === 'plus') {
+        if (this.peek()?.type === TokenType.plus) {
 
-          while (this.peek()?.type === 'plus') {
+          while (this.peek()?.type === TokenType.plus) {
 
             this.currentToken = this.consume();
             let nextExpression = this.peek();
@@ -303,7 +303,7 @@ class Parser {
               throw new Error(`On line ${this.currentToken.line} -> Expected expression after '+' in 'var' statement`);
             }
 
-            if (this.peek()?.type === 'open_quote') {
+            if (this.peek()?.type === TokenType.quote) {
 
               this.currentToken = this.consume();
               nextExpression = this.consume();
@@ -325,7 +325,7 @@ class Parser {
 
             if (nextExpression.type === 'string' || nextExpression.type === 'char') {
 
-              if (this.peek()?.type !== 'close_quote') {
+              if (this.peek()?.type !== TokenType.quote) {
                 throw new Error(`On line ${this.currentToken.line} -> Expected closing quote after ${value.type} value`);
               }
 
@@ -346,7 +346,7 @@ class Parser {
 
         }
 
-        if (this.peek()?.type !== 'semi_colon') {
+        if (this.peek()?.type !== TokenType.semi_colon) {
           throw new Error(`On line ${this.currentToken.line} -> Expected ';' after variable declaration`);
         }
 

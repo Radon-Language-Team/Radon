@@ -4,25 +4,24 @@
  * Copyright (C) 2024 - Marwin
 */
 
-import { Token } from '../interfaces/interfaces';
+import { Token, TokensCategory } from '../interfaces/interfaces';
 // eslint-disable-next-line no-shadow
 export enum TokenType {
   quit = 'quit',
   log = 'log',
-  open_paren = 'open_paren',
-  close_paren = 'close_paren',
+  open_paren = '(',
+  close_paren = ')',
   int_literal = 'int_literal',
   alpha_numeric = 'alpha_numeric',
   char = 'char',
   string = 'string',
-  semi_colon = 'semi_colon',
+  semi_colon = ';',
   _var = 'var',
-  equal = 'equal',
-  colon = 'colon',
-  plus = 'plus',
-  dollar_sign = 'dollar_sign',
-  open_quote = 'open_quote',
-  close_quote = 'close_quote',
+  equal = '=',
+  colon = ':',
+  plus = '+',
+  dollar_sign = '$',
+  quote = '\'',
 }
 
 class Buffer {
@@ -174,19 +173,19 @@ const tokenize = (input: string): Token[] => {
         buffer.append(stream.consume());
       }
 
-      if (buffer.value === 'quit') {
-        tokens.push({ type: TokenType.quit, line: lineCount });
+      if (buffer.value === TokenType.quit) {
+        tokens.push({ type: TokenType.quit, line: lineCount, category: TokensCategory.keyword });
         buffer.clear();
-      } else if (buffer.value === 'log') {
-        tokens.push({ type: TokenType.log, line: lineCount });
+      } else if (buffer.value === TokenType.log) {
+        tokens.push({ type: TokenType.log, line: lineCount, category: TokensCategory.keyword });
         buffer.clear();
-      } else if (buffer.value === 'var') {
-        tokens.push({ type: TokenType._var, line: lineCount });
+      } else if (buffer.value === TokenType._var) {
+        tokens.push({ type: TokenType._var, line: lineCount, category: TokensCategory.keyword });
         buffer.clear();
       }
       else {
         // This should be used for variable names, function names, etc
-        tokens.push({ type: TokenType.alpha_numeric, line: lineCount, value: buffer.value });
+        tokens.push({ type: TokenType.alpha_numeric, line: lineCount, value: buffer.value, category: TokensCategory.identifier });
         buffer.clear();
       }
 
@@ -198,19 +197,19 @@ const tokenize = (input: string): Token[] => {
         buffer.append(stream.consume());
       }
 
-      tokens.push({ type: TokenType.int_literal, line: lineCount, value: buffer.value });
+      tokens.push({ type: TokenType.int_literal, line: lineCount, value: buffer.value, category: TokensCategory.int_literal });
       buffer.clear();
 
     } else if (isOperator(stream.peek())) {
 
-      if (stream.peek() === '=') {
+      if (stream.peek() === TokenType.equal) {
 
-        tokens.push({ type: TokenType.equal, line: lineCount });
+        tokens.push({ type: TokenType.equal, line: lineCount, category: TokensCategory.expression });
         stream.consume();
 
-      } else if (stream.peek() === '+') {
+      } else if (stream.peek() === TokenType.plus) {
 
-        tokens.push({ type: TokenType.plus, line: lineCount });
+        tokens.push({ type: TokenType.plus, line: lineCount, category: TokensCategory.expression });
         stream.consume();
 
       } else {
@@ -219,19 +218,19 @@ const tokenize = (input: string): Token[] => {
 
       }
 
-    } else if (stream.peek() === '(') {
+    } else if (stream.peek() === TokenType.open_paren) {
 
-      tokens.push({ type: TokenType.open_paren, line: lineCount });
+      tokens.push({ type: TokenType.open_paren, line: lineCount, category: TokensCategory.expression });
       stream.consume();
 
-    } else if (stream.peek() === ')') {
+    } else if (stream.peek() === TokenType.close_paren) {
 
-      tokens.push({ type: TokenType.close_paren, line: lineCount });
+      tokens.push({ type: TokenType.close_paren, line: lineCount, category: TokensCategory.expression });
       stream.consume();
 
-    } else if (stream.peek() === ';') {
+    } else if (stream.peek() === TokenType.semi_colon) {
 
-      tokens.push({ type: TokenType.semi_colon, line: lineCount });
+      tokens.push({ type: TokenType.semi_colon, line: lineCount, category: TokensCategory.expression });
       stream.consume();
 
     } else if (isNewLine(stream.peek())) {
@@ -245,26 +244,25 @@ const tokenize = (input: string): Token[] => {
 
     } else if (isSpecialCharacter(stream.peek())) {
 
-      if (stream.peek() === ':') {
+      if (stream.peek() === TokenType.colon) {
 
-        tokens.push({ type: TokenType.colon, line: lineCount });
+        tokens.push({ type: TokenType.colon, line: lineCount, category: TokensCategory.expression });
         stream.consume();
 
-      } else if (stream.peek() === '$') {
+      } else if (stream.peek() === TokenType.dollar_sign) {
 
-        tokens.push({ type: TokenType.dollar_sign, line: lineCount });
+        tokens.push({ type: TokenType.dollar_sign, line: lineCount, category: TokensCategory.expression });
         stream.consume();
 
-        // eslint-disable-next-line quotes
-      } else if (stream.peek() === "'") {
+      } else if (stream.peek() === TokenType.quote) {
 
-        tokens.push({ type: TokenType.open_quote, line: lineCount });
+        tokens.push({ type: TokenType.quote, line: lineCount, category: TokensCategory.expression });
         stream.consume();
 
         // Instead of leaving the loop when we encounter a single quote, we will keep consuming until we find another single quote
         // This way we can get the string value / or if the length is 1 then it's a char
         // eslint-disable-next-line quotes
-        while (stream.peek() && stream.peek() !== "'") {
+        while (stream.peek() && stream.peek() !== '\'') {
 
           buffer.append(stream.consume());
 
@@ -274,23 +272,22 @@ const tokenize = (input: string): Token[] => {
           throw new Error('Unexpected end of input -> Expected a closing quote');
         }
 
-        // eslint-disable-next-line quotes
-        if (stream.peek() === "'") {
+        if (stream.peek() === TokenType.quote) {
 
           if (buffer.value.length === 1) {
 
-            tokens.push({ type: TokenType.char, line: lineCount, value: buffer.value });
+            tokens.push({ type: TokenType.char, line: lineCount, value: buffer.value, category: TokensCategory.char });
             buffer.clear();
 
           } else {
 
-            tokens.push({ type: TokenType.string, line: lineCount, value: buffer.value });
+            tokens.push({ type: TokenType.string, line: lineCount, value: buffer.value, category: TokensCategory.string });
             buffer.clear();
 
           }
 
           stream.consume();
-          tokens.push({ type: TokenType.close_quote, line: lineCount });
+          tokens.push({ type: TokenType.quote, line: lineCount, category: TokensCategory.expression });
 
           // we have successfully consumed the string/char and now need to check for the next token
           // We move out of the loop and continue with the next token
