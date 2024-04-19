@@ -5,6 +5,12 @@
  * Copyright (C) 2024 - Marwin
 */
 
+/**
+ * The TokenType enum is used to categorize the types of tokens
+ * 
+ * It allows us to translate the token into a more readable format
+ * Like open_paren to ( or close_paren to )
+ */
 export enum TokenType {
   quit = 'quit',
   log = 'log',

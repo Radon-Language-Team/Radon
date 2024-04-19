@@ -170,7 +170,7 @@ const tokenize = (input: string): Token[] => {
         // Instead of leaving the loop when we encounter a single quote, we will keep consuming until we find another single quote
         // This way we can get the string value / or if the length is 1 then it's a char
         // eslint-disable-next-line quotes
-        while (stream.peek() && stream.peek() !== '\'') {
+        while (stream.peek() && stream.peek() !== TokenType.quote) {
 
           buffer.append(stream.consume());
 
