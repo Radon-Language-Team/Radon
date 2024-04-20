@@ -1,8 +1,2 @@
-var name: $string = 'Marwin' + ' Eder';
-
-var x: $int = 10;
-var y: $int = 20;
-
-var result: $int = x + y;
-log(result);
+var name: $string = 'Marwin';
 log(name);

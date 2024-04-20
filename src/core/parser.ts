@@ -9,11 +9,13 @@ import { Token, Nodes, validVariableTypes, validVariableTypesEnum } from '../int
 import { TokenType } from '../interfaces/interfaces';
 import throwError from '../lib/errors/throwError';
 
-class Parser {
+import parseVariable from '../lib/parser/parseVariable';
 
-  private tokens: Token[];
-  private index: number;
-  private currentToken: Token;
+export default class Parser {
+
+  protected tokens: Token[];
+  protected index: number;
+  protected currentToken: Token;
   private parsedStatements: Nodes[] = [];
 
   constructor(tokens: Token[]) {
@@ -207,6 +209,16 @@ class Parser {
 
       } else if (this.peek()?.type === TokenType._var) {
 
+        // Pass in the tokens at the current index. So we can start where the 'var' keyword is
+        
+        const parsedVariable = parseVariable(this.tokens.slice(this.index));
+        if (!parsedVariable.success) {
+          return throwError('Parser', `Failed to parse variable declaration`, this.currentToken.line);
+        }
+
+        // TODO: Implement the logic for parsing the variable declaration so so we can remove code from this file
+        // This way, we can keep the code clean and modular
+
         this.currentToken = this.consume();
 
         // This either happens if the identifier is not an alpha_numeric token or if the token is missing
@@ -377,5 +389,3 @@ class Parser {
   }
 
 }
-
-export default Parser;
