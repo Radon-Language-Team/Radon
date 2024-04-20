@@ -1,3 +1,4 @@
+/* eslint-disable quotes */
 /**
  * RADON COMPILER
  *
@@ -6,6 +7,7 @@
 
 import { Token, Nodes, validVariableTypes, validVariableTypesEnum } from '../interfaces/interfaces';
 import { TokenType } from '../interfaces/interfaces';
+import throwError from '../lib/errors/throwError';
 
 class Parser {
 
@@ -73,36 +75,36 @@ class Parser {
 
     while (this.peek()) {
 
-      if (this.peek()?.type === 'quit') {
+      if (this.peek()?.type === TokenType.quit) {
 
         this.currentToken = this.consume();
 
         if (this.peek()?.type !== TokenType.open_paren) {
-          throw new Error(`On line ${this.currentToken.line} -> Expected '(' after 'quit' statement`);
+          return throwError('Parser', `Expected '(' after 'quit' statement`, this.currentToken.line);
         }
 
         this.currentToken = this.consume();
         const expression = this.consume();
 
         if (!validExpressionType.includes(expression.type)) {
-          throw new Error(`On line ${expression.line} -> Expected integer literal or identifier after '(' in 'quit' statement`);
+          return throwError('Parser', `Expected integer literal or identifier after '(' in 'quit' statement`, expression.line);
         }
 
         // Check if the variable is initialized -> Only alpha_numeric tokens can be uninitialized
-        if (expression.type === 'alpha_numeric') {
+        if (expression.type === TokenType.alpha_numeric) {
           if (!this.checkIfInitialized(expression.value)) {
-            throw new Error(`On line ${expression.line} -> Variable '${expression.value}' is not initialized`);
+            return throwError('Parser', `Variable '${expression.value}' is not initialized`, expression.line);
           }
         }
 
         if (this.peek()?.type !== TokenType.close_paren) {
-          throw new Error(`On line ${this.currentToken.line} -> Expected ')' after integer literal in 'quit' statement`);
+          return throwError('Parser', `Expected ')' after integer literal in 'quit' statement`, this.currentToken.line);
         }
 
         this.currentToken = this.consume();
 
         if (this.peek()?.type !== TokenType.semi_colon) {
-          throw new Error(`On line ${this.currentToken.line} -> Expected ';' after 'quit' statement`);
+          return throwError('Parser', `Expected ';' after 'quit' statement`, this.currentToken.line);
         }
 
         this.currentToken = this.consume();
@@ -117,27 +119,27 @@ class Parser {
         });
 
         if (this.peek()) {
-          throw new Error(`Token '${this.peek()?.type}' on line ${this.peek()?.line} is unreachable -> Expected end of file or scope`);
+          return throwError('Parser', `Token '${this.peek()?.type}' is unreachable -> Expected end of file or scope`, this.peek()!.line);
         }
 
-      } else if (this.peek()?.type === 'log') {
+      } else if (this.peek()?.type === TokenType.log) {
 
         this.currentToken = this.consume();
 
         if (this.peek()?.type !== TokenType.open_paren) {
-          throw new Error(`On line ${this.currentToken.line} -> Expected '(' after 'log' statement`);
+          return throwError('Parser', `Expected '(' after 'log' statement`, this.currentToken.line);
         }
 
         this.currentToken = this.consume();
         const expression = this.consume();
 
         if (!validExpressionType.includes(expression.type)) {
-          throw new Error(`On line ${expression.line} -> Expected integer literal or identifier after '(' in 'log' statement`);
+          return throwError('Parser', `Expected integer literal or identifier after '(' in 'log' statement`, expression.line);
         }
 
         if (expression.type === TokenType.alpha_numeric) {
           if (!this.checkIfInitialized(expression.value)) {
-            throw new Error(`On line ${expression.line} -> Variable '${expression.value}' is not initialized`);
+            return throwError('Parser', `Variable '${expression.value}' is not initialized`, expression.line);
           }
         }
 
@@ -151,16 +153,17 @@ class Parser {
             const nextExpression = this.peek();
 
             if (!nextExpression) {
-              throw new Error(`On line ${this.currentToken.line} -> Expected expression after '+' in 'log' statement`);
+              throwError('Parser', `Expected expression after '+' in 'log' statement`, this.currentToken.line);
+              return;
             }
 
             if (!validExpressionType.includes(nextExpression.type)) {
-              throw new Error(`On line ${nextExpression.line} -> Expected integer literal or identifier after '+' in 'log' statement`);
+              return throwError('Parser', `Expected integer literal or identifier after '+' in 'log' statement`, nextExpression.line);
             }
 
             if (nextExpression.type === 'alpha_numeric') {
               if (!this.checkIfInitialized(nextExpression.value)) {
-                throw new Error(`On line ${nextExpression.line} -> Variable '${nextExpression.value}' is not initialized`);
+                return throwError('Parser', `Variable '${nextExpression.value}' is not initialized`, nextExpression.line);
               }
             }
 
@@ -168,7 +171,7 @@ class Parser {
             const nextExpressionType = this.returnVariableType(nextExpression.value) ?? validVariableTypesEnum[nextExpression.type as keyof typeof validVariableTypesEnum];
 
             if (previousExpressionType !== nextExpressionType) {
-              throw new Error(`On line ${this.currentToken.line} -> Expected same types for addition & concatenation -> Got '${previousExpressionType}' and '${nextExpressionType}'`);
+              return throwError('Parser', `Expected same types for addition & concatenation -> Got '${previousExpressionType}' and '${nextExpressionType}'`, this.currentToken.line);
             }
 
             this.currentToken = this.consume();
@@ -179,13 +182,13 @@ class Parser {
         }
 
         if (this.peek()?.type !== TokenType.close_paren) {
-          throw new Error(`On line ${this.currentToken.line} -> Expected ')' after integer literal in 'log' statement`);
+          return throwError('Parser', `Expected ')' after integer literal in 'log' statement`, this.currentToken.line);
         }
 
         this.currentToken = this.consume();
 
         if (this.peek()?.type !== TokenType.semi_colon) {
-          throw new Error(`On line ${this.currentToken.line} -> Expected ';' after 'log' statement`);
+          return throwError('Parser', `Expected ';' after 'log' statement`, this.currentToken.line);
         }
 
         this.currentToken = this.consume();
@@ -208,37 +211,37 @@ class Parser {
 
         // This either happens if the identifier is not an alpha_numeric token or if the token is missing
         if (this.peek()?.type !== TokenType.alpha_numeric) {
-          throw new Error(`On line ${this.currentToken.line} -> Expected identifier after 'var' keyword -> Can not be a number or a reserved keyword of Radon`);
+          return throwError('Parser', `Expected identifier after 'var' keyword -> Can not be a number or a reserved keyword of Radon`, this.currentToken.line);
         }
 
         const identifier = this.consume();
 
         // Check if the identifier is already declared
         if (this.checkIfInitialized(identifier.value)) {
-          throw new Error(`On line ${identifier.line} -> Variable '${identifier.value}' has already been declared`);
+          return throwError('Parser', `Variable '${identifier.value}' has already been declared`, identifier.line);
         }
 
         if (this.peek()?.type !== TokenType.colon) {
-          throw new Error(`On line ${this.currentToken.line} -> Expected ':' after identifier -> Variable type declaration is necessary in Radon`);
+          return throwError('Parser', `Expected ':' after identifier -> Variable type declaration is necessary in Radon`, this.currentToken.line);
         }
 
         this.currentToken = this.consume();
 
         if (this.peek()?.type !== TokenType.dollar_sign) {
-          throw new Error(`On line ${this.currentToken.line} -> Expected '$' after ':' -> Variable type declaration is necessary in Radon`);
+          return throwError('Parser', `Expected '$' after ':' -> Variable type declaration is necessary in Radon`, this.currentToken.line);
         }
 
         this.currentToken = this.consume();
 
         if (validVariableTypes.includes(this.peek()?.value as string) === false) {
-          throw new Error(`On line ${this.currentToken.line} -> Expected valid variable type after identifier ${identifier.value}`);
+          return throwError('Parser', `Expected valid variable type after identifier '${identifier.value}'`, this.currentToken.line);
         }
 
         this.currentToken = this.consume();
         const declaredVariableType = this.currentToken.value;
 
         if (this.peek()?.type !== TokenType.equal) {
-          throw new Error(`On line ${this.currentToken.line} -> Expected '=' after identifier`);
+          return throwError('Parser', `Expected '=' after identifier`, this.currentToken.line);
         }
 
         this.currentToken = this.consume();
@@ -258,7 +261,7 @@ class Parser {
 
           // Check if the variable is initialized
           if (!this.checkIfInitialized(this.peek()?.value)) {
-            throw new Error(`On line ${this.peek()?.line} -> Variable '${this.peek()?.value}' is not initialized`);
+            return throwError('Parser', `Variable '${this.peek()?.value}' is not initialized`, this.peek()!.line);
           } else {
             value = this.peek();
             this.currentToken = this.consume();
@@ -270,7 +273,7 @@ class Parser {
         }
 
         if (!value) {
-          throw new Error(`On line ${this.currentToken.line} -> Expected value after '=' in 'var' statement`);
+          return throwError('Parser', `Expected value after '=' in 'var' statement`, this.currentToken.line);
         }
 
         const givenValueType = this.returnVariableType(value.value) || validVariableTypesEnum[value.type as keyof typeof validVariableTypesEnum];
@@ -283,7 +286,7 @@ class Parser {
         if (value.type === TokenType.string || value.type === TokenType.char) {
 
           if (this.peek()?.type !== TokenType.quote) {
-            throw new Error(`On line ${this.currentToken.line} -> Expected closing quote after ${value.type} value`);
+            return throwError('Parser', `Expected closing quote after ${value.type} value`, this.currentToken.line);
           }
 
           this.currentToken = this.consume();
@@ -300,7 +303,7 @@ class Parser {
             let nextExpression = this.peek();
 
             if (!nextExpression) {
-              throw new Error(`On line ${this.currentToken.line} -> Expected expression after '+' in 'var' statement`);
+              return throwError('Parser', `Expected expression after '+' in 'var' statement`, this.currentToken.line);
             }
 
             if (this.peek()?.type === TokenType.quote) {
@@ -312,7 +315,7 @@ class Parser {
 
               // Could be a variable that is not initialized
               if (!this.checkIfInitialized(nextExpression.value)) {
-                throw new Error(`On line ${nextExpression.line} -> Variable '${nextExpression.value}' is not initialized`);
+                return throwError('Parser', `Variable '${nextExpression.value}' is not initialized`, nextExpression.line);
               } else {
                 nextExpression = this.consume();
               }
@@ -326,7 +329,7 @@ class Parser {
             if (nextExpression.type === TokenType.string || nextExpression.type === TokenType.char) {
 
               if (this.peek()?.type !== TokenType.quote) {
-                throw new Error(`On line ${this.currentToken.line} -> Expected closing quote after ${value.type} value`);
+                return throwError('Parser', `Expected closing quote after ${value.type} value`, this.currentToken.line);
               }
 
               this.currentToken = this.consume();
@@ -337,7 +340,7 @@ class Parser {
             const nextExpressionType = this.returnVariableType(nextExpression.value) ?? validVariableTypesEnum[nextExpression.type as keyof typeof validVariableTypesEnum];
 
             if (previousExpressionType !== nextExpressionType) {
-              throw new Error(`On line ${this.currentToken.line} -> Expected same types for addition & concatenation -> Got '${previousExpressionType}' and '${nextExpressionType}'`);
+              return throwError('Parser', `Expected same types for addition & concatenation -> Got '${previousExpressionType}' and '${nextExpressionType}'`, this.currentToken.line);
             }
 
             additionalExpressions.push(nextExpression);
@@ -347,7 +350,7 @@ class Parser {
         }
 
         if (this.peek()?.type !== TokenType.semi_colon) {
-          throw new Error(`On line ${this.currentToken.line} -> Expected ';' after variable declaration`);
+          return throwError('Parser', `Expected ';' after variable declaration`, this.currentToken.line);
         }
 
         this.currentToken = this.consume();
@@ -364,7 +367,7 @@ class Parser {
         });
 
       } else {
-        throw new Error(`Unexpected token '${this.currentToken.value}' on line ${this.currentToken.line}`);
+        return throwError('Parser', `Unexpected token '${this.currentToken.value}'`, this.currentToken.line);
       }
 
     }

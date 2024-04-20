@@ -5,6 +5,7 @@
 */
 
 import { Nodes, TokenType } from '../interfaces/interfaces';
+import throwError from '../lib/errors/throwError';
 
 class Generator {
 
@@ -14,14 +15,14 @@ class Generator {
     this.parsedStatements = parsedStatements;
   }
 
-  public generate(): string {
+  public generate(): string | undefined {
 
     const validExpressionTypes = ['int_literal', 'alpha_numeric'];
     let generatedCode = '';
 
     if (!this.parsedStatements) {
 
-      throw new Error('No parsed statements to generate code from');
+      return throwError('Generator', 'No parsed statements to generate code from', undefined);
 
     }
 

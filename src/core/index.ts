@@ -43,12 +43,23 @@ const compiler = async () => {
 
       const tokens = tokenize(content);
       // console.log('Tokens: ', tokens);
+
+      if (!tokens) {
+        console.log('No tokens found');
+        process.exit(1);
+      }
+
       const parser = new Parser(tokens);
       // console.log('Parser: ', parser);
       const ast = parser.parse();
       // console.log('AST: ', ast);
       const generatedCode = new Generator(ast);
       const codeToWrite = generatedCode.generate();
+
+      if (!codeToWrite) {
+        console.log('No code to write');
+        process.exit(1);
+      }
 
 
       const fileName = fileToRead.split('.')[0];
@@ -71,11 +82,13 @@ const compiler = async () => {
       console.log(`[SUCCESS] File ${fileName}.js written to ${outputPath} successfully!`);
 
     } catch (error) {
-
-      console.log('Radon TOKENIZATION || PARSER:\n\n', error);
+      
+      console.log(error);
       process.exit(1);
 
-    } finally {
+    }
+    
+    finally {
 
       process.exit(0);
 

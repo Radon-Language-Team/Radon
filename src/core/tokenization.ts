@@ -6,6 +6,7 @@
 
 import { Token, TokenCategory, TokenType } from '../interfaces/interfaces';
 import { isAlnum, isInt, isOperator, isSpecialCharacter, isWhitespace, isNewLine } from '../lib/tokenizer/isWhatToken';
+import throwError from '../lib/errors/throwError';
 
 class Buffer {
 
@@ -63,7 +64,7 @@ class CharacterStream {
  * @param input {string} - The input to tokenize
  * @returns {Token[]} - The list of tokens
  */
-const tokenize = (input: string): Token[] => {
+const tokenize = (input: string): Token[] | undefined => {
 
   const tokens: Token[] = [];
   const stream = new CharacterStream(input);
@@ -122,7 +123,7 @@ const tokenize = (input: string): Token[] => {
 
       } else {
 
-        throw new Error(`Unexpected character -> ${stream.peek()}`);
+        return throwError('Tokenizer', `Unexpected character -> ${stream.peek()}`, lineCount);
 
       }
 
@@ -177,7 +178,7 @@ const tokenize = (input: string): Token[] => {
         }
 
         if (stream.peek() === undefined) {
-          throw new Error('Unexpected end of input -> Expected a closing quote');
+          return throwError('Tokenizer', 'Unexpected end of input -> Expected a closing quote', lineCount);
         }
 
         if (stream.peek() === TokenType.quote) {
@@ -202,14 +203,14 @@ const tokenize = (input: string): Token[] => {
           continue;
 
         } else {
-          throw new Error(`Unexpected character at line ${lineCount} -> ${stream.peek()} -> Expected a closing quote`);
+          return throwError('Tokenizer', `Unexpected character -> ${stream.peek()} -> Expected a closing quote`, lineCount);
         }
 
       }
 
     } else {
 
-      throw new Error(`Unexpected character -> ${stream.peek()}`);
+      return throwError('Tokenizer', `Unexpected character -> ${stream.peek()}`, lineCount);
 
     }
 
