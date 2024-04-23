@@ -5,7 +5,7 @@
  * Copyright (C) 2024 - Marwin
 */
 
-import { Token, Nodes, validVariableTypes, validVariableTypesEnum } from '../interfaces/interfaces';
+import { Token, Nodes, validVariableTypesEnum } from '../interfaces/interfaces';
 import { TokenType } from '../interfaces/interfaces';
 import throwError from '../lib/errors/throwError';
 
@@ -210,173 +210,170 @@ export default class Parser {
       } else if (this.peek()?.type === TokenType._var) {
 
         // Pass in the tokens at the current index. So we can start where the 'var' keyword is
-        
-        const parsedVariable = parseVariable(this.tokens.slice(this.index));
-        if (!parsedVariable.success) {
-          return throwError('Parser', `Failed to parse variable declaration`, this.currentToken.line);
+        const parsedVariable = parseVariable(this.tokens.slice(this.index), this.parsedStatements);
+
+        if (!parsedVariable.success || !parsedVariable.node?.identifier || !parsedVariable.node.value) {
+          return throwError('Parser', `Failed to parse variable declaration: ${parsedVariable.errorMessage}`, this.currentToken.line);
         }
-
-        // TODO: Implement the logic for parsing the variable declaration so so we can remove code from this file
-        // This way, we can keep the code clean and modular
-
-        this.currentToken = this.consume();
-
-        // This either happens if the identifier is not an alpha_numeric token or if the token is missing
-        if (this.peek()?.type !== TokenType.alpha_numeric) {
-          return throwError('Parser', `Expected identifier after 'var' keyword -> Can not be a number or a reserved keyword of Radon`, this.currentToken.line);
-        }
-
-        const identifier = this.consume();
-
-        // Check if the identifier is already declared
-        if (this.checkIfInitialized(identifier.value)) {
-          return throwError('Parser', `Variable '${identifier.value}' has already been declared`, identifier.line);
-        }
-
-        if (this.peek()?.type !== TokenType.colon) {
-          return throwError('Parser', `Expected ':' after identifier -> Variable type declaration is necessary in Radon`, this.currentToken.line);
-        }
-
-        this.currentToken = this.consume();
-
-        if (this.peek()?.type !== TokenType.dollar_sign) {
-          return throwError('Parser', `Expected '$' after ':' -> Variable type declaration is necessary in Radon`, this.currentToken.line);
-        }
-
-        this.currentToken = this.consume();
-
-        if (validVariableTypes.includes(this.peek()?.value as string) === false) {
-          return throwError('Parser', `Expected valid variable type after identifier '${identifier.value}'`, this.currentToken.line);
-        }
-
-        this.currentToken = this.consume();
-        const declaredVariableType = this.currentToken.value;
-
-        if (this.peek()?.type !== TokenType.equal) {
-          return throwError('Parser', `Expected '=' after identifier`, this.currentToken.line);
-        }
-
-        this.currentToken = this.consume();
-        let value: Token | undefined = undefined;
-
-        // We need to check if the next token is a char/string or the next token after that is a char/string
-        // That way, we can ignore the open_quote and close_quote tokens
-        // Exmaple: var name: $string = 'Marwin';
-        // Example: var name: $char = M;
-        // In case of the second example, we need to throw an error because the open_quote is missing.
-        if (this.peek()!.type === TokenType.quote) {
-
-          this.currentToken = this.consume();
-          value = this.consume();
-
-        } else if (this.peek()!.type === TokenType.alpha_numeric) {
-
-          // Check if the variable is initialized
-          if (!this.checkIfInitialized(this.peek()?.value)) {
-            return throwError('Parser', `Variable '${this.peek()?.value}' is not initialized`, this.peek()!.line);
-          } else {
-            value = this.peek();
-            this.currentToken = this.consume();
-          }
-
-        } else {
-          // Last token was not a variable nor a string/char -> It must be an int_literal or something that can be consumed right away
-          value = this.consume();
-        }
-
-        if (!value) {
-          return throwError('Parser', `Expected value after '=' in 'var' statement`, this.currentToken.line);
-        }
-
-        const givenValueType = this.returnVariableType(value.value) || validVariableTypesEnum[value.type as keyof typeof validVariableTypesEnum];
-
-        if (declaredVariableType !== givenValueType) {
-          throw new Error(`On line ${value.line} -> Expected value of type '${declaredVariableType}' but got '${givenValueType}'`);
-        }
-
-        // if the last token was of type string/char then we need to check if the next token is a close_quote
-        if (value.type === TokenType.string || value.type === TokenType.char) {
-
-          if (this.peek()?.type !== TokenType.quote) {
-            return throwError('Parser', `Expected closing quote after ${value.type} value`, this.currentToken.line);
-          }
-
-          this.currentToken = this.consume();
-
-        }
-
-        const additionalExpressions: Token[] = [];
-
-        if (this.peek()?.type === TokenType.plus) {
-
-          while (this.peek()?.type === TokenType.plus) {
-
-            this.currentToken = this.consume();
-            let nextExpression = this.peek();
-
-            if (!nextExpression) {
-              return throwError('Parser', `Expected expression after '+' in 'var' statement`, this.currentToken.line);
-            }
-
-            if (this.peek()?.type === TokenType.quote) {
-
-              this.currentToken = this.consume();
-              nextExpression = this.consume();
-
-            } else if (this.peek()?.type === TokenType.alpha_numeric) {
-
-              // Could be a variable that is not initialized
-              if (!this.checkIfInitialized(nextExpression.value)) {
-                return throwError('Parser', `Variable '${nextExpression.value}' is not initialized`, nextExpression.line);
-              } else {
-                nextExpression = this.consume();
-              }
-
-            } else if (this.peek()?.type === TokenType.int_literal) {
-
-              this.currentToken = this.consume();
-
-            }
-
-            if (nextExpression.type === TokenType.string || nextExpression.type === TokenType.char) {
-
-              if (this.peek()?.type !== TokenType.quote) {
-                return throwError('Parser', `Expected closing quote after ${value.type} value`, this.currentToken.line);
-              }
-
-              this.currentToken = this.consume();
-
-            }
-
-            const previousExpressionType = this.returnVariableType(value.value) ?? validVariableTypesEnum[value.type as keyof typeof validVariableTypesEnum];
-            const nextExpressionType = this.returnVariableType(nextExpression.value) ?? validVariableTypesEnum[nextExpression.type as keyof typeof validVariableTypesEnum];
-
-            if (previousExpressionType !== nextExpressionType) {
-              return throwError('Parser', `Expected same types for addition & concatenation -> Got '${previousExpressionType}' and '${nextExpressionType}'`, this.currentToken.line);
-            }
-
-            additionalExpressions.push(nextExpression);
-
-          }
-
-        }
-
-        if (this.peek()?.type !== TokenType.semi_colon) {
-          return throwError('Parser', `Expected ';' after variable declaration`, this.currentToken.line);
-        }
-
-        this.currentToken = this.consume();
 
         this.parsedStatements.push({
           variableDeclaration: {
             token: TokenType._var,
-            identifier: identifier,
-            value: value,
-            additionalExpressions: {
-              tokens: additionalExpressions,
-            },
+            identifier: parsedVariable.node?.identifier,
+            value: parsedVariable.node?.value,
           },
         });
+
+        // Increment the index by the amount of tokens that were consumed so the parser can continue at the right position
+        this.index += parsedVariable.consumedTokens;
+
+        // this.currentToken = this.consume();
+
+        // // This either happens if the identifier is not an alpha_numeric token or if the token is missing
+        // if (this.peek()?.type !== TokenType.alpha_numeric) {
+        //   return throwError('Parser', `Expected identifier after 'var' keyword -> Can not be a number or a reserved keyword of Radon`, this.currentToken.line);
+        // }
+
+        // const identifier = this.consume();
+
+        // // Check if the identifier is already declared
+        // if (this.checkIfInitialized(identifier.value)) {
+        //   return throwError('Parser', `Variable '${identifier.value}' has already been declared`, identifier.line);
+        // }
+
+        // if (this.peek()?.type !== TokenType.colon) {
+        //   return throwError('Parser', `Expected ':' after identifier -> Variable type declaration is necessary in Radon`, this.currentToken.line);
+        // }
+
+        // this.currentToken = this.consume();
+
+        // if (this.peek()?.type !== TokenType.dollar_sign) {
+        //   return throwError('Parser', `Expected '$' after ':' -> Variable type declaration is necessary in Radon`, this.currentToken.line);
+        // }
+
+        // this.currentToken = this.consume();
+
+        // if (validVariableTypes.includes(this.peek()?.value as string) === false) {
+        //   return throwError('Parser', `Expected valid variable type after identifier '${identifier.value}'`, this.currentToken.line);
+        // }
+
+        // this.currentToken = this.consume();
+        // const declaredVariableType = this.currentToken.value;
+
+        // if (this.peek()?.type !== TokenType.equal) {
+        //   return throwError('Parser', `Expected '=' after identifier`, this.currentToken.line);
+        // }
+
+        // this.currentToken = this.consume();
+        // let value: Token | undefined = undefined;
+
+        // // We need to check if the next token is a char/string or the next token after that is a char/string
+        // // That way, we can ignore the open_quote and close_quote tokens
+        // // Exmaple: var name: $string = 'Marwin';
+        // // Example: var name: $char = M;
+        // // In case of the second example, we need to throw an error because the open_quote is missing.
+        // if (this.peek()!.type === TokenType.quote) {
+
+        //   this.currentToken = this.consume();
+        //   value = this.consume();
+
+        // } else if (this.peek()!.type === TokenType.alpha_numeric) {
+
+        //   // Check if the variable is initialized
+        //   if (!this.checkIfInitialized(this.peek()?.value)) {
+        //     return throwError('Parser', `Variable '${this.peek()?.value}' is not initialized`, this.peek()!.line);
+        //   } else {
+        //     value = this.peek();
+        //     this.currentToken = this.consume();
+        //   }
+
+        // } else {
+        //   // Last token was not a variable nor a string/char -> It must be an int_literal or something that can be consumed right away
+        //   value = this.consume();
+        // }
+
+        // if (!value) {
+        //   return throwError('Parser', `Expected value after '=' in 'var' statement`, this.currentToken.line);
+        // }
+
+        // const givenValueType = this.returnVariableType(value.value) || validVariableTypesEnum[value.type as keyof typeof validVariableTypesEnum];
+
+        // if (declaredVariableType !== givenValueType) {
+        //   throw new Error(`On line ${value.line} -> Expected value of type '${declaredVariableType}' but got '${givenValueType}'`);
+        // }
+
+        // // if the last token was of type string/char then we need to check if the next token is a close_quote
+        // if (value.type === TokenType.string || value.type === TokenType.char) {
+
+        //   if (this.peek()?.type !== TokenType.quote) {
+        //     return throwError('Parser', `Expected closing quote after ${value.type} value`, this.currentToken.line);
+        //   }
+
+        //   this.currentToken = this.consume();
+
+        // }
+
+        // const additionalExpressions: Token[] = [];
+
+        // if (this.peek()?.type === TokenType.plus) {
+
+        //   while (this.peek()?.type === TokenType.plus) {
+
+        //     this.currentToken = this.consume();
+        //     let nextExpression = this.peek();
+
+        //     if (!nextExpression) {
+        //       return throwError('Parser', `Expected expression after '+' in 'var' statement`, this.currentToken.line);
+        //     }
+
+        //     if (this.peek()?.type === TokenType.quote) {
+
+        //       this.currentToken = this.consume();
+        //       nextExpression = this.consume();
+
+        //     } else if (this.peek()?.type === TokenType.alpha_numeric) {
+
+        //       // Could be a variable that is not initialized
+        //       if (!this.checkIfInitialized(nextExpression.value)) {
+        //         return throwError('Parser', `Variable '${nextExpression.value}' is not initialized`, nextExpression.line);
+        //       } else {
+        //         nextExpression = this.consume();
+        //       }
+
+        //     } else if (this.peek()?.type === TokenType.int_literal) {
+
+        //       this.currentToken = this.consume();
+
+        //     }
+
+        //     if (nextExpression.type === TokenType.string || nextExpression.type === TokenType.char) {
+
+        //       if (this.peek()?.type !== TokenType.quote) {
+        //         return throwError('Parser', `Expected closing quote after ${value.type} value`, this.currentToken.line);
+        //       }
+
+        //       this.currentToken = this.consume();
+
+        //     }
+
+        //     const previousExpressionType = this.returnVariableType(value.value) ?? validVariableTypesEnum[value.type as keyof typeof validVariableTypesEnum];
+        //     const nextExpressionType = this.returnVariableType(nextExpression.value) ?? validVariableTypesEnum[nextExpression.type as keyof typeof validVariableTypesEnum];
+
+        //     if (previousExpressionType !== nextExpressionType) {
+        //       return throwError('Parser', `Expected same types for addition & concatenation -> Got '${previousExpressionType}' and '${nextExpressionType}'`, this.currentToken.line);
+        //     }
+
+        //     additionalExpressions.push(nextExpression);
+
+        //   }
+
+        // }
+
+        // if (this.peek()?.type !== TokenType.semi_colon) {
+        //   return throwError('Parser', `Expected ';' after variable declaration`, this.currentToken.line);
+        // }
+
+        // this.currentToken = this.consume();
 
       } else {
         return throwError('Parser', `Unexpected token '${this.currentToken.value}'`, this.currentToken.line);

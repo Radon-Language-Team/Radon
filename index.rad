@@ -1,2 +1,0 @@
-var name: $string = 'Marwin';
-log(name);
