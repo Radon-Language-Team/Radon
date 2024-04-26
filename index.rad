@@ -1,0 +1,9 @@
+var x: $int = 10;
+var y: $int = 20;
+
+var a: $string = 'Hello';
+var b: $char = 'A';
+
+log(x + y);
+log(a);
+log(b);

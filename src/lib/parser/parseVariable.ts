@@ -120,7 +120,7 @@ const parseVariable = (tokens: Token[], parsedStatements: Nodes[] | undefined): 
         console.log('Invalid type - Not the same');
         break;
       }
-    } else if (peek()?.type === TokenType.quote && peek(2)?.category === TokenCategory.char && TokenCategory.string && peek(3)?.type === TokenType.quote) {
+    } else if (peek()?.type === TokenType.quote && peek(1)?.category === TokenCategory.char || TokenCategory.string && peek(2)?.type === TokenType.quote) {
       // Consume the '
       currentToken = consume();
 
@@ -132,6 +132,9 @@ const parseVariable = (tokens: Token[], parsedStatements: Nodes[] | undefined): 
         console.log('Invalid type - Not the same 2');
         break;
       }
+
+      // Consume the closing '
+      currentToken = consume();
     } else {
       console.log('Invalid type - Not a number or a string/char');
       break;
@@ -139,7 +142,7 @@ const parseVariable = (tokens: Token[], parsedStatements: Nodes[] | undefined): 
 
     // TODO: Implement support for concatenation of strings and addition of numbers
     if (peek()?.type !== TokenType.semi_colon) {
-      console.log('Expected semicolon');
+      console.log(`Expected semicolon, got ${peek()?.type}`);
       break;
     } else {
       // Consume the semicolon
@@ -153,7 +156,7 @@ const parseVariable = (tokens: Token[], parsedStatements: Nodes[] | undefined): 
   if (!variableIdentifier.value || !variableValue.value) {
     return {
       success: false,
-      errorMessage: 'Unable to parse either the variable identifier or the variable value',
+      errorMessage: 'Invalid variable declaration',
       node: undefined,
       consumedTokens,
     };
