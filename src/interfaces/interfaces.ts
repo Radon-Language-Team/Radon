@@ -27,6 +27,10 @@ export enum TokenType {
   plus = '+',
   dollar_sign = '$',
   quote = '\'',
+  exclamation_mark = '!',
+  single_line_comment = '!!',
+  multi_line_comment_start = '!!*',
+  multi_line_comment_end = '*!!',
 }
 
 export const validVariableTypes = ['int', 'string', 'char'];
@@ -64,6 +68,8 @@ export enum TokenCategory {
   identifier = 'identifier',
   // This is a keyword, like quit or log
   keyword = 'keyword',
+  // This is a comment, like !! or !!* ... *!!
+  comment = 'comment'
 }
 
 /**
@@ -105,8 +111,14 @@ export interface NodeVariableDeclaration {
   additionalExpressions?: AdditionalTokens;
 }
 
+export interface SingleLineComment {
+  token: TokenType;
+  value: string;
+}
+
 export interface Nodes {
   quitStatement?: NodeQuitStatement;
   logStatement?: NodeLogStatement;
   variableDeclaration?: NodeVariableDeclaration;
+  singleLineComment?: SingleLineComment;
 }

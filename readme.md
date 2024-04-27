@@ -24,26 +24,24 @@ _This is a work in progress and more features will be added soon._
 ## Example
 
 ```Radon
-var a: $string = 'Hello, ';
-var b: $string = 'world';
-var c: $int = 5;
-var d: $int = 10;
+!! Define two variables of type $int and assign them values 10 and 20.
+var x: $int = 10;
+var y: $int = 20;
 
-var e: $string = a + b + ' how are you?';
-var f: $int = c + d + 5;
+!! Define a variable of type $string and assign it a value 'Hello'.
+var a: $string = 'Hello';
+var b: $char = 'A';
 
-var x: $int = 5;
-var y: $int = 10;
-
-log(e);
-log(x + y + 5);
-log(f);
+!! Print the sum of the two variables of type $int and the two variables of type $string.
+log(x + y);
+log(a);
+log(b);
 ```
 
 > [!NOTE]
 > The above code will output:<br>
 > ```Hello, world how are you?```<br>
-> ```20```
+> ```20``` <br>
 > ```20```
 
 > [!IMPORTANT]

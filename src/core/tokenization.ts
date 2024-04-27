@@ -206,6 +206,29 @@ const tokenize = (input: string): Token[] | undefined => {
           return throwError('Tokenizer', `Unexpected character -> ${stream.peek()} -> Expected a closing quote`, lineCount);
         }
 
+      } else if (stream.peek() === TokenType.exclamation_mark) {
+
+        stream.consume();
+
+        // Check if it's a single line comment -> !!
+        if (stream.peek() === TokenType.exclamation_mark) {
+
+          stream.consume();
+
+          // We consume until the end of the line
+          while (stream.peek() && !isNewLine(stream.peek())) {
+
+            buffer.append(stream.consume());
+
+          }
+
+          console.log(buffer.value);
+
+          tokens.push({ type: TokenType.single_line_comment, line: lineCount, value: buffer.value, category: TokenCategory.comment });
+          buffer.clear();
+
+        }
+
       }
 
     } else {

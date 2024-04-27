@@ -28,7 +28,13 @@ class Generator {
 
     for (const statement of this.parsedStatements) {
 
-      if (statement.quitStatement) {
+      if (statement.singleLineComment) {
+
+        if (statement.singleLineComment.token === TokenType.single_line_comment) {
+          generatedCode += `// ${statement.singleLineComment.value}`;
+        }
+
+      } else if (statement.quitStatement) {
 
         if (statement.quitStatement.token === TokenType.quit && validExpressionTypes.includes(statement.quitStatement.expression.token.type)) {
           generatedCode += `return ${statement.quitStatement.expression.token.value}; \n`;

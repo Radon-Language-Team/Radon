@@ -63,7 +63,7 @@ export const isOperator = (input: string | number | undefined): boolean => {
 
 export const isSpecialCharacter = (input: string | number | undefined): boolean => {
   if (input) {
-    if (input.toString().match(/[:$']/)) {
+    if (input.toString().match(/[:$!']/)) {
       return true;
     } else {
       return false;

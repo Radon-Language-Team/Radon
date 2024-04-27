@@ -1,9 +1,12 @@
+!! Define two variables of type $int and assign them values 10 and 20.
 var x: $int = 10;
 var y: $int = 20;
 
+!! Define a variable of type $string and assign it a value 'Hello'.
 var a: $string = 'Hello';
 var b: $char = 'A';
 
+!! Print the sum of the two variables of type $int and the two variables of type $string.
 log(x + y);
 log(a);
 log(b);

@@ -77,7 +77,19 @@ export default class Parser {
 
     while (this.peek()) {
 
-      if (this.peek()?.type === TokenType.quit) {
+      if (this.peek()?.type === TokenType.single_line_comment) {
+
+        this.currentToken = this.consume();
+
+        // The value of a comment is allowed to be empty
+        this.parsedStatements.push({
+          singleLineComment: {
+            token: TokenType.single_line_comment,
+            value: this.currentToken.value ?? '',
+          },
+        });
+
+      } else if (this.peek()?.type === TokenType.quit) {
 
         this.currentToken = this.consume();
 
