@@ -28,9 +28,10 @@ export enum TokenType {
   dollar_sign = '$',
   quote = '\'',
   exclamation_mark = '!',
+  star = '*',
   single_line_comment = '!!',
-  multi_line_comment_start = '!!*',
-  multi_line_comment_end = '*!!',
+  multi_line_comment_start = '!*',
+  multi_line_comment_end = '*!',
 }
 
 export const validVariableTypes = ['int', 'string', 'char'];
@@ -83,6 +84,7 @@ export interface Token {
   category : TokenCategory;
   line: number;
   value?: string;
+  linesOccupied?: number;
 }
 
 export interface AdditionalTokens {
@@ -116,9 +118,16 @@ export interface SingleLineComment {
   value: string;
 }
 
+export interface MultiLineComment {
+  token: TokenType;
+  value: string;
+  linesOccupied: number;
+}
+
 export interface Nodes {
   quitStatement?: NodeQuitStatement;
   logStatement?: NodeLogStatement;
   variableDeclaration?: NodeVariableDeclaration;
   singleLineComment?: SingleLineComment;
+  multiLineComment?: MultiLineComment;
 }

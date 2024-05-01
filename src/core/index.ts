@@ -42,7 +42,7 @@ const compiler = async () => {
     try {
 
       const tokens = tokenize(content);
-      // console.log('Tokens: ', tokens);
+      console.log('Tokens: ', tokens);
 
       if (!tokens) {
         console.log('No tokens found');

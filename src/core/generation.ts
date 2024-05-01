@@ -34,6 +34,11 @@ class Generator {
           generatedCode += `// ${statement.singleLineComment.value}`;
         }
 
+      } else if (statement.multiLineComment) {
+        
+        // For now, we ignore multi-line comments
+        continue;
+
       } else if (statement.quitStatement) {
 
         if (statement.quitStatement.token === TokenType.quit && validExpressionTypes.includes(statement.quitStatement.expression.token.type)) {

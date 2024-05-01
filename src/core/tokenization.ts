@@ -27,7 +27,7 @@ class Buffer {
   }
 
   public get value(): string {
-    return this.buffer;
+    return this.buffer.replace('\r', '');
   }
 }
 
@@ -178,7 +178,7 @@ const tokenize = (input: string): Token[] | undefined => {
         }
 
         if (stream.peek() === undefined) {
-          return throwError('Tokenizer', 'Unexpected end of input -> Expected a closing quote', lineCount);
+          return throwError('Tokenizer', `Unexpected end of input -> Expected ${TokenType.quote}`, lineCount);
         }
 
         if (stream.peek() === TokenType.quote) {
@@ -198,12 +198,8 @@ const tokenize = (input: string): Token[] | undefined => {
           stream.consume();
           tokens.push({ type: TokenType.quote, line: lineCount, category: TokenCategory.expression });
 
-          // we have successfully consumed the string/char and now need to check for the next token
-          // We move out of the loop and continue with the next token
-          continue;
-
         } else {
-          return throwError('Tokenizer', `Unexpected character -> ${stream.peek()} -> Expected a closing quote`, lineCount);
+          return throwError('Tokenizer', `Unexpected character -> ${stream.peek()} -> Expected '${TokenType.quote}`, lineCount);
         }
 
       } else if (stream.peek() === TokenType.exclamation_mark) {
@@ -222,10 +218,71 @@ const tokenize = (input: string): Token[] | undefined => {
 
           }
 
-          console.log(buffer.value);
-
           tokens.push({ type: TokenType.single_line_comment, line: lineCount, value: buffer.value, category: TokenCategory.comment });
           buffer.clear();
+
+        } else if (stream.peek() === TokenType.star) {
+          // Check if it's a multi-line comment -> !*
+
+          stream.consume();
+
+          // If the next character is not a new line, then we need to throw an error since the multi-line comment should always start on a new line
+          // if (!isNewLine(stream.peek())) {
+          //   return throwError('Tokenizer', 'For single-line comments, please use the correct syntax', lineCount);
+          // }
+
+          let linesOccupied = 0;
+
+          // We consume until we find the end of the multi-line comment -> *!
+          while (stream.peek() && !(stream.peek() === TokenType.star && stream.peek(1) === TokenType.exclamation_mark)) {
+
+            // If we encounter a new line, we need to make sure the line starts with a *
+            if (isNewLine(stream.peek())) {
+
+              // We need to do the same check as above as the next line will always be a new line
+              // If the next peek is a star and the one after that is an exclamation mark, then we can break out of the loop
+              if (stream.peek(1) === TokenType.star && stream.peek(2) === TokenType.exclamation_mark) {
+                break;
+              }
+
+              lineCount++;
+              linesOccupied++;
+              stream.consume();
+
+
+              if (stream.peek() !== TokenType.star) {
+                return throwError('Tokenizer', `Expected '${TokenType.star}' as start of line in multi-line comment`, lineCount);
+              }
+
+              // Consume the star
+              stream.consume();
+
+            }
+
+            buffer.append(stream.consume());
+
+          }
+
+          // The next character should be a new line
+          if (!isNewLine(stream.peek())) {
+            return throwError('Tokenizer', 'Expected new line after multi-line comment', lineCount);
+          } else {
+            stream.consume();
+            lineCount++;
+          }
+
+          // Consume the * and !
+          stream.consume();
+          stream.consume();
+
+          // We need to add 2 to the linesOccupied since we need to account for the start and end of the multi-line comment
+          tokens.push({ type: TokenType.multi_line_comment_start, line: lineCount, value: buffer.value, category: TokenCategory.comment, linesOccupied: linesOccupied + 2 });
+          buffer.clear();
+          tokens.push({ type: TokenType.multi_line_comment_end, line: lineCount, category: TokenCategory.comment });
+
+        } else {
+
+          return throwError('Tokenizer', `Unexpected character -> Expected ${TokenType.exclamation_mark} or ${TokenType.star} but got '${stream.peek()}'`, lineCount);
 
         }
 
