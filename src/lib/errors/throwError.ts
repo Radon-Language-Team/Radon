@@ -8,7 +8,7 @@
 const throwError = (kind: string, message: string, line: number | undefined): undefined => {
 
   const errorMessage = `\n\nRADON COMPILER ERROR - ${kind.toLocaleUpperCase()}: ${message.replace('\r', '')} ${line ? `at line ${line}` : ''}`;
-  throw new Error(errorMessage);
+  throw new Error(String.raw`${errorMessage}`);
 
 };
 

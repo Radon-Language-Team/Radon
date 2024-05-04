@@ -34,21 +34,6 @@ export const isWhitespace = (input: string | number | undefined): boolean => {
   }
 };
 
-export const isNewLine = (input: string | number | undefined): boolean => {
-  if (input) {
-    if (input.toString().match(/^\n+$/)) {
-      return true;
-    } else {
-      return false;
-    }
-  } else {
-    if (input === '') {
-      return true;
-    }
-    return false;
-  }
-};
-
 export const isOperator = (input: string | number | undefined): boolean => {
   if (input) {
     if (input.toString().match(/^[=+\-*/]+$/)) {

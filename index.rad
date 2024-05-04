@@ -1,7 +1,6 @@
 var x: $int = 10;
 var y: $int = 20;
 
-!! This is a comment
 var a: $string = 'Hello';
 var b: $char = 'A';
 

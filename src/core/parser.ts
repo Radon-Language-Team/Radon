@@ -75,45 +75,11 @@ export default class Parser {
 
     const validExpressionType = ['int_literal', 'alpha_numeric'];
 
+    // TODO: Fix comments
+
     while (this.peek()) {
 
-      if (this.peek()?.type === TokenType.single_line_comment) {
-
-        this.currentToken = this.consume();
-
-        // The value of a comment is allowed to be empty
-        this.parsedStatements.push({
-          singleLineComment: {
-            token: TokenType.single_line_comment,
-            value: this.currentToken.value ?? '',
-          },
-        });
-
-      } else if (this.peek()?.type === TokenType.multi_line_comment_start) {
-
-        this.currentToken = this.consume();
-        const commentValue = this.currentToken.value;
-        const linesOccupied = this.currentToken.linesOccupied;
-
-        if (this.peek()?.type !== TokenType.multi_line_comment_end) {
-          return throwError('Parser', 'Expected end of multi-line comment', this.currentToken.line);
-        } else {
-          this.currentToken = this.consume();
-        }
-
-        this.parsedStatements.push({
-          multiLineComment: {
-            token: TokenType.multi_line_comment_start,
-            value: commentValue ?? '',
-            linesOccupied: linesOccupied ?? 0,
-          },
-        });
-
-        console.log('Pushed multi-line comment start', commentValue);
-
-      }
-
-      else if (this.peek()?.type === TokenType.quit) {
+      if (this.peek()?.type === TokenType.quit) {
 
         this.currentToken = this.consume();
 

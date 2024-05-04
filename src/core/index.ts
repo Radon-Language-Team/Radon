@@ -11,6 +11,10 @@ import tokenize from './tokenization';
 import Parser from './parser';
 import Generator from './generation';
 
+function removeNewLines(code: string): string {
+  return code.replace(/\r?\n|\r/g, '');
+}
+
 const compiler = async () => {
 
   const fileToRead: string | undefined = process.argv[2];
@@ -41,8 +45,8 @@ const compiler = async () => {
 
     try {
 
-      const tokens = tokenize(content);
-      console.log('Tokens: ', tokens);
+      const tokens = tokenize(removeNewLines(content));
+      // console.log('Tokens: ', tokens);
 
       if (!tokens) {
         console.log('No tokens found');
@@ -50,7 +54,6 @@ const compiler = async () => {
       }
 
       const parser = new Parser(tokens);
-      // console.log('Parser: ', parser);
       const ast = parser.parse();
       // console.log('AST: ', ast);
       const generatedCode = new Generator(ast);

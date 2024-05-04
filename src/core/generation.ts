@@ -31,7 +31,7 @@ class Generator {
       if (statement.singleLineComment) {
 
         if (statement.singleLineComment.token === TokenType.single_line_comment) {
-          generatedCode += `// ${statement.singleLineComment.value}`;
+          generatedCode += `// ${statement.singleLineComment.value} \n`;
         }
 
       } else if (statement.multiLineComment) {

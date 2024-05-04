@@ -84,7 +84,6 @@ export interface Token {
   category : TokenCategory;
   line: number;
   value?: string;
-  linesOccupied?: number;
 }
 
 export interface AdditionalTokens {
@@ -121,7 +120,6 @@ export interface SingleLineComment {
 export interface MultiLineComment {
   token: TokenType;
   value: string;
-  linesOccupied: number;
 }
 
 export interface Nodes {
