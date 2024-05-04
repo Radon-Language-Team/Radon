@@ -35,7 +35,7 @@ log(a);
 log(b);
 ```
 
-> [!IMPORTANT]
+> [!NOTE]
 > Radon does ignore whitespace and newlines, so you can format your code however you like.
 
 > [!IMPORTANT]
