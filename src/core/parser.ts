@@ -5,7 +5,7 @@
  * Copyright (C) 2024 - Marwin
 */
 
-import { Token, Nodes, validVariableTypesEnum } from '../interfaces/interfaces';
+import { Token, Nodes, validVariableTypesEnum, TokenCategory } from '../interfaces/interfaces';
 import { TokenType } from '../interfaces/interfaces';
 import throwError from '../lib/errors/throwError';
 
@@ -75,11 +75,20 @@ export default class Parser {
 
     const validExpressionType = ['int_literal', 'alpha_numeric'];
 
-    // TODO: Fix comments
-
     while (this.peek()) {
 
-      if (this.peek()?.type === TokenType.quit) {
+      if (this.peek()?.category === TokenCategory.comment) {
+
+        this.currentToken = this.consume();
+
+        this.parsedStatements.push({
+          singleLineComment: {
+            token: this.currentToken.type,
+            value: this.currentToken.value ?? '',
+          },
+        });
+
+      } else if (this.peek()?.type === TokenType.quit) {
 
         this.currentToken = this.consume();
 

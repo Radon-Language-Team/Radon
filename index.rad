@@ -1,7 +1,10 @@
 var x: $int = 10;
 var y: $int = 20;
 
+!! Declare a string and a char variable !!
 var a: $string = 'Hello';
+
+!! Declare a char variable !!
 var b: $char = 'A';
 
 log(x + y);

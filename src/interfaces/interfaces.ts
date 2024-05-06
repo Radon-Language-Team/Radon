@@ -30,8 +30,6 @@ export enum TokenType {
   exclamation_mark = '!',
   star = '*',
   single_line_comment = '!!',
-  multi_line_comment_start = '!*',
-  multi_line_comment_end = '*!',
 }
 
 export const validVariableTypes = ['int', 'string', 'char'];
@@ -117,15 +115,9 @@ export interface SingleLineComment {
   value: string;
 }
 
-export interface MultiLineComment {
-  token: TokenType;
-  value: string;
-}
-
 export interface Nodes {
   quitStatement?: NodeQuitStatement;
   logStatement?: NodeLogStatement;
   variableDeclaration?: NodeVariableDeclaration;
   singleLineComment?: SingleLineComment;
-  multiLineComment?: MultiLineComment;
 }

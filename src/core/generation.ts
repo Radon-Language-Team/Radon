@@ -10,6 +10,7 @@ import throwError from '../lib/errors/throwError';
 class Generator {
 
   private parsedStatements: Nodes[] | undefined;
+  private debug: boolean = false;
 
   constructor(parsedStatements: Nodes[] | undefined) {
     this.parsedStatements = parsedStatements;
@@ -30,14 +31,18 @@ class Generator {
 
       if (statement.singleLineComment) {
 
-        if (statement.singleLineComment.token === TokenType.single_line_comment) {
-          generatedCode += `// ${statement.singleLineComment.value} \n`;
-        }
+        // Unless specified, we dont generate comments in the code
+        if (this.debug) {
 
-      } else if (statement.multiLineComment) {
-        
-        // For now, we ignore multi-line comments
-        continue;
+          if (statement.singleLineComment.token === TokenType.single_line_comment) {
+            generatedCode += `// ${statement.singleLineComment.value} \n`;
+          }
+
+        } else {
+
+          continue;
+
+        }
 
       } else if (statement.quitStatement) {
 

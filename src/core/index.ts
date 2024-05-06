@@ -42,6 +42,7 @@ const compiler = async () => {
     }
 
     const content = readFileSync(path, 'utf-8');
+    // console.log(removeNewLines(content));
 
     try {
 

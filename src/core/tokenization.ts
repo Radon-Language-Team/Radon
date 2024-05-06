@@ -200,7 +200,29 @@ const tokenize = (input: string): Token[] | undefined => {
           return throwError('Tokenizer', `Unexpected character -> ${stream.peek()} -> Expected '${TokenType.quote}`, lineCount);
         }
 
-      } 
+      } else if (stream.peek() === TokenType.exclamation_mark) {
+
+        if (stream.peek(1) === TokenType.exclamation_mark) {
+
+          stream.consume();
+          stream.consume();
+
+          // We keep consuming until we find another double exclamation mark, which will indicate the end of the comment
+          while (stream.peek() && !(stream.peek() === TokenType.exclamation_mark && stream.peek(1) === TokenType.exclamation_mark)) {
+
+            buffer.append(stream.consume());
+
+          }
+
+          tokens.push({ type: TokenType.single_line_comment, line: lineCount, value: buffer.value.trim(), category: TokenCategory.comment });
+          buffer.clear();
+          // Consume the double exclamation mark
+          stream.consume();
+          stream.consume();
+
+        }
+
+      }
 
     } else {
 
