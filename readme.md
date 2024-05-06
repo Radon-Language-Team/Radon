@@ -27,7 +27,10 @@ _This is a work in progress and more features will be added soon._
 var x: $int = 10;
 var y: $int = 20;
 
+!! Declare a string variable !!
 var a: $string = 'Hello';
+
+!! Declare a char variable !!
 var b: $char = 'A';
 
 log(x + y);
