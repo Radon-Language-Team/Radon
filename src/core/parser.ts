@@ -387,7 +387,7 @@ export default class Parser {
         // this.currentToken = this.consume();
 
       } else {
-        return throwError('Parser', `Unexpected token ${this.currentToken.value}`, this.currentToken.line);
+        return throwError('Parser', `Unexpected token '${this.currentToken.value}'`, this.currentToken.line);
       }
 
     }

@@ -83,7 +83,8 @@ const compiler = async () => {
       }
 
       writeFileSync(outputPath, codeToWrite);
-      console.log(`[SUCCESS] File ${fileName}.js written to ${outputPath} successfully!`);
+      // console.log(`[SUCCESS] File ${fileName}.js written to ${outputPath} successfully!`);
+      console.log(`\u001b[32m[SUCCESS] File ${fileName}.js written to ${outputPath} successfully!\u001b[39m`);
 
     } catch (error) {
       
