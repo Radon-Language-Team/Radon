@@ -5,8 +5,9 @@
  * Copyright (C) 2024 - Marwin
 */
 
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync, readdirSync, statSync } from 'fs';
 import { join } from 'path';
+import path from 'path';
 import tokenize from './tokenization';
 import Parser from './parser';
 import Generator from './generation';
@@ -15,17 +16,33 @@ function removeNewLines(code: string): string {
   return code.replace(/\r?\n|\r/g, '');
 }
 
+function fetchFilesToCompile(dir: string): string[] {
+  const fetchedFiles: string[] = [];
+  const files = readdirSync(dir);
+  files.forEach(file => {
+    const filePath = path.join(dir, file);
+    if (statSync(filePath).isDirectory()) {
+      fetchFilesToCompile(filePath);
+    } else if (file.endsWith('.rad')) {
+      fetchedFiles.push(filePath);
+    }
+  });
+  return fetchedFiles;
+}
+
+console.log(fetchFilesToCompile(__dirname));
+
 const compiler = async () => {
 
   const fileToRead: string | undefined = process.argv[2];
 
   if (fileToRead) {
 
-    let path: string;
+    let currentPath: string;
 
     try {
 
-      path = join(__dirname, `../../${fileToRead}`);
+      currentPath = join(__dirname, `../../${fileToRead}`);
 
     } catch (error) {
 
@@ -41,7 +58,7 @@ const compiler = async () => {
 
     }
 
-    const content = readFileSync(path, 'utf-8');
+    const content = readFileSync(currentPath, 'utf-8');
     // console.log(removeNewLines(content));
 
     try {
@@ -87,12 +104,12 @@ const compiler = async () => {
       console.log(`\u001b[32m[SUCCESS] File ${fileName}.js written to ${outputPath} successfully!\u001b[39m`);
 
     } catch (error) {
-      
+
       console.log(error);
       process.exit(1);
 
     }
-    
+
     finally {
 
       process.exit(0);

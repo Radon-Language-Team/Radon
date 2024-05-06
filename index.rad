@@ -1,5 +1,5 @@
 var x: $int = 10;
-var y: $int = 20;
+var y: $string = 20;
 
 !! Declare a string and a char variable !!
 var a: $string = 'Hello';

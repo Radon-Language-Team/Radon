@@ -1,4 +1,5 @@
 import { Token, NodeVariableDeclaration, TokenType, Nodes, validVariableTypes, TokenCategory, validVariableTypesEnum } from '../../interfaces/interfaces';
+import throwWarning from '../errors/throwWarning';
 
 interface ParseVariable {
   success: boolean;
@@ -64,7 +65,7 @@ const parseVariable = (tokens: Token[], parsedStatements: Nodes[] | undefined): 
 
     if (variableIdentifier.type === TokenType.alpha_numeric) {
       if (checkIfInitialized(variableIdentifier.value)) {
-        console.log(`Variable ${variableIdentifier.value} already initialized`);
+        throwWarning('Variable Declaration', `Variable ${variableIdentifier.value} already initialized`, undefined);
         errorHasOccured = true;
         break;
       }
@@ -75,6 +76,7 @@ const parseVariable = (tokens: Token[], parsedStatements: Nodes[] | undefined): 
     // Consume the ':'
     if (peek()?.type !== TokenType.colon) {
       errorHasOccured = true;
+      throwWarning('Variable Declaration', 'Expected colon', undefined);
       break;
     } else {
       currentToken = consume();
@@ -90,6 +92,7 @@ const parseVariable = (tokens: Token[], parsedStatements: Nodes[] | undefined): 
 
     if (currentToken.type !== TokenType.dollar_sign || !givenType || !givenType.value || !validVariableTypes.includes(givenType.value)) {
       errorHasOccured = true;
+      throwWarning('Variable Declaration', 'Can not assign this type', undefined);
       break;
     } else {
       // Consume the givenType
@@ -99,6 +102,7 @@ const parseVariable = (tokens: Token[], parsedStatements: Nodes[] | undefined): 
     // Consume the '=' keyword
     if (peek()?.type !== TokenType.equal) {
       errorHasOccured = true;
+      throwWarning('Variable Declaration', 'Expected equal sign', undefined);
       break;
     } else {
       currentToken = consume();
@@ -119,7 +123,7 @@ const parseVariable = (tokens: Token[], parsedStatements: Nodes[] | undefined): 
       actualType = validVariableTypesEnum[variableValue.type as keyof typeof validVariableTypesEnum];
 
       if (givenType.value !== actualType) {
-        console.log(`Invalid type - Expected ${givenType.value}, got ${actualType}`);
+        throwWarning('Variable Declaration', `Invalid type - Expected ${givenType.value}, got ${actualType}`, undefined);
         errorHasOccured = true;
         break;
       }
@@ -132,7 +136,7 @@ const parseVariable = (tokens: Token[], parsedStatements: Nodes[] | undefined): 
       actualType = validVariableTypesEnum[variableValue.type as keyof typeof validVariableTypesEnum];
 
       if (givenType.value !== actualType) {
-        console.log(`Invalid type - Expected ${givenType.value}, got ${actualType}`);
+        throwWarning('Variable Declaration', `Invalid type - Expected ${givenType.value}, got ${actualType}`, undefined);
         errorHasOccured = true;
         break;
       }
@@ -140,14 +144,14 @@ const parseVariable = (tokens: Token[], parsedStatements: Nodes[] | undefined): 
       // Consume the closing '
       currentToken = consume();
     } else {
-      console.log('Invalid type - Not a number or a string/char');
+      throwWarning('Variable Declaration', 'Invalid value - Expected Number/String/Char', undefined);
       errorHasOccured = true;
       break;
     }
 
     // TODO: Implement support for concatenation of strings and addition of numbers
     if (peek()?.type !== TokenType.semi_colon) {
-      console.log(`Expected semicolon, got ${peek()?.type}`);
+      throwWarning('Variable Declaration', `Expected semicolon, got ${peek()?.type}`, undefined);
       errorHasOccured = true;
       break;
     } else {
