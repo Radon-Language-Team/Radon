@@ -88,7 +88,7 @@ class Generator {
 
           if (statement.variableDeclaration.additionalExpressions) {
 
-            for (const expression of statement.variableDeclaration.additionalExpressions.tokens) {
+            for (const expression of statement.variableDeclaration.additionalExpressions) {
               if (expression.type === TokenType.string || expression.type === TokenType.char) {
                 valueContent += ` + '${expression.value}'`;
               } else {

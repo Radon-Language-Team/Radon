@@ -8,6 +8,7 @@
 import { Token, Nodes, validVariableTypesEnum, TokenCategory } from '../interfaces/interfaces';
 import { TokenType } from '../interfaces/interfaces';
 import throwError from '../lib/errors/throwError';
+import throwWarning from '../lib/errors/throwWarning';
 
 import parseVariable from '../lib/parser/parseVariable';
 
@@ -132,7 +133,8 @@ export default class Parser {
         });
 
         if (this.peek()) {
-          return throwError('Parser', `Token '${this.peek()?.type}' is unreachable -> Expected end of file or scope`, this.peek()!.line);
+          // We do not want to stop the parsing here, we just want to warn the user that there is unreachable code
+          throwWarning('Parser', `Token '${this.peek()?.type}' is unreachable`, this.peek()!.line);
         }
 
       } else if (this.peek()?.type === TokenType.log) {
@@ -232,6 +234,7 @@ export default class Parser {
             token: TokenType._var,
             identifier: parsedVariable.node?.identifier,
             value: parsedVariable.node?.value,
+            additionalExpressions: parsedVariable.node.additionalExpressions,
           },
         });
 

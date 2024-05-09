@@ -54,6 +54,7 @@ const parseVariable = (tokens: Token[], parsedStatements: Nodes[] | undefined): 
 
   let variableIdentifier: Token | undefined = { type: TokenType.alpha_numeric, category: TokenCategory.identifier, line: 0, value: '' };
   let variableValue: Token | undefined = { type: TokenType.int_literal, category: TokenCategory.identifier, line: 0, value: '' };
+  const additionalValues: Token[] = [];
 
   while (peek()) {
 
@@ -127,6 +128,28 @@ const parseVariable = (tokens: Token[], parsedStatements: Nodes[] | undefined): 
         errorHasOccured = true;
         break;
       }
+
+      if (peek()?.type === TokenType.plus) {
+
+        while (peek()?.type === TokenType.plus) {
+
+          currentToken = consume();
+
+          if (peek()?.category !== TokenCategory.int_literal) {
+
+            throwWarning('Variable Declaration', 'Invalid value - Expected Number', undefined);
+            errorHasOccured = true;
+            break;
+
+          } else {
+
+            currentToken = consume();
+            additionalValues.push(currentToken);
+
+          }
+        }
+      }
+
     } else if (peek()?.type === TokenType.quote && peek(1)?.category === TokenCategory.char || TokenCategory.string && peek(2)?.type === TokenType.quote) {
       // Consume the '
       currentToken = consume();
@@ -143,13 +166,43 @@ const parseVariable = (tokens: Token[], parsedStatements: Nodes[] | undefined): 
 
       // Consume the closing '
       currentToken = consume();
+
+      if (peek()?.type === TokenType.plus) {
+
+        while (peek()?.type === TokenType.plus) {
+
+          currentToken = consume();
+
+          if (peek()?.type === TokenType.quote && peek(1)?.category === TokenCategory.char || TokenCategory.string && peek(2)?.type === TokenType.quote) {
+
+            currentToken = consume();
+            const additionalValue = consume();
+            actualType = validVariableTypesEnum[additionalValue.type as keyof typeof validVariableTypesEnum];
+
+            if (givenType.value !== actualType) {
+              throwWarning('Variable Declaration', `Invalid type - Expected ${givenType.value}, got ${actualType}`, undefined);
+              errorHasOccured = true;
+              break;
+            }
+
+            currentToken = consume();
+
+            additionalValues.push(additionalValue);
+
+          } else {
+            throwWarning('Variable Declaration', 'Invalid value - Expected String/Char', undefined);
+            errorHasOccured = true;
+            break;
+          }
+        }
+      }
+
     } else {
       throwWarning('Variable Declaration', 'Invalid value - Expected Number/String/Char', undefined);
       errorHasOccured = true;
       break;
     }
 
-    // TODO: Implement support for concatenation of strings and addition of numbers
     if (peek()?.type !== TokenType.semi_colon) {
       throwWarning('Variable Declaration', `Expected semicolon, got ${peek()?.type}`, undefined);
       errorHasOccured = true;
@@ -187,6 +240,7 @@ const parseVariable = (tokens: Token[], parsedStatements: Nodes[] | undefined): 
       token: TokenType._var,
       identifier: variableIdentifier,
       value: variableValue,
+      additionalExpressions: additionalValues,
     },
     consumedTokens,
   };

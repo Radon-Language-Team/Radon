@@ -1,12 +1,11 @@
-var x: $int = 10;
-var y: $string = 20;
+var x: $int = 10 + 200;
+var y: $int = 20;
 
-!! Declare a string and a char variable !!
-var a: $string = 'Hello';
+log (x);
 
-!! Declare a char variable !!
-var b: $char = 'A';
+!! Initializing a string variable !!
+var a: $string = 'Hello' + '  ' +'World';
 
+!! Adding two integer variables !!
 log(x + y);
 log(a);
-log(b);
