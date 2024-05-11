@@ -52,6 +52,42 @@ const parseVariable = (tokens: Token[], parsedStatements: Nodes[] | undefined): 
     return false;
   };
 
+  const returnVariableType = (variableName: string | undefined): string | undefined => {
+    if (!variableName) {
+      return undefined;
+    }
+    for (const statement of parsedStatements ?? []) {
+      if (statement.variableDeclaration) {
+        if (statement.variableDeclaration.identifier.value === variableName) {
+          return validVariableTypesEnum[statement.variableDeclaration.value.type as keyof typeof validVariableTypesEnum];
+        } else {
+          continue;
+        }
+      } else {
+        continue;
+      }
+    }
+    return undefined;
+  };
+
+  const returnVariableValue = (variableName: string | undefined): string | undefined => {
+    if (!variableName) {
+      return undefined;
+    }
+    for (const statement of parsedStatements ?? []) {
+      if (statement.variableDeclaration) {
+        if (statement.variableDeclaration.identifier.value === variableName) {
+          return statement.variableDeclaration.value.value;
+        } else {
+          continue;
+        }
+      } else {
+        continue;
+      }
+    }
+    return undefined;
+  };
+
   let variableIdentifier: Token | undefined = { type: TokenType.alpha_numeric, category: TokenCategory.identifier, line: 0, value: '' };
   let variableValue: Token | undefined = { type: TokenType.int_literal, category: TokenCategory.identifier, line: 0, value: '' };
   const additionalValues: Token[] = [];
@@ -196,6 +232,26 @@ const parseVariable = (tokens: Token[], parsedStatements: Nodes[] | undefined): 
           }
         }
       }
+
+    } else if (peek()?.type === TokenType.alpha_numeric) {
+
+      currentToken = consume();
+
+      // We go through our parsed statements and return type of the variable
+      // "Hello" -> "string" - These are being given by the tokenizer
+      actualType = returnVariableType(currentToken.value);
+      const value = returnVariableValue(currentToken.value);
+
+      if (givenType.value !== actualType) {
+        throwWarning('Variable Declaration', `Invalid type - Expected ${givenType.value}, got ${actualType}`, undefined);
+        errorHasOccured = true;
+        break;
+      }
+
+      // When you assign a variable to another variable, Radon will automatically assign the value of the variable to the new variable
+      const tokenType = validVariableTypesEnum[actualType as keyof typeof validVariableTypesEnum] as unknown as TokenType;
+
+      variableValue = { type: tokenType, category: TokenCategory.identifier, line: 0, value: value };
 
     } else {
       throwWarning('Variable Declaration', 'Invalid value - Expected Number/String/Char', undefined);

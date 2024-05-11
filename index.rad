@@ -1,11 +1,11 @@
 var x: $int = 10 + 200;
 var y: $int = 20;
 
-log (x);
+var b: $string = 'Hello World!';
 
-!! Initializing a string variable !!
-var a: $string = 'Hello' + '  ' +'World';
+!! Variable a is assigned the value of b !!
+var a: $string = b;
 
 !! Adding two integer variables !!
 log(x + y);
-log(a);
+log(a + b);

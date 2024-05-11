@@ -7,7 +7,7 @@
  */
 const throwWarning = (kind: string, message: string, line: number | undefined): undefined => {
 
-  const warningMessage = `\n\nRADON COMPILER WARNING - ${kind.toLocaleUpperCase()}: ${message.replace('\r', '')} ${line ? `at line ${line}` : ''}`;
+  const warningMessage = `\nRADON COMPILER WARNING - ${kind.toLocaleUpperCase()}: ${message.replace('\r', '')} ${line ? `at line ${line}` : ''}`;
   console.warn(`\u001b[35m${warningMessage}\u001b[0m`);
 
 };
