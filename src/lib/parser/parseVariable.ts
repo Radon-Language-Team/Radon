@@ -240,7 +240,6 @@ const parseVariable = (tokens: Token[], parsedStatements: Nodes[] | undefined): 
       // We go through our parsed statements and return type of the variable
       // "Hello" -> "string" - These are being given by the tokenizer
       actualType = returnVariableType(currentToken.value);
-      const value = returnVariableValue(currentToken.value);
 
       if (givenType.value !== actualType) {
         throwWarning('Variable Declaration', `Invalid type - Expected ${givenType.value}, got ${actualType}`, undefined);
@@ -248,10 +247,9 @@ const parseVariable = (tokens: Token[], parsedStatements: Nodes[] | undefined): 
         break;
       }
 
-      // When you assign a variable to another variable, Radon will automatically assign the value of the variable to the new variable
       const tokenType = validVariableTypesEnum[actualType as keyof typeof validVariableTypesEnum] as unknown as TokenType;
 
-      variableValue = { type: tokenType, category: TokenCategory.identifier, line: 0, value: value };
+      variableValue = { type: tokenType, category: TokenCategory.identifier, line: 0, value: returnVariableValue(currentToken.value) };
 
     } else {
       throwWarning('Variable Declaration', 'Invalid value - Expected Number/String/Char', undefined);
