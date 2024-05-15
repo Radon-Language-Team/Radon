@@ -24,18 +24,15 @@ _This is a work in progress and more features will be added soon._
 ## Example
 
 ```Radon
-var x: $int = 10;
+var x: $int = 10 + 200;
 var y: $int = 20;
 
-!! Declare a string variable !!
-var a: $string = 'Hello';
-
-!! Declare a char variable !!
-var b: $char = 'A';
+var a: $string = 'Hello' + ' World!';
+var b: $string = ' How are you?';
+var c: $string = a + n;
 
 log(x + y);
-log(a);
-log(b);
+log(c);
 ```
 
 > [!NOTE]
