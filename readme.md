@@ -29,7 +29,7 @@ var y: $int = 20;
 
 var a: $string = 'Hello' + ' World!';
 var b: $string = ' How are you?';
-var c: $string = a + n;
+var c: $string = a + b;
 
 log(x + y);
 log(c);
