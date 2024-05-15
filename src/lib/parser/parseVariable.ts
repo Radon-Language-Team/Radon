@@ -273,6 +273,12 @@ const parseVariable = (tokens: Token[], parsedStatements: Nodes[] | undefined): 
             const additionalValue = currentToken;
             actualType = returnVariableType(additionalValue.value);
 
+            if (!checkIfInitialized(additionalValue.value)) {
+              throwWarning('Variable Declaration', `Variable ${additionalValue.value} not initialized`, undefined);
+              errorHasOccured = true;
+              break;
+            }
+
             if (givenType.value !== actualType) {
               throwWarning('Variable Declaration', `Invalid type - Expected ${givenType.value}, got ${actualType}`, undefined);
               errorHasOccured = true;
