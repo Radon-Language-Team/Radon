@@ -77,7 +77,19 @@ const parseVariable = (tokens: Token[], parsedStatements: Nodes[] | undefined): 
     for (const statement of parsedStatements ?? []) {
       if (statement.variableDeclaration) {
         if (statement.variableDeclaration.identifier.value === variableName) {
-          return statement.variableDeclaration.value.value;
+          // check for additional expressions
+          if (statement.variableDeclaration.additionalExpressions) {
+            let value = statement.variableDeclaration.value?.value;
+            if (!value) {
+              return undefined;
+            }
+            for (const additionalExpression of statement.variableDeclaration.additionalExpressions) {
+              value += additionalExpression.value;
+            }
+            return value;
+          } else {
+            return statement.variableDeclaration.value.value;
+          }
         } else {
           continue;
         }
@@ -222,7 +234,6 @@ const parseVariable = (tokens: Token[], parsedStatements: Nodes[] | undefined): 
             }
 
             currentToken = consume();
-
             additionalValues.push(additionalValue);
 
           } else {
@@ -248,8 +259,37 @@ const parseVariable = (tokens: Token[], parsedStatements: Nodes[] | undefined): 
       }
 
       const tokenType = validVariableTypesEnum[actualType as keyof typeof validVariableTypesEnum] as unknown as TokenType;
-
       variableValue = { type: tokenType, category: TokenCategory.identifier, line: 0, value: returnVariableValue(currentToken.value) };
+
+      if (peek()?.type === TokenType.plus) {
+
+        while (peek()?.type === TokenType.plus) {
+
+          currentToken = consume();
+
+          if (peek()?.type === TokenType.alpha_numeric) {
+
+            currentToken = consume();
+            const additionalValue = currentToken;
+            actualType = returnVariableType(additionalValue.value);
+
+            if (givenType.value !== actualType) {
+              throwWarning('Variable Declaration', `Invalid type - Expected ${givenType.value}, got ${actualType}`, undefined);
+              errorHasOccured = true;
+              break;
+            }
+
+            const additionalTokenType = validVariableTypesEnum[actualType as keyof typeof validVariableTypesEnum] as unknown as TokenType;
+            additionalValues.push({ type: additionalTokenType, category: TokenCategory.identifier, line: 0, value: returnVariableValue(additionalValue.value) });
+
+          } else {
+            throwWarning('Variable Declaration', 'Variable + differnt expressions are not yet supported', undefined);
+            errorHasOccured = true;
+            break;
+          }
+        }
+
+      }
 
     } else {
       throwWarning('Variable Declaration', 'Invalid value - Expected Number/String/Char', undefined);
