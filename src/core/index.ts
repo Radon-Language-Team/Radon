@@ -5,11 +5,32 @@
  * Copyright (C) 2024 - Marwin
 */
 
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync, readdirSync, statSync } from 'fs';
 import { join } from 'path';
+import path from 'path';
 import tokenize from './tokenization';
 import Parser from './parser';
 import Generator from './generation';
+
+function removeNewLines(code: string): string {
+  return code.replace(/\r?\n|\r/g, '');
+}
+
+function fetchFilesToCompile(dir: string): string[] {
+  const fetchedFiles: string[] = [];
+  const files = readdirSync(dir);
+  files.forEach(file => {
+    const filePath = path.join(dir, file);
+    if (statSync(filePath).isDirectory()) {
+      fetchFilesToCompile(filePath);
+    } else if (file.endsWith('.rad')) {
+      fetchedFiles.push(filePath);
+    }
+  });
+  return fetchedFiles;
+}
+
+console.log(fetchFilesToCompile(__dirname));
 
 const compiler = async () => {
 
@@ -17,11 +38,11 @@ const compiler = async () => {
 
   if (fileToRead) {
 
-    let path: string;
+    let currentPath: string;
 
     try {
 
-      path = join(__dirname, `../../${fileToRead}`);
+      currentPath = join(__dirname, `../../${fileToRead}`);
 
     } catch (error) {
 
@@ -37,18 +58,29 @@ const compiler = async () => {
 
     }
 
-    const content = readFileSync(path, 'utf-8');
+    const content = readFileSync(currentPath, 'utf-8');
+    // console.log(removeNewLines(content));
 
     try {
 
-      const tokens = tokenize(content);
+      const tokens = tokenize(removeNewLines(content));
       // console.log('Tokens: ', tokens);
+
+      if (!tokens) {
+        console.log('No tokens found');
+        process.exit(1);
+      }
+
       const parser = new Parser(tokens);
-      // console.log('Parser: ', parser);
       const ast = parser.parse();
       // console.log('AST: ', ast);
       const generatedCode = new Generator(ast);
       const codeToWrite = generatedCode.generate();
+
+      if (!codeToWrite) {
+        console.log('No code to write');
+        process.exit(1);
+      }
 
 
       const fileName = fileToRead.split('.')[0];
@@ -68,14 +100,17 @@ const compiler = async () => {
       }
 
       writeFileSync(outputPath, codeToWrite);
-      console.log(`[SUCCESS] File ${fileName}.js written to ${outputPath} successfully!`);
+      // console.log(`[SUCCESS] File ${fileName}.js written to ${outputPath} successfully!`);
+      console.log(`\u001b[32m[SUCCESS] File ${fileName}.js written to ${outputPath} successfully!\u001b[39m`);
 
     } catch (error) {
 
-      console.log('Radon TOKENIZATION || PARSER:\n\n', error);
+      console.log(error);
       process.exit(1);
 
-    } finally {
+    }
+
+    finally {
 
       process.exit(0);
 

@@ -24,27 +24,19 @@ _This is a work in progress and more features will be added soon._
 ## Example
 
 ```Radon
-var a: $string = 'Hello, ';
-var b: $string = 'world';
-var c: $int = 5;
-var d: $int = 10;
+var x: $int = 10 + 200;
+var y: $int = 20;
 
-var e: $string = a + b + ' how are you?';
-var f: $int = c + d + 5;
+var a: $string = 'Hello' + ' World!';
+var b: $string = ' How are you?';
+var c: $string = a + b;
 
-var x: $int = 5;
-var y: $int = 10;
-
-log(e);
-log(x + y + 5);
-log(f);
+log(x + y);
+log(c);
 ```
 
 > [!NOTE]
-> The above code will output:<br>
-> ```Hello, world how are you?```<br>
-> ```20```
-> ```20```
+> Radon does ignore whitespace and newlines, so you can format your code however you like.
 
 > [!IMPORTANT]
 > In Radon, all variables must be declared with a type.<br>

@@ -4,38 +4,55 @@
  * Copyright (C) 2024 - Marwin
 */
 
-import { Nodes } from '../interfaces/interfaces';
+import { Nodes, TokenType } from '../interfaces/interfaces';
+import throwError from '../lib/errors/throwError';
 
 class Generator {
 
   private parsedStatements: Nodes[] | undefined;
+  private debug: boolean = false;
 
   constructor(parsedStatements: Nodes[] | undefined) {
     this.parsedStatements = parsedStatements;
   }
 
-  public generate(): string {
+  public generate(): string | undefined {
 
     const validExpressionTypes = ['int_literal', 'alpha_numeric'];
     let generatedCode = '';
 
     if (!this.parsedStatements) {
 
-      throw new Error('No parsed statements to generate code from');
+      return throwError('Generator', 'No parsed statements to generate code from', undefined);
 
     }
 
     for (const statement of this.parsedStatements) {
 
-      if (statement.quitStatement) {
+      if (statement.singleLineComment) {
 
-        if (statement.quitStatement.token === 'quit' && validExpressionTypes.includes(statement.quitStatement.expression.token.type)) {
+        // Unless specified, we dont generate comments in the code
+        if (this.debug) {
+
+          if (statement.singleLineComment.token === TokenType.single_line_comment) {
+            generatedCode += `// ${statement.singleLineComment.value} \n`;
+          }
+
+        } else {
+
+          continue;
+
+        }
+
+      } else if (statement.quitStatement) {
+
+        if (statement.quitStatement.token === TokenType.quit && validExpressionTypes.includes(statement.quitStatement.expression.token.type)) {
           generatedCode += `return ${statement.quitStatement.expression.token.value}; \n`;
         }
 
       } else if (statement.logStatement) {
 
-        if (statement.logStatement.token === 'log' && validExpressionTypes.includes(statement.logStatement.expression.token.type)) {
+        if (statement.logStatement.token === TokenType.log && validExpressionTypes.includes(statement.logStatement.expression.token.type)) {
 
           let logContent = '';
           logContent += statement.logStatement.expression.token.value;
@@ -49,7 +66,6 @@ class Generator {
               if (validExpressionTypes.includes(expression.type)) {
                 logContent += ` + ${expression.value}`;
               }
-
             }
           }
           generatedCode += `console.log(${logContent}); \n`;
@@ -57,14 +73,14 @@ class Generator {
 
       } else if (statement.variableDeclaration) {
 
-        if (statement.variableDeclaration.token === 'var' && statement.variableDeclaration.identifier.type === 'alpha_numeric') {
+        if (statement.variableDeclaration.token === TokenType._var && statement.variableDeclaration.identifier.type === TokenType.alpha_numeric) {
           const identifier = statement.variableDeclaration.identifier.value;
           const value = statement.variableDeclaration.value.value;
 
           let valueContent = '';
 
           // If the value is a string or char, we add it to the value content
-          if (statement.variableDeclaration.value.type === 'string' || statement.variableDeclaration.value.type === 'char') {
+          if (statement.variableDeclaration.value.type === TokenType.char || statement.variableDeclaration.value.type === TokenType.string) {
             valueContent += `'${value}'`;
           } else {
             valueContent += value;
@@ -72,27 +88,20 @@ class Generator {
 
           if (statement.variableDeclaration.additionalExpressions) {
 
-            for (const expression of statement.variableDeclaration.additionalExpressions.tokens) {
-              if (expression.type === 'string' || expression.type === 'char') {
+            for (const expression of statement.variableDeclaration.additionalExpressions) {
+              if (expression.type === TokenType.string || expression.type === TokenType.char) {
                 valueContent += ` + '${expression.value}'`;
               } else {
                 valueContent += ` + ${expression.value}`;
               }
             }
-
           }
-
           generatedCode += `const ${identifier} = ${valueContent}; \n`;
         }
-
       }
-
     }
-
     return generatedCode;
-
   }
-
 }
 
 export default Generator;

@@ -4,26 +4,9 @@
  * Copyright (C) 2024 - Marwin
 */
 
-import { Token } from '../interfaces/interfaces';
-// eslint-disable-next-line no-shadow
-export enum TokenType {
-  quit = 'quit',
-  log = 'log',
-  open_paren = 'open_paren',
-  close_paren = 'close_paren',
-  int_literal = 'int_literal',
-  alpha_numeric = 'alpha_numeric',
-  char = 'char',
-  string = 'string',
-  semi_colon = 'semi_colon',
-  _var = 'var',
-  equal = 'equal',
-  colon = 'colon',
-  plus = 'plus',
-  dollar_sign = 'dollar_sign',
-  open_quote = 'open_quote',
-  close_quote = 'close_quote',
-}
+import { Token, TokenCategory, TokenType } from '../interfaces/interfaces';
+import { isAlnum, isInt, isOperator, isSpecialCharacter, isWhitespace } from '../lib/tokenizer/isWhatToken';
+import throwError from '../lib/errors/throwError';
 
 class Buffer {
 
@@ -73,81 +56,6 @@ class CharacterStream {
   }
 }
 
-const isAlnum = (inputToTest: string | undefined): boolean => {
-  if (inputToTest) {
-    if (inputToTest.match(/^[a-zA-Z]+$/)) {
-      return true;
-    } else {
-      return false;
-    }
-  } else {
-    return false;
-  }
-};
-
-const isInt = (input: string | number | undefined): boolean => {
-  if (input) {
-    if (input.toString().match(/^[0-9]+$/)) {
-      return true;
-    } else {
-      return false;
-    }
-  } else {
-    return false;
-  }
-};
-
-const isWhitespace = (input: string | number | undefined): boolean => {
-  if (input) {
-    if (input.toString().match(/^\s+$/)) {
-      return true;
-    } else {
-      return false;
-    }
-  } else {
-    return false;
-  }
-};
-
-const isNewLine = (input: string | number | undefined): boolean => {
-  if (input) {
-    if (input.toString().match(/^\n+$/)) {
-      return true;
-    } else {
-      return false;
-    }
-  } else {
-    if (input === '') {
-      return true;
-    }
-    return false;
-  }
-};
-
-const isOperator = (input: string | number | undefined): boolean => {
-  if (input) {
-    if (input.toString().match(/^[=+\-*/]+$/)) {
-      return true;
-    } else {
-      return false;
-    }
-  } else {
-    return false;
-  }
-};
-
-const isSpecialCharacter = (input: string | number | undefined): boolean => {
-  if (input) {
-    if (input.toString().match(/[:$']/)) {
-      return true;
-    } else {
-      return false;
-    }
-  } else {
-    return false;
-  }
-};
-
 /**
  * Tokenizes the input.
  *
@@ -156,13 +64,16 @@ const isSpecialCharacter = (input: string | number | undefined): boolean => {
  * @param input {string} - The input to tokenize
  * @returns {Token[]} - The list of tokens
  */
-const tokenize = (input: string): Token[] => {
+const tokenize = (input: string): Token[] | undefined => {
 
   const tokens: Token[] = [];
   const stream = new CharacterStream(input);
 
   const buffer = new Buffer();
-  let lineCount = 1;
+
+  // This is deprecated
+  // TODO: Remove this
+  const lineCount = 1;
 
   while (stream.peek()) {
 
@@ -174,19 +85,19 @@ const tokenize = (input: string): Token[] => {
         buffer.append(stream.consume());
       }
 
-      if (buffer.value === 'quit') {
-        tokens.push({ type: TokenType.quit, line: lineCount });
+      if (buffer.value === TokenType.quit) {
+        tokens.push({ type: TokenType.quit, line: lineCount, category: TokenCategory.keyword });
         buffer.clear();
-      } else if (buffer.value === 'log') {
-        tokens.push({ type: TokenType.log, line: lineCount });
+      } else if (buffer.value === TokenType.log) {
+        tokens.push({ type: TokenType.log, line: lineCount, category: TokenCategory.keyword });
         buffer.clear();
-      } else if (buffer.value === 'var') {
-        tokens.push({ type: TokenType._var, line: lineCount });
+      } else if (buffer.value === TokenType._var) {
+        tokens.push({ type: TokenType._var, line: lineCount, category: TokenCategory.keyword });
         buffer.clear();
       }
       else {
         // This should be used for variable names, function names, etc
-        tokens.push({ type: TokenType.alpha_numeric, line: lineCount, value: buffer.value });
+        tokens.push({ type: TokenType.alpha_numeric, line: lineCount, value: buffer.value, category: TokenCategory.identifier });
         buffer.clear();
       }
 
@@ -198,46 +109,41 @@ const tokenize = (input: string): Token[] => {
         buffer.append(stream.consume());
       }
 
-      tokens.push({ type: TokenType.int_literal, line: lineCount, value: buffer.value });
+      tokens.push({ type: TokenType.int_literal, line: lineCount, value: buffer.value, category: TokenCategory.int_literal });
       buffer.clear();
 
     } else if (isOperator(stream.peek())) {
 
-      if (stream.peek() === '=') {
+      if (stream.peek() === TokenType.equal) {
 
-        tokens.push({ type: TokenType.equal, line: lineCount });
+        tokens.push({ type: TokenType.equal, line: lineCount, category: TokenCategory.expression });
         stream.consume();
 
-      } else if (stream.peek() === '+') {
+      } else if (stream.peek() === TokenType.plus) {
 
-        tokens.push({ type: TokenType.plus, line: lineCount });
+        tokens.push({ type: TokenType.plus, line: lineCount, category: TokenCategory.expression });
         stream.consume();
 
       } else {
 
-        throw new Error(`Unexpected character -> ${stream.peek()}`);
+        return throwError('Tokenizer', `Unexpected character -> ${stream.peek()}`, lineCount);
 
       }
 
-    } else if (stream.peek() === '(') {
+    } else if (stream.peek() === TokenType.open_paren) {
 
-      tokens.push({ type: TokenType.open_paren, line: lineCount });
+      tokens.push({ type: TokenType.open_paren, line: lineCount, category: TokenCategory.expression });
       stream.consume();
 
-    } else if (stream.peek() === ')') {
+    } else if (stream.peek() === TokenType.close_paren) {
 
-      tokens.push({ type: TokenType.close_paren, line: lineCount });
+      tokens.push({ type: TokenType.close_paren, line: lineCount, category: TokenCategory.expression });
       stream.consume();
 
-    } else if (stream.peek() === ';') {
+    } else if (stream.peek() === TokenType.semi_colon) {
 
-      tokens.push({ type: TokenType.semi_colon, line: lineCount });
+      tokens.push({ type: TokenType.semi_colon, line: lineCount, category: TokenCategory.expression });
       stream.consume();
-
-    } else if (isNewLine(stream.peek())) {
-
-      stream.consume();
-      lineCount++;
 
     } else if (isWhitespace(stream.peek())) {
 
@@ -245,66 +151,82 @@ const tokenize = (input: string): Token[] => {
 
     } else if (isSpecialCharacter(stream.peek())) {
 
-      if (stream.peek() === ':') {
+      if (stream.peek() === TokenType.colon) {
 
-        tokens.push({ type: TokenType.colon, line: lineCount });
+        tokens.push({ type: TokenType.colon, line: lineCount, category: TokenCategory.expression });
         stream.consume();
 
-      } else if (stream.peek() === '$') {
+      } else if (stream.peek() === TokenType.dollar_sign) {
 
-        tokens.push({ type: TokenType.dollar_sign, line: lineCount });
+        tokens.push({ type: TokenType.dollar_sign, line: lineCount, category: TokenCategory.expression });
         stream.consume();
 
-        // eslint-disable-next-line quotes
-      } else if (stream.peek() === "'") {
+      } else if (stream.peek() === TokenType.quote) {
 
-        tokens.push({ type: TokenType.open_quote, line: lineCount });
+        tokens.push({ type: TokenType.quote, line: lineCount, category: TokenCategory.expression });
         stream.consume();
 
         // Instead of leaving the loop when we encounter a single quote, we will keep consuming until we find another single quote
         // This way we can get the string value / or if the length is 1 then it's a char
         // eslint-disable-next-line quotes
-        while (stream.peek() && stream.peek() !== "'") {
+        while (stream.peek() && stream.peek() !== TokenType.quote) {
 
           buffer.append(stream.consume());
 
         }
 
         if (stream.peek() === undefined) {
-          throw new Error('Unexpected end of input -> Expected a closing quote');
+          return throwError('Tokenizer', `Unexpected end of input -> Expected ${TokenType.quote}`, lineCount);
         }
 
-        // eslint-disable-next-line quotes
-        if (stream.peek() === "'") {
+        if (stream.peek() === TokenType.quote) {
 
           if (buffer.value.length === 1) {
 
-            tokens.push({ type: TokenType.char, line: lineCount, value: buffer.value });
+            tokens.push({ type: TokenType.char, line: lineCount, value: buffer.value, category: TokenCategory.char });
             buffer.clear();
 
           } else {
 
-            tokens.push({ type: TokenType.string, line: lineCount, value: buffer.value });
+            tokens.push({ type: TokenType.string, line: lineCount, value: buffer.value, category: TokenCategory.string });
             buffer.clear();
 
           }
 
           stream.consume();
-          tokens.push({ type: TokenType.close_quote, line: lineCount });
-
-          // we have successfully consumed the string/char and now need to check for the next token
-          // We move out of the loop and continue with the next token
-          continue;
+          tokens.push({ type: TokenType.quote, line: lineCount, category: TokenCategory.expression });
 
         } else {
-          throw new Error(`Unexpected character at line ${lineCount} -> ${stream.peek()} -> Expected a closing quote`);
+          return throwError('Tokenizer', `Unexpected character -> ${stream.peek()} -> Expected '${TokenType.quote}`, lineCount);
+        }
+
+      } else if (stream.peek() === TokenType.exclamation_mark) {
+
+        if (stream.peek(1) === TokenType.exclamation_mark) {
+
+          stream.consume();
+          stream.consume();
+
+          // We keep consuming until we find another double exclamation mark, which will indicate the end of the comment
+          while (stream.peek() && !(stream.peek() === TokenType.exclamation_mark && stream.peek(1) === TokenType.exclamation_mark)) {
+
+            buffer.append(stream.consume());
+
+          }
+
+          tokens.push({ type: TokenType.single_line_comment, line: lineCount, value: buffer.value.trim(), category: TokenCategory.comment });
+          buffer.clear();
+          // Consume the double exclamation mark
+          stream.consume();
+          stream.consume();
+
         }
 
       }
 
     } else {
 
-      throw new Error(`Unexpected character -> ${stream.peek()}`);
+      return throwError('Tokenizer', `Unexpected character -> ${stream.peek()}`, lineCount);
 
     }
 

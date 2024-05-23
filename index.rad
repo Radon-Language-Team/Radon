@@ -1,14 +1,9 @@
-var a: $string = 'Hello, ';
-var b: $string = 'world';
-var c: $int = 5;
-var d: $int = 10;
+var x: $int = 10 + 200;
+var y: $int = 20;
 
-var e: $string = a + b + ' how are you?';
-var f: $int = c + d + 5;
+var a: $string = 'Hello' + ' World!';
+var b: $string = ' How are you?';
+var c: $string = a + b;
 
-var x: $int = 5;
-var y: $int = 10;
-
-log(e);
-log(x + y + 5);
-log(f);
+log(x + y);
+log(c);
