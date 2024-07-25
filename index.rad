@@ -1,9 +1,0 @@
-var x: $int = 10 + 200;
-var y: $int = 20;
-
-var a: $string = 'Hello' + ' World!';
-var b: $string = ' How are you?';
-var c: $string = a + b;
-
-log(x + y);
-log(c);
