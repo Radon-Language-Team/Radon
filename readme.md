@@ -20,7 +20,7 @@
 var foo := 'Hello'
 
 // Mutable Variables
-mut foo := 'Hello'
+mut var foo := 'Hello'
 
 // Variables with custom Types
 var foo > CustomType := customVariable
