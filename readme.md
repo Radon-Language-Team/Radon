@@ -17,11 +17,11 @@
 ### Variables
 ```Radon
 // Immutable Variable
-var foo := 'Hello'
+foo := 'Hello'
 
 // Mutable Variables
-mut var foo := 'Hello'
+mut foo := 'Hello'
 
 // Variables with custom Types
-var foo > CustomType := customVariable
+foo > CustomType := customVariable
 ```
