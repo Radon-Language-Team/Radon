@@ -38,7 +38,7 @@ foo > CustomType := customVariable
 
 ### Functions
 ```Radon
-fun foo(arg1: Int, arg2: Int) > Int {
+fun foo(arg1 > Int, arg2 > Int) > Int {
   return arg1 + arg2
 }
 
