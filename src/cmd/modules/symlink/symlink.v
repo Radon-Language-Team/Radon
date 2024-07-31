@@ -24,9 +24,7 @@ pub fn link() {
 	if symlink.user_os == 'linux' {
 		// Since we run on linux, we will remove the radon executable for windows
 		os.rm('radon.exe') or {
-			println(term.red('Failed to remove radon.exe for windows'))
-			os.input('Press enter to continue...')
-			return
+			println(term.yellow('Failed to remove radon.exe for windows'))
 		}
 
 		println(term.gray('Symlinking the radon executable to /usr/local/bin/radon...'))
