@@ -22,7 +22,8 @@ pub fn help() {
 	println('${term.bright_bg_blue('CLI commands:')} - ${term.gray('Run these commands in the CLI')}')
 	println('${term.blue('link')} - ${term.gray('Symlink the radon executable to /usr/local/bin/radon')}')
 	println('${term.blue('unlink')} - ${term.gray('Unlink the radon executable from /usr/local/bin/radon')}')
-	println('${term.blue('help')} - ${term.gray('Display this help message')}\n\n')
+	println('${term.blue('help')} - ${term.gray('Display this help message')}')
+	println('${term.blue('exit')} - ${term.gray('Exit the CLI')}\n\n')
 
 	println('${term.bright_bg_blue('Compiler commands:')} - ${term.gray('Exit the CLI and run <radon <command>> to use these')}')
 	println('${term.blue('radon run file.rad')} - ${term.gray('Run a radon file')}')
@@ -35,6 +36,7 @@ pub fn help() {
 		'link' { symlink.link() }
 		'unlink' { symlink.unlink() }
 		'help' { help() }
+		'exit' { return }
 		else { println('Invalid command. Please run ${term.bg_blue('help')} for a list of commands') }
 	}
 }
