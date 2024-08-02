@@ -1,6 +1,6 @@
 # Define the source and output directories
 SRC_DIR="src/cmd/radon.v"  # The radon V source file path
-OUTPUT_DIR="bin"          # Directory to place the built executables
+OUTPUT_DIR="radon"          # Directory to place the built executables
 EXECUTABLE_NAME="radon"   # The base name of the executable
 
 # Create the output directory if it doesn't exist

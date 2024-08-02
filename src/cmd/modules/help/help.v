@@ -17,20 +17,20 @@ pub fn help() {
 "
 
 	println(term.blue(radon_ascii_art))
-	println(term.bg_blue('CLI for the Radon Programming Language\n\n'))
+	println(term.bg_blue('REPL for the Radon Programming Language\n\n'))
 
-	println('${term.bright_bg_blue('CLI commands:')} - ${term.gray('Run these commands in the CLI')}')
+	println('${term.bright_bg_blue('REPL commands:')} - ${term.gray('Run these commands in the REPL')}')
 	println('${term.blue('link')} - ${term.gray('Symlink the radon executable to /usr/local/bin/radon')}')
 	println('${term.blue('unlink')} - ${term.gray('Unlink the radon executable from /usr/local/bin/radon')}')
 	println('${term.blue('help')} - ${term.gray('Display this help message')}')
-	println('${term.blue('exit')} - ${term.gray('Exit the CLI')}\n\n')
+	println('${term.blue('exit')} - ${term.gray('Exit the REPL')}\n\n')
 
-	println('${term.bright_bg_blue('Compiler commands:')} - ${term.gray('Exit the CLI and run <radon <command>> to use these')}')
+	println('${term.bright_bg_blue('Compiler commands:')} - ${term.gray('Exit the REPL and run <radon <command>> to use these')}')
 	println('${term.blue('radon run file.rad')} - ${term.gray('Run a radon file')}')
 	println('${term.blue('radon file.rad')} - ${term.gray('Compile a radon file')}')
-	println('${term.blue('radon update')} - ${term.gray('Update the radon compiler and the CLI')}\n\n')
+	println('${term.blue('radon update')} - ${term.gray('Update the radon compiler and the REPL')}\n\n')
 
-	command := os.input('Enter the CLI command you want to run: ')
+	command := os.input('Enter the REPL command you want to run: ')
 
 	match command {
 		'link' { symlink.link() }

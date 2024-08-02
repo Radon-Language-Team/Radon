@@ -5,6 +5,7 @@ import term
 import os
 
 pub fn unlink() {
+	user_os := os.user_os()
 	term.clear()
 
 	radon_ascii_art := "
@@ -17,7 +18,7 @@ pub fn unlink() {
 "
 
 	println(term.blue(radon_ascii_art))
-	println(term.bg_blue('CLI for the Radon Programming Language\n\n'))
+	println(term.bg_blue('REPL for the Radon Programming Language\n\n'))
 
 	if user_os == 'linux' {
 		println(term.gray('Unlinking the radon executable from /usr/local/bin/radon...'))
