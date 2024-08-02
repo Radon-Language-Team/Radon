@@ -44,8 +44,6 @@ pub fn link() {
 		return
 	}
 
-	println(term.gray('Checking if radon executable was successfully symlinked...'))
-
 	if !os.exists('${dest_path}') {
 		println(term.red('radon executable was not successfully symlinked.'))
 		os.input('Press enter to continue...')
