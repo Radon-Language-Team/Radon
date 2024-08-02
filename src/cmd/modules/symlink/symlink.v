@@ -10,12 +10,12 @@ pub fn link() {
 	term.clear()
 
 	radon_ascii_art := "
- ____             
-| ___ \\        | |            
-| |_/ /__ _  __| | ___  _ __  
-|    // _` |/ _` |/ _ \\| '_ \\ 
+ ____
+| ___ \\        | |
+| |_/ /__ _  __| | ___  _ __
+|    // _` |/ _` |/ _ \\| '_ \\
 | |\\ \\ (_| | (_| | (_) | | | |
-\\_| \\_\\__,_|\\__,_|\\___/|_| |_|  
+\\_| \\_\\__,_|\\__,_|\\___/|_| |_|
 "
 
 	println(term.blue(radon_ascii_art))
@@ -23,9 +23,7 @@ pub fn link() {
 
 	if symlink.user_os == 'linux' {
 		// Since we run on linux, we will remove the radon executable for windows
-		os.rm('radon.exe') or {
-			println(term.yellow('Failed to remove radon.exe for windows'))
-		}
+		os.rm('radon.exe') or { println(term.yellow('Failed to remove radon.exe for windows')) }
 
 		println(term.gray('Symlinking the radon executable to /usr/local/bin/radon...'))
 		println(term.gray('Checking if radon executable already exists...'))
@@ -60,11 +58,7 @@ pub fn link() {
 			os.input('You may now run <radon> in the terminal. Press enter to continue...')
 		}
 	} else if symlink.user_os == 'windows' {
-		os.rm('radon') or {
-			println(term.red('Failed to remove radon executable for linux'))
-			os.input('Press enter to continue...')
-			return
-		}
+		os.rm('radon') or { println(term.yellow('Failed to remove radon for linux')) }
 
 		// We will create a dir in C:\Program Files called radon
 		// This is where we will store the radon executable
