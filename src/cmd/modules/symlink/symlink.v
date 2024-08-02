@@ -6,7 +6,6 @@ import term
 
 pub fn link() {
 	dest_path := '/usr/local/bin/radon'
-	radon_exec := 'radon'
 	term.clear()
 
 	radon_ascii_art := "

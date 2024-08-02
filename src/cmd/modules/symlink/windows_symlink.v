@@ -42,11 +42,7 @@ pub fn windows_symlink() {
 
 	existing_path := os.getenv('PATH')
 	new_path := '${existing_path};${dest_dir}'
-	os.setenv('PATH', new_path, true) or {
-		println(term.red('Failed to set PATH environment variable > Try again with with Admin privileges'))
-		os.input('Press Enter to exit')
-		return
-	}
+	os.setenv('PATH', new_path, true)
 
 	println(term.green('Successfully symlinked radon.exe to C:/Program Files/bin/radon/radon.exe'))
 	os.input('You may now use <radon> in the command line...')
