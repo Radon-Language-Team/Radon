@@ -17,7 +17,7 @@
 > Everything from this point on is subject to change.
 > It is just an example of what Radon could/would look like.
 
-> [!IMPORTNAT]
+> [!IMPORTANT]
 > Switch to the `v_rewrite` branch to see the latest changes.
 > Clone the repository and then build the radon binary using the `build.sh` script.
 > This requires the `V` Compiler to be installed. This builds both the Linux and Windows binaries.
