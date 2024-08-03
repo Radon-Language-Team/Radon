@@ -1,12 +1,10 @@
-# Define the source and output directories
-SRC_DIR="src/cmd/radon.v"  # The radon V source file path
-OUTPUT_DIR="radon"          # Directory to place the built executables
-EXECUTABLE_NAME="radon"   # The base name of the executable
+SRC_DIR="src/cmd/radon.v"
+OUTPUT_DIR="radon"
+EXECUTABLE_NAME="radon"
 
 # Create the output directory if it doesn't exist
 mkdir -p $OUTPUT_DIR
 
-# Build for Linux
 echo "Building for Linux..."
 v -os linux -o $OUTPUT_DIR/$EXECUTABLE_NAME $SRC_DIR
 

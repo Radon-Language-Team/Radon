@@ -1,3 +1,4 @@
+// Not really a symlink because Windows sucks
 module symlink
 
 import os
@@ -6,6 +7,7 @@ import term
 pub fn windows_symlink() {
 	dest_dir := 'C:/Program Files/radon'
 	dest_path := '${dest_dir}/radon.exe'
+	usr_home_dir := os.home_dir()
 	src_path := 'radon.exe'
 	term.clear()
 	radon_ascii_art := "
@@ -40,18 +42,12 @@ pub fn windows_symlink() {
 		return
 	}
 
-	existing_path := os.getenv('PATH')
-	new_path := '${existing_path};${dest_dir}'
-	response := os.setenv('PATH', new_path, true)
-
-	if response != 0 {
-		println(term.red('Failed to set PATH environment variable > Try again with with Admin privileges'))
+	os.execute('mklink ${usr_home_dir}\\radon.exe C:\\Program Files\\radon\\radon.exe') or {
 		println(os.last_error())
 		os.input('Press Enter to exit')
 		return
 	}
 
 	println(term.green('Successfully symlinked radon.exe to C:/Program Files/radon/radon.exe'))
-	os.input('You may now use <radon> in the command line...')
 	return
 }

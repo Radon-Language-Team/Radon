@@ -20,9 +20,6 @@
 > `cd` into the `bin` directory and run the `radon` binary.
 > You should now be able to run the Radon REPL.
 
-> [!IMPORTANT]
-> The Windows Symbolic Link is not working. You will have to run the `radon` binary either from the cloned git repository or from the `bin` directory.
-
 ### Entry Point
 ```Radon
 fun main() {

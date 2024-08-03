@@ -36,8 +36,8 @@ pub fn unlink() {
 
 		os.input('Press enter to exit.')
 	} else if user_os == 'windows' {
-		dest_dir := 'C:\\Program Files\\bin\\radon'
-		dest_path := '${dest_dir}\\radon.exe'
+		dest_dir := 'C:/Program Files/radon'
+		dest_path := '${dest_dir}/radon.exe'
 
 		println(term.gray('Unlinking the radon executable from ${dest_path}...'))
 
