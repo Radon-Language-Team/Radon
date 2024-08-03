@@ -42,11 +42,7 @@ pub fn windows_symlink() {
 		return
 	}
 
-	os.execute('mklink ${usr_home_dir}\\radon.exe C:\\Program Files\\radon\\radon.exe') or {
-		println(os.last_error())
-		os.input('Press Enter to exit')
-		return
-	}
+	os.execute('mklink ${usr_home_dir}\\radon.exe C:\\Program Files\\radon\\radon.exe')
 
 	println(term.green('Successfully symlinked radon.exe to C:/Program Files/radon/radon.exe'))
 	return
