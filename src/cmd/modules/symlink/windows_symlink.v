@@ -4,7 +4,7 @@ import os
 import term
 
 pub fn windows_symlink() {
-	dest_dir := 'C:/rogram Files/radon'
+	dest_dir := 'C:/Program Files/radon'
 	dest_path := '${dest_dir}/radon.exe'
 	src_path := 'radon.exe'
 	term.clear()
