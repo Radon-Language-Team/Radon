@@ -3,23 +3,11 @@ module symlink
 
 import term
 import os
+import utils
 
 pub fn unlink() {
+	utils.print_art()
 	user_os := os.user_os()
-	term.clear()
-
-	radon_ascii_art := "
- ____
-| ___ \\        | |
-| |_/ /__ _  __| | ___  _ __
-|    // _` |/ _` |/ _ \\| '_ \\
-| |\\ \\ (_| | (_| | (_) | | | |
-\\_| \\_\\__,_|\\__,_|\\___/|_| |_|
-"
-
-	println(term.blue(radon_ascii_art))
-	println(term.bg_blue('REPL for the Radon Programming Language\n\n'))
-
 	if user_os == 'linux' {
 		println(term.gray('Unlinking the radon executable from /usr/local/bin/radon...'))
 		os.rm('/usr/local/bin/radon') or {
