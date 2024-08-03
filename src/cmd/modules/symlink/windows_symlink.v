@@ -4,8 +4,8 @@ import os
 import term
 
 pub fn windows_symlink() {
-	dest_dir := 'C:\\Program Files\\bin\\radon'
-	dest_path := '${dest_dir}\\radon.exe'
+	dest_dir := 'C:/rogram Files/radon'
+	dest_path := '${dest_dir}/radon.exe'
 	src_path := 'radon.exe'
 	term.clear()
 	radon_ascii_art := "
@@ -22,9 +22,7 @@ pub fn windows_symlink() {
 
 	os.rm('radon') or { println(term.yellow('Linux binary already removed')) }
 
-	println(term.gray('Symlinking radon.exe to C:/Program Files/bin/radon/radon.exe'))
-
-	// We are moving the radon executable into C:\Program Files\bin\radon\radon.exe
+	println(term.gray('Symlinking radon.exe to C:/Program Files/radon/radon.exe'))
 
 	if !os.exists(dest_dir) {
 		os.mkdir(dest_dir) or {
@@ -35,7 +33,7 @@ pub fn windows_symlink() {
 	}
 
 	os.mv(src_path, dest_path) or {
-		println(term.red('Failed to move radon.exe to C:/Program Files/bin/radon/radon.exe > Try again with with Admin privileges'))
+		println(term.red('Failed to move radon.exe to C:/Program Files/radon/radon.exe > Try again with with Admin privileges'))
 		os.input('Press Enter to exit')
 		return
 	}
@@ -44,7 +42,7 @@ pub fn windows_symlink() {
 	new_path := '${existing_path};${dest_dir}'
 	os.setenv('PATH', new_path, true)
 
-	println(term.green('Successfully symlinked radon.exe to C:/Program Files/bin/radon/radon.exe'))
+	println(term.green('Successfully symlinked radon.exe to C:/Program Files/radon/radon.exe'))
 	os.input('You may now use <radon> in the command line...')
 	return
 }
