@@ -14,15 +14,14 @@
 </div>
 
 > [!NOTE]
-> Everything from this point on is subject to change.
-> It is just an example of what Radon could/would look like.
-
-> [!IMPORTANT]
 > Switch to the `v_rewrite` branch to see the latest changes.
 > Clone the repository and then build the radon binary using the `build.sh` script.
 > This requires the `V` Compiler to be installed. This builds both the Linux and Windows binaries.
 > `cd` into the `bin` directory and run the `radon` binary.
 > You should now be able to run the Radon REPL.
+
+> [!IMPORTANT]
+> The Windows Symbolic Link is not working. You will have to run the `radon` binary either from the cloned git repository or from the `bin` directory.
 
 ### Entry Point
 ```Radon
