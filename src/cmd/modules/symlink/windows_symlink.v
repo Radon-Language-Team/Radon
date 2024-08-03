@@ -27,6 +27,7 @@ pub fn windows_symlink() {
 	if !os.exists(dest_dir) {
 		os.mkdir(dest_dir) or {
 			println(term.red('Failed to create directory > Try again with with Admin privileges'))
+			println(os.last_error())
 			os.input('Press Enter to exit')
 			return
 		}
@@ -34,6 +35,7 @@ pub fn windows_symlink() {
 
 	os.mv(src_path, dest_path) or {
 		println(term.red('Failed to move radon.exe to C:/Program Files/radon/radon.exe > Try again with with Admin privileges'))
+		println(os.last_error())
 		os.input('Press Enter to exit')
 		return
 	}
