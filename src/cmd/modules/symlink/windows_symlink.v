@@ -1,4 +1,5 @@
 // Not really a symlink because Windows sucks
+// We just move the binary to the Program Files directory and tell the user to create a symlink
 module symlink
 
 import os
@@ -7,7 +8,6 @@ import term
 pub fn windows_symlink() {
 	dest_dir := 'C:/Program Files/radon'
 	dest_path := '${dest_dir}/radon.exe'
-	usr_home_dir := os.home_dir()
 	src_path := 'radon.exe'
 	term.clear()
 	radon_ascii_art := "
@@ -35,6 +35,15 @@ pub fn windows_symlink() {
 		}
 	}
 
+	if os.exists(dest_path) {
+		os.rm(dest_path) or {
+			println(term.red('Failed to remove existing radon.exe > Try again with with Admin privileges'))
+			println(os.last_error())
+			os.input('Press Enter to exit')
+			return
+		}
+	}
+
 	os.mv(src_path, dest_path) or {
 		println(term.red('Failed to move radon.exe to C:/Program Files/radon/radon.exe > Try again with with Admin privileges'))
 		println(os.last_error())
@@ -42,8 +51,9 @@ pub fn windows_symlink() {
 		return
 	}
 
-	os.execute('mklink ${usr_home_dir}\\radon.exe C:\\Program Files\\radon\\radon.exe')
-
-	println(term.green('Successfully symlinked radon.exe to C:/Program Files/radon/radon.exe'))
+	println(term.green('Success!'))
+	println(term.gray('Open a new terminal and type:'))
+	println(term.gray('mklink radon.exe "C:\\Program Files\\radon\\radon.exe"'))
+	os.input('Press Enter to exit')
 	return
 }
