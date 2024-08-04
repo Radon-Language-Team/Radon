@@ -20,14 +20,6 @@
 > `cd` into the `bin` directory and run the `radon` binary.
 > You should now be able to run the Radon REPL.
 
-> [!IMPORTANT]
-> On windows, after running `link` in the REPL, you will need to manually creeate the symlink.
-> Open up a new terminal as an admin and run:
-> ```bash
-> mklink radon.exe "C:\Program Files\Radon\radon.exe"
-> ```
-> This will create a symlink to the radon binary in the `Program Files` directory and allow you to run the `radon` command from anywhere in the terminal.
-
 ### Entry Point
 ```Radon
 fun main() {
