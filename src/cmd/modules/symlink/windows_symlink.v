@@ -7,22 +7,25 @@ import utils
 pub fn windows_symlink() {
 	utils.print_art()
 
-	radon_dir := os.real_path(os.dir('${os.getwd()}/radon.exe'))
-	radon_symlink_dir := os.join_path(radon_dir, '.bin')
-	radon_symlink := os.join_path(radon_symlink_dir, 'radon.exe')
+	original_exe := os.real_path('${os.getwd()}/radon.exe')
+
+	user_home := os.getenv('USERPROFILE')
+	radon_symlink_dir := os.join_path(user_home, '.bin')
 
 	if !os.exists(radon_symlink_dir) {
 		os.mkdir(radon_symlink_dir) or {
-			println(err)
-			exit(1)
+			println(term.red('Failed to create symlink directory: ${err}'))
+			return
 		}
 	}
 
-	os.symlink(radon_dir, radon_symlink) or {
-		println(term.red('Was not able to create symlink > Make sure you have the right permissions'))
-		println(err)
+	// Full path to where the symlink will be created
+	radon_symlink := os.join_path(radon_symlink_dir, 'radon.exe')
+
+	os.symlink(original_exe, radon_symlink) or {
+		println(term.red('Failed to create symlink: ${err}'))
 		exit(1)
 	}
 
-	println(term.green('Symlink created successfully'))
+	println(term.green('Symlink created successfully!'))
 }
