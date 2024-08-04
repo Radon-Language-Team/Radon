@@ -1,8 +1,10 @@
 module utils
 
 import term
+import os
 
 pub fn print_art() {
+	user_os := os.user_os()
 	term.clear()
 
 	radon_ascii_art := "
@@ -15,5 +17,6 @@ ____
 "
 
 	println(term.blue(radon_ascii_art))
-	println(term.bg_blue('REPL for the Radon Programming Language\n\n'))
+	println(term.bg_blue('REPL for the Radon Programming Language'))
+	println(term.bg_blue('Current OS: ${user_os}\n\n'))
 }

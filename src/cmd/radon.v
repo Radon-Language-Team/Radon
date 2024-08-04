@@ -9,7 +9,6 @@ import utils
 fn main() {
 	utils.print_art()
 	user_os := os.user_os()
-	println(term.bg_blue('Current OS: ${user_os}\n\n'))
 	if os.args.len > 1 {
 		println('Args found - Implement this later')
 	}
