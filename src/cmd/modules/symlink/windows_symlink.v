@@ -8,10 +8,12 @@ pub fn windows_symlink() {
 	utils.print_art()
 
 	radon_dir := os.real_path(os.dir('${os.getwd()}/radon.exe'))
-	radon_symlink := os.join_path(radon_dir, 'radon.exe')
+	radon_symlink_dir := os.join_path(radon_dir, '.bin')
+	radon_symlink := os.join_path(radon_symlink_dir, 'radon.exe')
 
-	os.symlink('${os.getwd()}/radon.exe', radon_symlink) or {
+	os.symlink(radon_dir, radon_symlink) or {
 		println(term.red('Was not able to create symlink > Make sure you have the right permissions'))
+		println(err)
 		exit(1)
 	}
 
