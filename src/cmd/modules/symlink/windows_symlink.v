@@ -27,5 +27,12 @@ pub fn windows_symlink() {
 		exit(1)
 	}
 
+	existing_path := os.getenv('PATH')
+
+	if !existing_path.contains(radon_symlink_dir) {
+		new_path := '${existing_path};${radon_symlink_dir}'
+		os.setenv('PATH', new_path, true)
+	}
+
 	println(term.green('Symlink created successfully!'))
 }
