@@ -3,6 +3,8 @@ OUTPUT_DIR="radon"
 EXECUTABLE_NAME="radon"
 USER_OS=$(uname)
 
+mkdir -p $OUTPUT_DIR
+
 if [ "$USER_OS" = "Linux" ]; then
 
     echo "Building for Linux..."
