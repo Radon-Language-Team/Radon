@@ -3,10 +3,10 @@ module symlink
 
 import os
 import term
-import utils
+import tools
 
 pub fn link() {
-	utils.print_art()
+	tools.print_art()
 	mut dest_dir := '/usr/local/bin'
 	println('${os.getwd()}')
 

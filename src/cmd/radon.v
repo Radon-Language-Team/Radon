@@ -2,12 +2,12 @@ module main
 
 import term
 import os
-import symlink
-import help
-import utils
+import tools.symlink
+import tools.help
+import tools
 
 fn main() {
-	utils.print_art()
+	tools.print_art()
 	user_os := os.user_os()
 	if os.args.len > 1 {
 		println('Args found - Implement this later')

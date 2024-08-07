@@ -1,4 +1,4 @@
-module utils
+module tools
 
 import term
 import os

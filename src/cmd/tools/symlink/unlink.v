@@ -3,10 +3,10 @@ module symlink
 
 import term
 import os
-import utils
+import tools
 
 pub fn unlink() {
-	utils.print_art()
+	tools.print_art()
 	user_os := os.user_os()
 	if user_os == 'linux' {
 		println(term.gray('Unlinking the radon executable from /usr/local/bin/radon...'))
