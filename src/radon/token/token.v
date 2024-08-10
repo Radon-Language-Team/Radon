@@ -42,4 +42,5 @@ pub enum Token {
 	percent     // %
 	ampersand   // &
 	pipe        // |
+	radon_null	// Only used for the compiler
 }

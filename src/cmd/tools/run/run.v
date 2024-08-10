@@ -2,10 +2,9 @@ module run
 
 import term
 import os
-// import src.radon.lexer
+import radon.lexer
 
 pub fn radon_run() {
-	// lexer.lexer_test()
 	args := os.args
 
 	// [0]: radon | [1]: run | [2]: file_name
@@ -21,4 +20,7 @@ pub fn radon_run() {
 	}
 
 	println(term.gray('Running ${file_name}...'))
+	lexer.lex(file_name, file_path) or {
+		println(term.red('radon_lexer Error: Error while trying to lex file'))
+	}
 }
