@@ -10,6 +10,8 @@ mut:
 	file_name  string
 	file_path  string
 	line_count int
+	index      int
+	buffer     string
 	all_tokens []Token
 	token      Token
 	prev_token Token
@@ -18,8 +20,8 @@ mut:
 
 pub fn lex(file_name string, file_path string) ![]Token {
 	mut lexer := Lexer{
-		file_name: file_name
-		file_path: file_path
+		file_name:  file_name
+		file_path:  file_path
 		line_count: 1
 		all_tokens: []
 	}
@@ -31,7 +33,7 @@ pub fn lex(file_name string, file_path string) ![]Token {
 
 	defer {
 		file_to_lex.close()
-		println(term.gray('[INFO]: Closed file'))
+		println(term.gray('[INFO]: Closed file: ${file_name}'))
 	}
 
 	content := os.read_file(file_path) or {
@@ -45,5 +47,23 @@ pub fn lex(file_name string, file_path string) ![]Token {
 }
 
 pub fn (mut l Lexer) lex_file(content string) {
-	println(content)
+	for c in content {
+		if l.token.is_alpha(c) {
+			l.buffer += content[l.index].ascii_str()
+			l.index += 1
+
+			for l.token.is_alpha(content[l.index]) {
+				l.buffer += content[l.index].ascii_str()
+				l.index += 1
+
+				if l.index >= content.len {
+					break
+				}
+			}
+			l.all_tokens << l.token.find_token(l.buffer)
+			l.buffer = ''
+			break
+		}
+	}
+	println('All tokens: ${l.all_tokens}')
 }

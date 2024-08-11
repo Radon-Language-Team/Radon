@@ -12,6 +12,12 @@ pub fn radon_run() {
 		println(term.red('radon_run Error: No file name provided'))
 		return
 	}
+
+	if !file_name.contains('.rad') {
+		println(term.red('radon_run Error: Invalid file type'))
+		return
+	}
+
 	file_path := os.join_path(os.getwd(), file_name)
 
 	if !os.exists(file_path) {
@@ -19,7 +25,7 @@ pub fn radon_run() {
 		return
 	}
 
-	println(term.gray('Running ${file_name}...'))
+	println(term.gray('[INFO]: Running file: ${file_name}'))
 	lexer.lex(file_name, file_path) or {
 		println(term.red('radon_lexer Error: Error while trying to lex file'))
 	}
