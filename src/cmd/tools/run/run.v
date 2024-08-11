@@ -26,7 +26,9 @@ pub fn radon_run() {
 	}
 
 	println(term.gray('[INFO]: Running file: ${file_name}'))
-	lexer.lex(file_name, file_path) or {
+	tokens := lexer.lex(file_name, file_path) or {
 		println(term.red('radon_lexer Error: Error while trying to lex file'))
+		exit(1)
 	}
+	println('Collected tokens: \n${tokens}')
 }
