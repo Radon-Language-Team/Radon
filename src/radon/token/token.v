@@ -1,5 +1,6 @@
 module token
 
+import regex
 import encoding.utf8 { is_letter, is_number, is_space }
 
 pub enum TokenType {
@@ -64,6 +65,20 @@ pub fn (mut t Token) is_int(letter rune) bool {
 
 pub fn (mut t Token) is_white(letter rune) bool {
 	return is_space(letter)
+}
+
+pub fn (mut t Token) is_special(letter rune) bool {
+	mut special_regex := regex.regex_opt('[!@#$%^&*()_+{}|:"<>?]') or {
+		println('radon_token Error: Failed to create special_chars regex')
+		exit(1)
+	}
+	res, res_two := special_regex.find(letter.str())
+
+	if res == 0 || res_two == 0 {
+		return true
+	} else {
+		return false
+	}
 }
 
 pub fn (mut t Token) find_token(token string) TokenType {

@@ -7,14 +7,15 @@ import token { Token, TokenType }
 @[minify]
 pub struct Lexer {
 mut:
-	file_name  string
-	file_path  string
-	line_count int
-	index      int
-	buffer     string
-	all_tokens []Token
-	token      Token
-	prev_token Token
+	file_name    string
+	file_path    string
+	file_content string
+	line_count   int
+	index        int
+	buffer       string
+	all_tokens   []Token
+	token        Token
+	prev_token   Token
 }
 
 pub fn lex(file_name string, file_path string) ![]Token {
@@ -40,13 +41,98 @@ pub fn lex(file_name string, file_path string) ![]Token {
 		exit(1)
 	}
 
-	lexer.lex_file(content)
+	lexer.file_content = content
+
+	lexer.lex_file()
 
 	return lexer.all_tokens
 }
 
-fn (mut l Lexer) token_manager(new_token Token) {
+pub fn (mut l Lexer) lex_file() {
+	for c in l.file_content {
+		if l.index >= l.file_content.len {
+			println(term.gray('[INFO]: Finished lexing file: ${l.file_name} - ${c}'))
+			break
+		}
+		if l.token.is_alpha(l.file_content[l.index]) {
+			l.lex_alpha()
+		} else if l.token.is_int(l.file_content[l.index]) {
+			l.lex_int()
+		} else if l.token.is_white(l.file_content[l.index]) {
+			l.lex_white()
+		} else if l.token.is_special(l.file_content[l.index]) {
+			l.lex_special()
+		} else {
+			println(term.red('radon_lexer Error: Invalid character: "${l.file_content[l.index].ascii_str()}" on line: ${l.line_count}'))
+			exit(1)
+		}
+	}
+}
 
+fn (mut l Lexer) lex_alpha() {
+	l.buffer += l.file_content[l.index].ascii_str()
+	l.index += 1
+
+	for l.token.is_alpha(l.file_content[l.index]) {
+		l.buffer += l.file_content[l.index].ascii_str()
+		l.index += 1
+
+		if l.index >= l.file_content.len {
+			break
+		}
+	}
+	new_token := Token{
+		token_type:  l.token.find_token(l.buffer)
+		value:       l.buffer
+		line_number: l.line_count
+	}
+	l.token_manager(new_token)
+	l.buffer = ''
+}
+
+fn (mut l Lexer) lex_int() {
+	l.buffer += l.file_content[l.index].ascii_str()
+	l.index += 1
+
+	for l.token.is_int(l.file_content[l.index]) {
+		l.buffer += l.file_content[l.index].ascii_str()
+		l.index += 1
+
+		if l.index >= l.file_content.len {
+			break
+		}
+	}
+	new_token := Token{
+		token_type:  TokenType.type_int
+		value:       l.buffer
+		line_number: l.line_count
+	}
+	l.token_manager(new_token)
+	l.buffer = ''
+}
+
+fn (mut l Lexer) lex_special() {
+	// Special chars are only passed in as single characters
+	new_token := Token{
+		token_type:  l.token.find_token(l.file_content[l.index].ascii_str())
+		value:       l.file_content[l.index].ascii_str()
+		line_number: l.line_count
+	}
+	l.token_manager(new_token)
+	l.index += 1
+}
+
+fn (mut l Lexer) lex_white() {
+	if l.file_content[l.index].ascii_str() == '\n' {
+		l.line_count += 1
+	} else if l.file_content[l.index].ascii_str() == '\r\n' {
+		// Windows line ending
+		l.index += 1
+	}
+	l.index += 1
+}
+
+fn (mut l Lexer) token_manager(new_token Token) {
 	if new_token.token_type == TokenType.radon_null {
 		println(term.red('radon_lexer Error: Invalid token: ${new_token.value} on line: ${new_token.line_number}'))
 		exit(1)
@@ -54,63 +140,4 @@ fn (mut l Lexer) token_manager(new_token Token) {
 	l.prev_token = l.token
 	l.token = new_token
 	l.all_tokens << new_token
-}
-
-pub fn (mut l Lexer) lex_file(content string) {
-	for c in content {
-		if l.index >= content.len {
-			println(term.gray('[INFO]: Finished lexing file: ${l.file_name} - ${c}'))
-			break
-		}
-		if l.token.is_alpha(content[l.index]) {
-			l.buffer += content[l.index].ascii_str()
-			l.index += 1
-
-			for l.token.is_alpha(content[l.index]) {
-				l.buffer += content[l.index].ascii_str()
-				l.index += 1
-
-				if l.index >= content.len {
-					break
-				}
-			}
-			new_token := Token{
-				token_type:  l.token.find_token(l.buffer)
-				value:       l.buffer
-				line_number: l.line_count
-			}
-			l.token_manager(new_token)
-			l.buffer = ''
-		} else if l.token.is_int(content[l.index]) {
-			l.buffer += content[l.index].ascii_str()
-			l.index += 1
-
-			for l.token.is_int(content[l.index]) {
-				l.buffer += content[l.index].ascii_str()
-				l.index += 1
-
-				if l.index >= content.len {
-					break
-				}
-			}
-			new_token := Token{
-				token_type:  TokenType.type_int
-				value:       l.buffer
-				line_number: l.line_count
-			}
-			l.token_manager(new_token)
-			l.buffer = ''
-		} else if l.token.is_white(content[l.index]) {
-			if content[l.index].ascii_str() == '\n' {
-				l.line_count += 1
-			} else if content[l.index].ascii_str() == '\r\n' {
-				// Windows line ending
-				l.index += 1
-			}
-			l.index += 1
-		} else {
-			println(term.red('radon_lexer Error: Invalid character: "${content[l.index].ascii_str()}" on line: ${l.line_count}'))
-			exit(1)
-		}
-	}
 }
