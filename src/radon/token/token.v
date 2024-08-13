@@ -68,7 +68,7 @@ pub fn (mut t Token) is_white(letter rune) bool {
 }
 
 pub fn (mut t Token) is_special(letter rune) bool {
-	mut special_regex := regex.regex_opt('[!@#$%^&*()_+{}|:"<>?]') or {
+	mut special_regex := regex.regex_opt('[!@#$%^&*()_+{}|.:"<>?]') or {
 		println('radon_token Error: Failed to create special_chars regex')
 		exit(1)
 	}

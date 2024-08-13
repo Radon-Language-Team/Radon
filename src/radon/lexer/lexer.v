@@ -27,7 +27,7 @@ pub fn lex(file_name string, file_path string) ![]Token {
 	}
 
 	mut file_to_lex := os.open(file_path) or {
-		println(term.red('radon_lexer Error: Could not open file ${file_name} - ${err}'))
+		lexer.throw_lex_error('Could not open file: ${file_name}')
 		exit(1)
 	}
 
@@ -37,7 +37,7 @@ pub fn lex(file_name string, file_path string) ![]Token {
 	}
 
 	content := os.read_file(file_path) or {
-		println(term.red('radon_lexer Error: Could not read file'))
+		lexer.throw_lex_error('Could not read file: ${file_name}')
 		exit(1)
 	}
 
@@ -63,7 +63,7 @@ pub fn (mut l Lexer) lex_file() {
 		} else if l.token.is_special(l.file_content[l.index]) {
 			l.lex_special()
 		} else {
-			println(term.red('radon_lexer Error: Invalid character: "${l.file_content[l.index].ascii_str()}" on line: ${l.line_count}'))
+			l.throw_lex_error('Invalid character: ${l.file_content[l.index].ascii_str()}')
 			exit(1)
 		}
 	}
@@ -134,10 +134,15 @@ fn (mut l Lexer) lex_white() {
 
 fn (mut l Lexer) token_manager(new_token Token) {
 	if new_token.token_type == TokenType.radon_null {
-		println(term.red('radon_lexer Error: Invalid token: ${new_token.value} on line: ${new_token.line_number}'))
+		l.throw_lex_error('Invalid token type: ${new_token.token_type}')
 		exit(1)
 	}
 	l.prev_token = l.token
 	l.token = new_token
 	l.all_tokens << new_token
+}
+
+fn (mut l Lexer) throw_lex_error(err_msg string) {
+	err := term.red(err_msg)
+	println('radon_lexer Error: \n\n${err} \nOn line: ${l.line_count} - Index: ${l.index} \nIn file: ${l.file_name} \nFull path: ${l.file_path}')
 }
