@@ -113,6 +113,12 @@ fn (mut l Lexer) lex_int() {
 
 fn (mut l Lexer) lex_special() {
 	// Special chars are only passed in as single characters
+
+	if l.file_content[l.index].ascii_str() == "'" || l.file_content[l.index].ascii_str() == '"' {
+		l.lex_string()
+		return
+	}
+
 	new_token := Token{
 		token_type:  l.token.find_token(l.file_content[l.index].ascii_str())
 		value:       l.file_content[l.index].ascii_str()
@@ -120,6 +126,36 @@ fn (mut l Lexer) lex_special() {
 	}
 	l.token_manager(new_token)
 	l.index += 1
+}
+
+fn (mut l Lexer) lex_string() {
+	l.index += 1
+	string_type := l.file_content[l.index].ascii_str()
+	l.buffer = ''
+
+	for l.file_content[l.index].ascii_str() != "'" && l.file_content[l.index].ascii_str() != '"' {
+		l.buffer += l.file_content[l.index].ascii_str()
+		l.index += 1
+
+		if l.index >= l.file_content.len {
+			l.throw_lex_error('String not closed')
+			exit(1)
+		}
+	}
+	l.index += 1
+	// This is done so you can't open a string with a single quote and close it with a double quote
+	if l.file_content[l.index].ascii_str() != string_type {
+		l.throw_lex_error('String not closed')
+		exit(1)
+	}
+
+	new_token := Token{
+		token_type:  TokenType.type_string
+		value:       l.buffer
+		line_number: l.line_count
+	}
+	l.token_manager(new_token)
+	l.buffer = ''
 }
 
 fn (mut l Lexer) lex_white() {
@@ -134,7 +170,7 @@ fn (mut l Lexer) lex_white() {
 
 fn (mut l Lexer) token_manager(new_token Token) {
 	if new_token.token_type == TokenType.radon_null {
-		l.throw_lex_error('Invalid token type: ${new_token.token_type}')
+		l.throw_lex_error('Invalid token type')
 		exit(1)
 	}
 	l.prev_token = l.token
