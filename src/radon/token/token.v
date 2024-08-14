@@ -45,6 +45,7 @@ pub enum TokenType {
 	percent     // %
 	ampersand   // &
 	pipe        // |
+	var_name    // reserved for variables
 	radon_null  // Only used for the compiler
 }
 
@@ -68,7 +69,7 @@ pub fn (mut t Token) is_white(letter rune) bool {
 }
 
 pub fn (mut t Token) is_special(letter rune) bool {
-	mut special_regex := regex.regex_opt('[!@#$%^&*()_+{}|.:"\'<>?]') or {
+	mut special_regex := regex.regex_opt('[!@#$%^&*()_+{}|.:="\'<>?]') or {
 		println('radon_token Error: Failed to create special_chars regex')
 		exit(1)
 	}
@@ -121,6 +122,7 @@ pub fn (mut t Token) find_token(token string) TokenType {
 		'%' { return TokenType.percent }
 		'&' { return TokenType.ampersand }
 		'|' { return TokenType.pipe }
+		'variable' { return TokenType.var_name }
 		else { return TokenType.radon_null }
 	}
 }

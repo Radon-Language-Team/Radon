@@ -6,7 +6,7 @@ import token { Token, TokenType }
 
 @[minify]
 pub struct Lexer {
-mut:
+pub mut:
 	file_name    string
 	file_path    string
 	file_content string
@@ -18,7 +18,7 @@ mut:
 	prev_token   Token
 }
 
-pub fn lex(file_name string, file_path string) ![]Token {
+pub fn lex(file_name string, file_path string) !Lexer {
 	mut lexer := Lexer{
 		file_name:  file_name
 		file_path:  file_path
@@ -45,7 +45,7 @@ pub fn lex(file_name string, file_path string) ![]Token {
 
 	lexer.lex_file()
 
-	return lexer.all_tokens
+	return lexer
 }
 
 pub fn (mut l Lexer) lex_file() {
@@ -81,11 +81,17 @@ fn (mut l Lexer) lex_alpha() {
 			break
 		}
 	}
-	new_token := Token{
+	mut new_token := Token{
 		token_type:  l.token.find_token(l.buffer)
 		value:       l.buffer
 		line_number: l.line_count
 	}
+
+	if new_token.token_type == TokenType.radon_null {
+		// This is a variable
+		new_token.token_type = TokenType.var_name
+	}
+
 	l.token_manager(new_token)
 	l.buffer = ''
 }
@@ -129,8 +135,8 @@ fn (mut l Lexer) lex_special() {
 }
 
 fn (mut l Lexer) lex_string() {
-	l.index += 1
 	string_type := l.file_content[l.index].ascii_str()
+	l.index += 1
 	l.buffer = ''
 
 	for l.file_content[l.index].ascii_str() != "'" && l.file_content[l.index].ascii_str() != '"' {
@@ -142,10 +148,9 @@ fn (mut l Lexer) lex_string() {
 			exit(1)
 		}
 	}
-	l.index += 1
 	// This is done so you can't open a string with a single quote and close it with a double quote
 	if l.file_content[l.index].ascii_str() != string_type {
-		l.throw_lex_error('String not closed')
+		l.throw_lex_error('String not closed - Mismatched quotes')
 		exit(1)
 	}
 
@@ -156,6 +161,7 @@ fn (mut l Lexer) lex_string() {
 	}
 	l.token_manager(new_token)
 	l.buffer = ''
+	l.index += 1
 }
 
 fn (mut l Lexer) lex_white() {
