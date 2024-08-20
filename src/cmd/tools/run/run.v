@@ -3,6 +3,7 @@ module run
 import term
 import os
 import radon.lexer
+import radon.opt
 
 pub fn radon_run() {
 	args := os.args
@@ -30,5 +31,11 @@ pub fn radon_run() {
 		println(term.red('radon_lexer Error: Error while trying to lex file'))
 		exit(1)
 	}
-	println('Collected tokens: \n${lexed_file.all_tokens}')
+
+	optimized_tokens := opt.optimize(lexed_file.all_tokens) or {
+		println(term.red('radon_opt Error: Error while trying to optimize tokens'))
+		exit(1)
+	}
+
+	println('Optimized tokens: ${optimized_tokens}')
 }

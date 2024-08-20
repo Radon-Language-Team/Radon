@@ -48,7 +48,7 @@ pub fn lex(file_name string, file_path string) !Lexer {
 	return lexer
 }
 
-pub fn (mut l Lexer) lex_file() {
+fn (mut l Lexer) lex_file() {
 	for c in l.file_content {
 		if l.index >= l.file_content.len {
 			println(term.gray('[INFO]: Finished lexing file: ${l.file_name} - ${c}'))

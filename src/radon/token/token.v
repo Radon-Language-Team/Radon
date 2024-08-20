@@ -1,6 +1,8 @@
 module token
 
+import arrays
 import regex
+import term
 import encoding.utf8 { is_letter, is_number, is_space }
 
 pub enum TokenType {
@@ -47,6 +49,9 @@ pub enum TokenType {
 	pipe        // |
 	var_name    // reserved for variables
 	radon_null  // Only used for the compiler
+
+	// replacement tokens
+	function_return // ->
 }
 
 pub struct Token {
@@ -69,7 +74,7 @@ pub fn (mut t Token) is_white(letter rune) bool {
 }
 
 pub fn (mut t Token) is_special(letter rune) bool {
-	mut special_regex := regex.regex_opt('[!@#$%^&*()_+{}|.:="\'<>?]') or {
+	mut special_regex := regex.regex_opt('[!@#$%^&*()_+-{}|.:="\'<>?]') or {
 		println('radon_token Error: Failed to create special_chars regex')
 		exit(1)
 	}
@@ -125,4 +130,16 @@ pub fn (mut t Token) find_token(token string) TokenType {
 		'variable' { return TokenType.var_name }
 		else { return TokenType.radon_null }
 	}
+}
+
+// This function is used to remove an abitrary amount of tokens from a list of tokens
+// and replace them with a new token
+pub fn (mut t Token) remove_token_and_replace(tokens []Token, token_index int, replacement_token Token, skip_amont int) ![]Token {
+	left_side := tokens[0..token_index]
+	right_side := tokens[token_index + skip_amont..tokens.len]
+
+	mut new_tokens := arrays.append(left_side, right_side)
+	new_tokens[token_index] = replacement_token
+
+	return new_tokens
 }
