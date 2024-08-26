@@ -1,8 +1,6 @@
 module token
 
-import arrays
 import regex
-import term
 import encoding.utf8 { is_letter, is_number, is_space }
 
 pub enum TokenType {
@@ -134,12 +132,31 @@ pub fn (mut t Token) find_token(token string) TokenType {
 
 // This function is used to remove an abitrary amount of tokens from a list of tokens
 // and replace them with a new token
-pub fn (mut t Token) remove_token_and_replace(tokens []Token, token_index int, replacement_token Token, skip_amont int) ![]Token {
-	left_side := tokens[0..token_index]
-	right_side := tokens[token_index + skip_amont..tokens.len]
+pub fn remove_token_and_replace(tokens []Token, token_index int, replacement_token Token, skip_amount int) ![]Token {
+	// If the skip_amount is invalid, return the original tokens
+	if skip_amount >= tokens.len || token_index >= tokens.len || token_index < 0 {
+		return tokens
+	}
 
-	mut new_tokens := arrays.append(left_side, right_side)
-	new_tokens[token_index] = replacement_token
+	// Capture the tokens to the left and right of the section to be replaced
+	left_side := tokens[0..token_index]
+	right_side := tokens[token_index + skip_amount..tokens.len]
+
+	// Create a new mutable token array and append left_side and replacement_token
+	mut new_tokens := left_side.clone()
+	new_tokens << replacement_token
+
+	// Append the remaining tokens from right_side
+	new_tokens << right_side
 
 	return new_tokens
+}
+
+pub fn find_replacement_token_type(token_str_one string, token_str_two string) TokenType {
+	combo := [token_str_one, token_str_two]
+
+	match combo {
+		['-', '>'] { return TokenType.function_return }
+		else { return TokenType.radon_null }
+	}
 }

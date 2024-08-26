@@ -1,6 +1,7 @@
 module opt
 
-import radon.token { Token, TokenType }
+import radon.token { Token, TokenType, find_replacement_token_type, remove_token_and_replace }
+import term
 
 @[minify]
 pub struct Optimizer {
@@ -25,47 +26,58 @@ pub fn optimize(tokens []Token) ![]Token {
 	mut optimizer := Optimizer{
 		token_index: 0
 		all_tokens:  tokens
-		prev_token:  Token{}
-		token:       Token{}
-		next_token:  Token{}
 	}
 
 	return optimizer.optimize_tokens()
 }
 
 fn (mut o Optimizer) optimize_tokens() []Token {
-	token_combos_to_remove := [
-		['-', '>'], // Remove the `-` token and replace the `>` token with a `->` token
-		['!', '='], // Remove the `!` token and replace the `=` token with a `!=` token
-		['=', '='], // Remove the `=` token and replace the `=` token with a `==` token
-		['<', '='], // Remove the `<` token and replace the `=` token with a `<=` token
-		['>', '='], // Remove the `>` token and replace the `=` token with a `>=` token
-		['&', '&'], // Remove the `&` token and replace the `&` token with a `&&` token
-		['|', '|'], // Remove the `|` token and replace the `|` token with a `||` token
+	token_combos := [
+		'->',
+		'==',
+		'!=',
+		'<=',
+		'>=',
+		'&&',
+		'||',
+		'+=',
+		'-=',
+		'*=',
+		'/=',
+		'%=',
 	]
-
 	for token in o.all_tokens {
-		o.token = token
-		o.next_token = o.all_tokens[o.token_index + 1] or {
-			// We have reached the end of the array
+		current := token
+		next := o.all_tokens[o.token_index + 1] or {
+			// End of tokens
 			break
 		}
+		if (current.value + next.value) in token_combos {
+			println('Found ${current.value} and ${next.value} at line ${current.line_number}')
+			replacement_token_type := find_replacement_token_type(current.value, next.value)
 
-		// Remove the `-` token and replace the `>` token with a `->` token
-		if o.token.token_type == TokenType.minus && o.next_token.token_type == TokenType.greater {
+			if replacement_token_type == TokenType.radon_null {
+				msg := term.yellow('radon_opt warning: Could not find replacement token type -> Searched for ${current.value} and ${next.value} - Skipped token optimization')
+				println(msg)
+				continue
+			}
+
 			replacement_token := Token{
-				token_type:  TokenType.function_return
-				value:       '->'
-				line_number: o.token.line_number
+				token_type:  replacement_token_type
+				value:       current.value + next.value
+				line_number: current.line_number
 			}
-			o.token.remove_token_and_replace(o.all_tokens, o.token_index, replacement_token,
+
+			new_tokens := remove_token_and_replace(o.all_tokens, o.token_index, replacement_token,
 				2) or {
-				println('Failed to remove token and replace')
-				exit(1)
+				msg := term.red('radon_opt error: Could not remove and replace tokens -> Skipped token optimization')
+				println(msg)
+				return o.all_tokens
 			}
+
+			o.all_tokens = new_tokens
 		} else {
 			o.token_index += 1
-			continue
 		}
 	}
 

@@ -135,7 +135,7 @@ fn (mut l Lexer) lex_special() {
 }
 
 fn (mut l Lexer) lex_string() {
-	string_type := l.file_content[l.index].ascii_str()
+	string_type := l.file_content[l.index]
 	l.index += 1
 	l.buffer = ''
 
@@ -149,7 +149,7 @@ fn (mut l Lexer) lex_string() {
 		}
 	}
 	// This is done so you can't open a string with a single quote and close it with a double quote
-	if l.file_content[l.index].ascii_str() != string_type {
+	if l.file_content[l.index] != string_type {
 		l.throw_lex_error('String not closed - Mismatched quotes')
 		exit(1)
 	}

@@ -32,10 +32,14 @@ pub fn radon_run() {
 		exit(1)
 	}
 
+	println(term.green('Lexing successful | Lexed tokens: ${lexed_file.all_tokens.len}'))
+
 	optimized_tokens := opt.optimize(lexed_file.all_tokens) or {
 		println(term.red('radon_opt Error: Error while trying to optimize tokens'))
 		exit(1)
 	}
 
-	println('Optimized tokens: ${optimized_tokens}')
+	println(term.green('Optimization successful | Optimized tokens: ${optimized_tokens.len} | Original tokens: ${lexed_file.all_tokens.len}'))
+
+	// println('Optimized tokens: ${optimized_tokens}')
 }
