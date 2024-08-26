@@ -34,6 +34,7 @@ pub fn optimize(tokens []Token) ![]Token {
 fn (mut o Optimizer) optimize_tokens() []Token {
 	token_combos := [
 		'->',
+		':=',
 		'==',
 		'!=',
 		'<=',
@@ -53,13 +54,12 @@ fn (mut o Optimizer) optimize_tokens() []Token {
 			break
 		}
 		if (current.value + next.value) in token_combos {
-			println('Found ${current.value} and ${next.value} at line ${current.line_number}')
 			replacement_token_type := find_replacement_token_type(current.value, next.value)
 
 			if replacement_token_type == TokenType.radon_null {
-				msg := term.yellow('radon_opt warning: Could not find replacement token type -> Searched for ${current.value} and ${next.value} - Skipped token optimization')
+				msg := term.red('radon_opt error: Could not find replacement token type -> Searched for ${current.value} and ${next.value}')
 				println(msg)
-				continue
+				exit(1)
 			}
 
 			replacement_token := Token{
@@ -76,6 +76,7 @@ fn (mut o Optimizer) optimize_tokens() []Token {
 			}
 
 			o.all_tokens = new_tokens
+			o.token_index += 1
 		} else {
 			o.token_index += 1
 		}

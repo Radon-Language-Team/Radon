@@ -50,6 +50,8 @@ pub enum TokenType {
 
 	// replacement tokens
 	function_return // ->
+	var_assign      // :=
+	equal_equal     // ==
 }
 
 pub struct Token {
@@ -133,7 +135,6 @@ pub fn (mut t Token) find_token(token string) TokenType {
 // This function is used to remove an abitrary amount of tokens from a list of tokens
 // and replace them with a new token
 pub fn remove_token_and_replace(tokens []Token, token_index int, replacement_token Token, skip_amount int) ![]Token {
-	// If the skip_amount is invalid, return the original tokens
 	if skip_amount >= tokens.len || token_index >= tokens.len || token_index < 0 {
 		return tokens
 	}
@@ -142,11 +143,10 @@ pub fn remove_token_and_replace(tokens []Token, token_index int, replacement_tok
 	left_side := tokens[0..token_index]
 	right_side := tokens[token_index + skip_amount..tokens.len]
 
-	// Create a new mutable token array and append left_side and replacement_token
+	// Create a new list of tokens with the left side and the replacement token
 	mut new_tokens := left_side.clone()
 	new_tokens << replacement_token
 
-	// Append the remaining tokens from right_side
 	new_tokens << right_side
 
 	return new_tokens
@@ -157,6 +157,8 @@ pub fn find_replacement_token_type(token_str_one string, token_str_two string) T
 
 	match combo {
 		['-', '>'] { return TokenType.function_return }
+		[':', '='] { return TokenType.var_assign }
+		['=', '='] { return TokenType.equal_equal }
 		else { return TokenType.radon_null }
 	}
 }

@@ -1,6 +1,7 @@
 module run
 
 import term
+import math
 import os
 import radon.lexer
 import radon.opt
@@ -39,7 +40,7 @@ pub fn radon_run() {
 		exit(1)
 	}
 
-	println(term.green('Optimization successful | Optimized tokens: ${optimized_tokens.len} | Original tokens: ${lexed_file.all_tokens.len}'))
+	println(term.green('Optimization successful | Optimized tokens: ${optimized_tokens.len} | Original tokens: ${lexed_file.all_tokens.len} | ${math.round_to_even(optimized_tokens.len / lexed_file.all_tokens.len * 100)}%'))
 
 	// println('Optimized tokens: ${optimized_tokens}')
 }
