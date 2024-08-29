@@ -135,11 +135,12 @@ fn (mut l Lexer) lex_special() {
 }
 
 fn (mut l Lexer) lex_string() {
-	string_type := l.file_content[l.index]
+	string_type := l.file_content[l.index].ascii_str()
 	l.index += 1
 	l.buffer = ''
 
-	for l.file_content[l.index].ascii_str() != "'" && l.file_content[l.index].ascii_str() != '"' {
+	// As long as we don't hit the closing quote, keep adding to the buffer
+	for l.file_content[l.index].ascii_str() != string_type {
 		l.buffer += l.file_content[l.index].ascii_str()
 		l.index += 1
 
@@ -147,11 +148,6 @@ fn (mut l Lexer) lex_string() {
 			l.throw_lex_error('String not closed')
 			exit(1)
 		}
-	}
-	// This is done so you can't open a string with a single quote and close it with a double quote
-	if l.file_content[l.index] != string_type {
-		l.throw_lex_error('String not closed - Mismatched quotes')
-		exit(1)
 	}
 
 	new_token := Token{
