@@ -3,10 +3,10 @@ module help
 import os
 import term
 import symlink
-import utils
+import tools
 
 pub fn help() {
-	utils.print_art()
+	tools.print_art()
 	println('${term.bright_bg_blue('REPL commands:')} - ${term.gray('Run these commands in the REPL')}')
 	println('${term.blue('link')} - ${term.gray('Symlink the radon executable to /usr/local/bin/radon')}')
 	println('${term.blue('unlink')} - ${term.gray('Unlink the radon executable from /usr/local/bin/radon')}')

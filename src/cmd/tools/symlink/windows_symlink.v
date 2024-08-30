@@ -2,10 +2,10 @@ module symlink
 
 import os
 import term
-import utils
+import tools
 
 pub fn windows_symlink() {
-	utils.print_art()
+	tools.print_art()
 
 	original_exe := os.real_path('${os.getwd()}/radon.exe')
 
