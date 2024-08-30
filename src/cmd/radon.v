@@ -5,6 +5,7 @@ import os
 import tools.symlink
 import tools.help
 import tools.run
+import tools.update
 import tools
 
 fn main() {
@@ -12,6 +13,7 @@ fn main() {
 	if os.args.len > 1 {
 		match os.args[1] {
 			'run' { run.radon_run() }
+			'update' { update.update() }
 			else { println('Invalid command. Please run ${term.bg_blue('help')} for a list of commands \n\n') }
 		}
 		return
@@ -34,6 +36,9 @@ fn main() {
 		}
 		'help' {
 			help.help()
+		}
+		'update' {
+			update.update()
 		}
 		'exit' {
 			return

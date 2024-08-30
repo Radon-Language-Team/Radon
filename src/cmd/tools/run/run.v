@@ -5,6 +5,7 @@ import math
 import os
 import radon.lexer
 import radon.opt
+import radon.parser
 
 pub fn radon_run() {
 	args := os.args
@@ -42,5 +43,5 @@ pub fn radon_run() {
 
 	println(term.green('Optimization successful | Optimized tokens: ${optimized_tokens.len} | Original tokens: ${lexed_file.all_tokens.len} | ${math.round(optimized_tokens.len / lexed_file.all_tokens.len * 100)}%'))
 
-	println('Optimized tokens: ${optimized_tokens}')
+	parser.parse(optimized_tokens)
 }

@@ -43,6 +43,11 @@ pub fn lex(file_name string, file_path string) !Lexer {
 
 	lexer.file_content = content
 
+	if lexer.file_content.trim_space().len == 0 {
+		lexer.throw_lex_error('File is empty')
+		exit(1)
+	}
+
 	lexer.lex_file()
 
 	return lexer

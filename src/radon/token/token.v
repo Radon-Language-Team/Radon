@@ -1,5 +1,6 @@
 module token
 
+import term
 import regex
 import encoding.utf8 { is_letter, is_number, is_space }
 
@@ -54,6 +55,7 @@ pub enum TokenType {
 	equal_equal     // ==
 }
 
+@[minify]
 pub struct Token {
 pub mut:
 	token_type  TokenType
@@ -136,6 +138,7 @@ pub fn (mut t Token) find_token(token string) TokenType {
 // and replace them with a new token
 pub fn remove_token_and_replace(tokens []Token, token_index int, replacement_token Token, skip_amount int) ![]Token {
 	if skip_amount >= tokens.len || token_index >= tokens.len || token_index < 0 {
+		println(term.yellow('radon_opt warning: Skipped opt due to multiple reasons'))
 		return tokens
 	}
 
@@ -143,7 +146,6 @@ pub fn remove_token_and_replace(tokens []Token, token_index int, replacement_tok
 	left_side := tokens[0..token_index]
 	right_side := tokens[token_index + skip_amount..tokens.len]
 
-	// Create a new list of tokens with the left side and the replacement token
 	mut new_tokens := left_side.clone()
 	new_tokens << replacement_token
 
