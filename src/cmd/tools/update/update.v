@@ -84,7 +84,7 @@ pub fn update() {
 
 	// Build the radon executable
 	println(term.gray('Building Radon...'))
-	os.execute('./build.sh')
+	os.execute('./build_bin.sh')
 
 	if os.exists('${os.getwd()}/radon/radon') {
 		println(term.green('Radon updated successfully!'))
