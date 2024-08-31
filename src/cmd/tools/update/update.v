@@ -107,5 +107,15 @@ pub fn update() {
 		println(term.bright_green('Temporary files stored in ${tmp_dir} are saved for safety but can be deleted.'))
 	} else {
 		println(term.red('Failed to build Radon'))
+		println(term.gray('Trying to execute bash script manually...'))
+		os.execute('./build_bin.sh')
+
+		if os.exists('${os.getwd()}/radon/radon') {
+			println(term.green('Radon updated successfully!'))
+			println(term.bright_green('Temporary files stored in ${tmp_dir} are saved for safety but can be deleted.'))
+		} else {
+			println(term.red('Failed to build Radon'))
+			println(term.red('Please try building Radon manually'))
+		}
 	}
 }
