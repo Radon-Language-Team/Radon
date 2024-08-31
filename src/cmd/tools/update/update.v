@@ -15,7 +15,7 @@ pub fn update() {
 	}
 
 	home := os.getwd()
-	println(term.gray('Cleaning Radon directory...'))
+	println(term.gray('Creating tmp directory and storing files...'))
 
 	tmp_dir := os.join_path(os.getwd(), 'tmp')
 	os.mkdir(tmp_dir) or {
@@ -37,7 +37,6 @@ pub fn update() {
 
 	for item in items {
 		if item != 'tmp' {
-			println(term.gray('Moving ${item} to temporary directory...'))
 			os.mv(os.join_path(os.getwd(), item), os.join_path(tmp_dir, item)) or {
 				println(term.red('Failed to move ${item} to temporary directory -> ${err}'))
 				return
@@ -45,8 +44,7 @@ pub fn update() {
 		}
 	}
 
-	println(term.gray('Updating Radon repository...'))
-
+	println(term.gray('Fetching Radon...'))
 	println(term.gray('Cloning Radon repository into ${os.getwd()}...'))
 	os.execute('git clone https://github.com/Radon-Language-Team/Radon.git')
 
@@ -88,6 +86,7 @@ pub fn update() {
 
 	if os.exists('${os.getwd()}/radon/radon') {
 		println(term.green('Radon updated successfully!'))
+		println(term.bright_green('Temporary files stored in ${tmp_dir} are saved for safety but can be deleted.'))
 	} else {
 		println(term.red('Failed to build Radon'))
 	}
