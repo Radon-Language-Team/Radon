@@ -5,7 +5,7 @@ USER_OS=$(uname)
 
 mkdir -p $OUTPUT_DIR
 
-if [ "$USER_OS" = "linux" ]; then
+if [ "$USER_OS" = "Linux" ]; then
 
     echo "Building for Linux..."
     v -os linux -o $OUTPUT_DIR/$EXECUTABLE_NAME $SRC_DIR
@@ -16,7 +16,7 @@ if [ "$USER_OS" = "linux" ]; then
         echo "Linux build failed."
     fi
 
-elif [ "$USER_OS" = "windows" ]; then
+elif [ "$USER_OS" = "Windows" ]; then
 
     echo "Building for Windows..."
     v -os windows -o $OUTPUT_DIR/$EXECUTABLE_NAME.exe $SRC_DIR
