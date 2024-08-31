@@ -3,6 +3,8 @@ module update
 import os
 import term
 
+const in_dev_mode = true
+
 pub fn update() {
 	println(term.blue('Updating Radon...'))
 
@@ -51,6 +53,13 @@ pub fn update() {
 	os.chdir('Radon') or {
 		println(term.red('Failed to change working directory to Radon'))
 		return
+	}
+
+	if update.in_dev_mode {
+		println(term.gray('In development mode, switching to dev branch...'))
+		os.execute('git checkout new_radon')
+		println(term.gray('Pulling latest changes...'))
+		os.execute('git pull')
 	}
 
 	println(term.gray('Moving files from Radon Git repository to Radon directory...'))
