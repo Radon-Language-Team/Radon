@@ -3,9 +3,18 @@ module update
 import os
 import term
 
-const in_dev_mode = true
-
 pub fn update() {
+	mut in_dev_mode := false
+
+	if os.args.len > 2 {
+		if os.args[2] == '--dev' {
+			in_dev_mode = true
+		} else {
+			println(term.red('Invalid argument: ${os.args[2]}'))
+			return
+		}
+	}
+
 	println(term.blue('Updating Radon...'))
 
 	// Find the path of the radon executable and change the working directory to it
@@ -55,7 +64,7 @@ pub fn update() {
 		return
 	}
 
-	if update.in_dev_mode {
+	if in_dev_mode {
 		println(term.gray('In development mode, switching to dev branch...'))
 		os.execute('git checkout new_radon')
 		println(term.gray('Pulling latest changes...'))
@@ -91,7 +100,7 @@ pub fn update() {
 
 	// Build the radon executable
 	println(term.gray('Building Radon...'))
-	os.execute('./build_bin.sh')
+	os.execute('make')
 
 	if os.exists('${os.getwd()}/radon/radon') {
 		println(term.green('Radon updated successfully!'))
