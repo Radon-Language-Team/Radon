@@ -20,7 +20,7 @@ fn main() {
 	}
 
 	tools.print_art()
-	println('Run ${term.bg_blue('link')} to symlink the radon exectuable to your PATH. \nFor any other commands, run ${term.bg_blue('help')}. \n${term.bg_blue('exit')} to exit the REPL.')
+	println('Run ${term.bg_blue('link')} to symlink the radon exectuable to your PATH. \nFor any other commands, run ${term.bg_blue('help')}. \n${term.bg_blue('exit')} to exit the REPL. \n\nUse ${term.bg_blue('radon run <file>')} to compile & run a radon file. \n\n')
 	command := os.input('')
 
 	match command {
