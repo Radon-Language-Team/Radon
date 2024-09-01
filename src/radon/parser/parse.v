@@ -1,29 +1,50 @@
 module parser
 
-import radon.token { Token }
+import term
+import radon.token { Token, TokenType }
 
 @[minify]
 pub struct Parser {
 pub mut:
+	file_name   string
+	file_path   string
 	token_index int
 	all_tokens  []Token
-	prev_token  Token
 	token       Token
-	next_token  Token
 }
 
-pub fn parse(tokens []Token) {
+pub fn parse(tokens []Token, file_name string, file_path string) {
 	mut parser := Parser{
+		file_name:   file_name
+		file_path:   file_path
 		token_index: 0
 		all_tokens:  tokens
-		prev_token:  Token{}
 		token:       Token{}
-		next_token:  Token{}
 	}
 
 	parser.parse_tokens()
 }
 
 fn (mut p Parser) parse_tokens() {
-	println('Hello from parser')
+	for p.token_index < p.all_tokens.len {
+		p.token = p.all_tokens[p.token_index]
+
+		if p.token.token_type == TokenType.key_proc {
+			result := p.parse_proc() or {
+				p.throw_parse_error('Error parsing proc')
+				exit(1)
+			}
+			p.token_index = result.new_index
+		} else {
+			// Bad top-level token
+			p.throw_parse_error('"${p.token.token_type}" is not a valid top-level token')
+			exit(1)
+		}
+	}
+	exit(1)
+}
+
+fn (mut p Parser) throw_parse_error(err_msg string) {
+	err := term.red(err_msg)
+	println('radon_parser Error: \n\n${err} \nOn line: ${p.all_tokens[p.token_index].line_number} - Token-Index: ${p.token_index} \nIn file: ${p.file_name} \nFull path: ${p.file_path}')
 }
