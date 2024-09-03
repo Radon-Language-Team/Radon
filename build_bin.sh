@@ -7,6 +7,7 @@ mkdir -p $OUTPUT_DIR
 
 if [ "$USER_OS" = "Darwin" ]; then
     echo "Building for Mac is not supported."
+    read -p "Press any key to continue... " -n1 -s
     exit 1
 fi
 
@@ -19,6 +20,7 @@ if [ "$USER_OS" = "Linux" ]; then
         echo "Linux build successful: $OUTPUT_DIR/$EXECUTABLE_NAME"
     else
         echo "Linux build failed."
+        read -p "Press any key to continue... " -n1 -s
     fi
 
 else 
@@ -30,6 +32,7 @@ else
         echo "Windows build successful: $OUTPUT_DIR/$EXECUTABLE_NAME.exe"
     else
         echo "Windows build failed."
+        read -p "Press any key to continue... " -n1 -s
     fi
 
 fi
