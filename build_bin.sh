@@ -5,6 +5,11 @@ USER_OS=$(uname)
 
 mkdir -p $OUTPUT_DIR
 
+if [ "$USER_OS" = "Darwin" ]; then
+    echo "Building for Mac is not supported."
+    exit 1
+fi
+
 if [ "$USER_OS" = "Linux" ]; then
 
     echo "Building for Linux..."
@@ -16,7 +21,7 @@ if [ "$USER_OS" = "Linux" ]; then
         echo "Linux build failed."
     fi
 
-elif [ "$USER_OS" = "Windows" ]; then
+else 
 
     echo "Building for Windows..."
     v -os windows -o $OUTPUT_DIR/$EXECUTABLE_NAME.exe $SRC_DIR
@@ -27,9 +32,4 @@ elif [ "$USER_OS" = "Windows" ]; then
         echo "Windows build failed."
     fi
 
-else
-
-    echo "Unsupported OS: $USER_OS"
-    read -p "Press any key to continue... " -n1 -s
-    
 fi
