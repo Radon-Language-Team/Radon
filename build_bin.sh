@@ -16,7 +16,7 @@ USER_OS=$(uname)
 
 mkdir -p $OUTPUT_DIR
 
-if [ "$USER_OS" = "Darwin" ]; then
+if [ "$USER_OS" = "Darwin" ]; then 
     echo "Building for Mac is not supported."
     read -p "Press any key to continue... " -n1 -s
     exit 1
