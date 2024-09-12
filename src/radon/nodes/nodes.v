@@ -13,7 +13,8 @@ pub:
 
 // Struct for the proc node
 pub struct NodeProc {
-pub:
+pub mut:
+	new_index int
 	name   string
 	params []string
 	body   []Node

@@ -1,17 +1,22 @@
 module parser
 
+import token
 import nodes
 
-struct ParseProcStruct {
-	new_index int
-	proc_node nodes.NodeProc
-}
+pub fn (mut p Parser) parse_proc(index int) ![]nodes.Node {
+	mut proc_node := nodes.NodeProc{
+		new_index: index
+		body: 		[]nodes.Node{}
+	}
+	p.token_index = index + 1
 
-pub fn (mut p Parser) parse_proc() !ParseProcStruct {
-	test := ParseProcStruct{
-		new_index: p.token_index + 1
-		proc_node: nodes.NodeProc{}
+	// Parse the proc name
+	if p.all_tokens[p.token_index].token_type != token.TokenType.proc_name {
+		p.throw_parse_error('Expected a proc name')
+		exit(1)
 	}
 
-	return test
+	proc_node.name = p.all_tokens[p.token_index].value
+
+	return proc_node.body
 }

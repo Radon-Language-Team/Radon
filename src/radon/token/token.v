@@ -47,6 +47,7 @@ pub enum TokenType {
 	ampersand   // &
 	pipe        // |
 	var_name    // reserved for variables
+	proc_name   // reserved for proc names
 	radon_null  // Only used for the compiler
 
 	// replacement tokens
