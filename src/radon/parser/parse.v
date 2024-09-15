@@ -35,7 +35,7 @@ fn (mut p Parser) parse_tokens() {
 			}
 		} else {
 			// Bad top-level token
-			p.throw_parse_error('"${p.token.value}" is not a valid top-level token')
+			p.throw_parse_error('"${p.token.value}" is not a valid top-level token. Expected either import, proc or const')
 			exit(1)
 		}
 	}

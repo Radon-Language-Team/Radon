@@ -165,3 +165,13 @@ pub fn find_replacement_token_type(token_str_one string, token_str_two string) T
 		else { return TokenType.radon_null }
 	}
 }
+
+pub fn check_if_token_is_type (token Token) bool {
+
+	token_type := token.token_type
+
+	match token_type.str() {
+		'test' { return true }
+		else { return false }
+	}
+}

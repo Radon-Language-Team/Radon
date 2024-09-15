@@ -11,11 +11,17 @@ pub:
 	proc NodeProc
 }
 
+pub struct NodeProcArg {
+pub mut:
+	arg_name string
+	arg_type string
+}
+
 // Struct for the proc node
 pub struct NodeProc {
 pub mut:
 	new_index int
-	name   string
-	params []string
-	body   []Node
+	name      string
+	params    []NodeProcArg
+	body      []Node
 }

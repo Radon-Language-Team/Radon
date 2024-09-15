@@ -25,7 +25,7 @@ foo = 'New Value'
 
 ### Functions
 ```Radon
-proc foo(arg1: Int, arg2: Int) -> Int {
+proc foo(arg1 Int, arg2 Int) -> Int {
   return arg1 + arg2
 }
 
