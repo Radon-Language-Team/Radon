@@ -44,4 +44,6 @@ pub fn radon_run() {
 	println(term.green('Optimization successful | Tokens after opt: ${optimized_tokens.len} | ${math.round(optimized_tokens.len / lexed_file.all_tokens.len * 100)}%'))
 
 	parser.parse(optimized_tokens, file_name, file_path)
+
+	println(term.green('Parsing successful'))
 }

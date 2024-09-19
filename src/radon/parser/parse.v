@@ -30,9 +30,11 @@ fn (mut p Parser) parse_tokens() {
 		p.token = p.all_tokens[p.token_index]
 
 		if p.token.token_type == TokenType.key_proc {
-			p.parse_proc(p.token_index) or {
+			proc := p.parse_proc(p.token_index) or {
 				exit(1)
 			}
+			p.token_index = proc.new_index
+			return
 		} else {
 			// Bad top-level token
 			p.throw_parse_error('"${p.token.value}" is not a valid top-level token. Expected either import, proc or const')

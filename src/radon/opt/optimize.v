@@ -46,6 +46,7 @@ fn (mut o Optimizer) optimize_tokens() []Token {
 		'*=',
 		'/=',
 		'%=',
+		'[]',
 	]
 	for token in o.all_tokens {
 		current := token

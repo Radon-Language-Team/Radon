@@ -54,6 +54,7 @@ pub enum TokenType {
 	function_return // ->
 	var_assign      // :=
 	equal_equal     // ==
+	array_full			// []
 }
 
 @[minify]
@@ -155,6 +156,8 @@ pub fn remove_token_and_replace(tokens []Token, token_index int, replacement_tok
 	return new_tokens
 }
 
+// Replaces two tokens with a new token
+// Only possible for some token combinations
 pub fn find_replacement_token_type(token_str_one string, token_str_two string) TokenType {
 	combo := [token_str_one, token_str_two]
 
@@ -162,16 +165,18 @@ pub fn find_replacement_token_type(token_str_one string, token_str_two string) T
 		['-', '>'] { return TokenType.function_return }
 		[':', '='] { return TokenType.var_assign }
 		['=', '='] { return TokenType.equal_equal }
+		['[', ']'] { return TokenType.array_full }
 		else { return TokenType.radon_null }
 	}
 }
 
-pub fn check_if_token_is_type (token Token) bool {
-
-	token_type := token.token_type
-
+// Checks if a token is a token type
+pub fn check_if_token_is_type(token_type TokenType) bool {
 	match token_type.str() {
-		'test' { return true }
+		'${TokenType.type_int}' { return true }
+		'${TokenType.type_float}' { return true }
+		'${TokenType.type_bool}' { return true }
+		'${TokenType.type_string}' { return true }
 		else { return false }
 	}
 }
