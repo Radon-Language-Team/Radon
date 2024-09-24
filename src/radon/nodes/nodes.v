@@ -1,5 +1,7 @@
 module nodes
 
+import token
+
 @[minify]
 pub struct Node {
 pub:
@@ -21,8 +23,15 @@ pub mut:
 // Struct for the proc node
 pub struct NodeProc {
 pub mut:
-	new_index int
-	name      string
-	params    []NodeProcArg
-	body      []Node
+	new_index   int
+	name        string
+	params      []NodeProcArg
+	return_type token.TokenType
+	body        []Node
+
+	// Bracket count for tracking open and close function brackets
+	// In the case of us parsing more open brackets than close brackets
+	// we know that the function is not closed properly and we can throw an error
+	// Is this smart? I don't know, but it works
+	bracket_count int
 }

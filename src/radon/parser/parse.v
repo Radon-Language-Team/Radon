@@ -30,10 +30,9 @@ fn (mut p Parser) parse_tokens() {
 		p.token = p.all_tokens[p.token_index]
 
 		if p.token.token_type == TokenType.key_proc {
-			proc := p.parse_proc(p.token_index) or {
-				exit(1)
-			}
+			proc := p.parse_proc(p.token_index) or { exit(1) }
 			p.token_index = proc.new_index
+			println(term.gray('Parsed proc "${proc.name}" with ${proc.params.len} arguments'))
 			return
 		} else {
 			// Bad top-level token

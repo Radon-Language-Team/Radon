@@ -12,10 +12,12 @@ struct ProcArgs {
 
 pub fn (mut p Parser) parse_proc(index int) !nodes.NodeProc {
 	mut proc := nodes.NodeProc{
-		new_index: index
-		name:      ''
-		params:    []nodes.NodeProcArg{}
-		body:      []nodes.Node{}
+		new_index:     index
+		name:          ''
+		params:        []nodes.NodeProcArg{}
+		return_type:   token.TokenType.radon_null
+		body:          []nodes.Node{}
+		bracket_count: 0
 	}
 
 	proc.new_index += 1
@@ -49,6 +51,28 @@ pub fn (mut p Parser) parse_proc(index int) !nodes.NodeProc {
 		proc.params = proc_args.args
 		proc.new_index = proc_args.new_index
 	}
+
+	println('${p.all_tokens[proc.new_index].value} - ${p.all_tokens[proc.new_index + 1].value}')
+
+	if p.all_tokens[proc.new_index].token_type != token.TokenType.function_return
+		|| token.check_if_token_is_type(p.all_tokens[proc.new_index + 1].token_type) != true {
+		p.throw_parse_error('Expected function to have return type but got ${p.all_tokens[
+			proc.new_index + 1].token_type}')
+		exit(1)
+	}
+	proc.new_index += 1
+	proc.return_type = p.all_tokens[proc.new_index].token_type
+	proc.new_index += 1
+
+	if p.all_tokens[proc.new_index].token_type != token.TokenType.open_brace {
+		p.throw_parse_error('Expected open brace but got ${p.all_tokens[proc.new_index].value}')
+		exit(1)
+	} else {
+		proc.bracket_count += 1
+		proc.new_index += 1
+	}
+
+	p.parse_proc_inside(proc.new_index, p.all_tokens)
 
 	return proc
 }
@@ -88,7 +112,6 @@ fn parse_proc_args(tokens []token.Token, index int) !ProcArgs {
 			}
 		}
 
-		println('Parsed arg: ${current_arg}')
 		args << current_arg
 		if tokens[i].token_type == token.TokenType.comma {
 			i += 1
@@ -100,4 +123,10 @@ fn parse_proc_args(tokens []token.Token, index int) !ProcArgs {
 		new_index: i
 		success:   true
 	}
+}
+
+fn (mut p Parser) parse_proc_inside(index int, t []token.Token) {
+	tokens := t[index..]
+
+	println('Parsing ${tokens.len} tokens inside proc')
 }

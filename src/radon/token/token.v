@@ -172,11 +172,14 @@ pub fn find_replacement_token_type(token_str_one string, token_str_two string) T
 
 // Checks if a token is a token type
 pub fn check_if_token_is_type(token_type TokenType) bool {
-	match token_type.str() {
-		'${TokenType.type_int}' { return true }
-		'${TokenType.type_float}' { return true }
-		'${TokenType.type_bool}' { return true }
-		'${TokenType.type_string}' { return true }
-		else { return false }
+	result := match token_type.str() {
+		'${TokenType.type_int}' { true }
+		'${TokenType.type_float}' { true }
+		'${TokenType.type_bool}' { true }
+		'${TokenType.type_string}' { true }
+		else { false }
 	}
+
+	println('${token_type.str()} is a type: ${result}')
+	return result
 }
