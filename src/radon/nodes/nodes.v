@@ -8,9 +8,10 @@ pub:
 	node_kind NodeKind
 }
 
-struct NodeKind {
+pub struct NodeKind {
 pub:
 	proc NodeProc
+	return_node NodeReturn
 }
 
 pub struct NodeProcArg {
@@ -34,4 +35,11 @@ pub mut:
 	// we know that the function is not closed properly and we can throw an error
 	// Is this smart? I don't know, but it works
 	bracket_count int
+}
+
+pub struct NodeReturn {
+pub mut:
+	new_index int
+	value     string
+	return_type token.TokenType
 }

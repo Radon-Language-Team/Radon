@@ -54,7 +54,7 @@ pub enum TokenType {
 	function_return // ->
 	var_assign      // :=
 	equal_equal     // ==
-	array_full			// []
+	array_full      // []
 }
 
 @[minify]
@@ -179,7 +179,5 @@ pub fn check_if_token_is_type(token_type TokenType) bool {
 		'${TokenType.type_string}' { true }
 		else { false }
 	}
-
-	println('${token_type.str()} is a type: ${result}')
 	return result
 }

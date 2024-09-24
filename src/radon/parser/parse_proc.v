@@ -1,5 +1,6 @@
 module parser
 
+import term
 import token
 import nodes
 
@@ -52,8 +53,6 @@ pub fn (mut p Parser) parse_proc(index int) !nodes.NodeProc {
 		proc.new_index = proc_args.new_index
 	}
 
-	println('${p.all_tokens[proc.new_index].value} - ${p.all_tokens[proc.new_index + 1].value}')
-
 	if p.all_tokens[proc.new_index].token_type != token.TokenType.function_return
 		|| token.check_if_token_is_type(p.all_tokens[proc.new_index + 1].token_type) != true {
 		p.throw_parse_error('Expected function to have return type but got ${p.all_tokens[
@@ -72,7 +71,12 @@ pub fn (mut p Parser) parse_proc(index int) !nodes.NodeProc {
 		proc.new_index += 1
 	}
 
-	p.parse_proc_inside(proc.new_index, p.all_tokens)
+	proc_body := p.parse_proc_inside(proc.new_index) or {
+		p.throw_parse_error('Failed to parse proc body')
+		exit(1)
+	}
+
+	proc.body = proc_body
 
 	return proc
 }
@@ -125,8 +129,31 @@ fn parse_proc_args(tokens []token.Token, index int) !ProcArgs {
 	}
 }
 
-fn (mut p Parser) parse_proc_inside(index int, t []token.Token) {
-	tokens := t[index..]
+fn (mut p Parser) parse_proc_inside(i int) ![]nodes.Node {
+	tokens := p.all_tokens
+	mut index := i
+	mut proc_body_nodes := []nodes.Node{}
 
-	println('Parsing ${tokens.len} tokens inside proc')
+	println(term.gray('Parsing ${tokens[i..].len} tokens inside proc'))
+
+	for index < p.all_tokens.len {
+		if tokens[index].token_type == token.TokenType.key_ret {
+			return_result := p.parse_return(index) or {
+				p.throw_parse_error('Failed to parse return statement')
+				exit(1)
+			}
+			index = return_result.new_index
+			return_kind := nodes.NodeKind{
+				return_node: return_result.node_return
+			}
+			proc_body_nodes << nodes.Node{
+				node_kind: return_kind
+			}
+		} else {
+			p.throw_parse_error('Unknown token: "${tokens[index].value}"')
+			exit(1)
+		}
+	}
+
+	return proc_body_nodes
 }
