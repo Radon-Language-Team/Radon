@@ -11,25 +11,25 @@ proc main() {
 ### Variables
 ```Radon
 // Immutable Variable
-foo := 'Hello'
+foo := 'Hello';
 
 // Mutable Variables
-mut foo := 'Hello'
+mut foo := 'Hello';
 
 // Variables with custom Types
-foo: CustomType := customVariable
+foo: CustomType := customVariable;
 
 // Reassigning a mutable variable
-foo = 'New Value'
+foo = 'New Value';
 ```
 
 ### Functions
 ```Radon
 proc foo(arg1 Int, arg2 Int) -> Int {
-  return arg1 + arg2
+  return arg1 + arg2;
 }
 
-foo(1, 2)
+foo(1, 2);
 ```
 
 ### Control Flow
@@ -50,7 +50,7 @@ loop {
   }
 }
 
-mut i := 0
+mut i := 0;
 for i in 0..10 {
   i++
 }
@@ -59,26 +59,26 @@ for i in 0..10 {
 ### Types
 ```Radon
 // Integer
-foo: Int := 1
+foo: Int := 1;
 
 // Float
-foo: Float := 1.0
+foo: Float := 1.0;
 
 // Boolean
-foo: Bool := true
+foo: Bool := true;
 
 // String
-foo: String := 'Hello'
+foo: String := 'Hello';
 
 // Custom Type
 record CustomType {
   x: Int
   y: String
   z: Float
-}
+};
 
 // Initialize custom type
-foo: CustomType := {x: 1, y: 'Hello', z: 1.0}
+foo: CustomType := {x: 1, y: 'Hello', z: 1.0};
 ```
 
 ### Comments
@@ -97,9 +97,9 @@ foo: CustomType := {x: 1, y: 'Hello', z: 1.0}
 import 'std'
 
 proc main() {
-  name: String := std.input('Enter your name: ')
+  name: String := std.input('Enter your name: ');
 
   // Print does not require an import as it is a built-in function
-  print('Hello, ' + name)
+  print('Hello, ' + name);
 }
 ```
