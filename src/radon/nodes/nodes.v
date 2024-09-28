@@ -10,7 +10,7 @@ pub:
 
 pub struct NodeKind {
 pub:
-	proc NodeProc
+	proc        NodeProc
 	return_node NodeReturn
 }
 
@@ -39,7 +39,7 @@ pub mut:
 
 pub struct NodeReturn {
 pub mut:
-	new_index int
-	value     string
+	new_index   int
+	value       string
 	return_type token.TokenType
 }

@@ -149,6 +149,8 @@ fn (mut p Parser) parse_proc_inside(i int) ![]nodes.Node {
 			proc_body_nodes << nodes.Node{
 				node_kind: return_kind
 			}
+		} else if tokens[index].token_type == token.TokenType.close_brace {
+			return proc_body_nodes
 		} else {
 			p.throw_parse_error('Unknown token: "${tokens[index].value}"')
 			exit(1)
