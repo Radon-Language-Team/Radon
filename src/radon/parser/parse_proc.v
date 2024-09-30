@@ -149,6 +149,7 @@ fn (mut p Parser) parse_proc_inside(i int) ![]nodes.Node {
 			proc_body_nodes << nodes.Node{
 				node_kind: return_kind
 			}
+			println('Got return statement with value: ${return_result.node_return.value}')
 		} else if tokens[index].token_type == token.TokenType.close_brace {
 			return proc_body_nodes
 		} else {

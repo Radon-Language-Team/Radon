@@ -19,10 +19,10 @@ pub fn (mut p Parser) parse_return(index int) !Return {
 
 	ret.new_index += 1
 
-	for p.all_tokens[ret.new_index].token_type != token.TokenType.semicolon && ret.new_index < p.all_tokens.len {
+	for p.all_tokens[ret.new_index].token_type != token.TokenType.semicolon || ret.new_index >= p.all_tokens.len {
 		ret.value += p.all_tokens[ret.new_index].value
-		ret.new_index += 1
 		tokens_to_return << p.all_tokens[ret.new_index]
+		ret.new_index += 1
 	}
 
 	ret_type := util.check_expression(tokens_to_return)

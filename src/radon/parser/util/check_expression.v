@@ -49,6 +49,13 @@ pub fn check_expression(tokens []token.Token) TypeReturn {
 				expected_type = TokenType.type_int
 				i += 1
 				break
+			} else {
+				// yet unsupported expression
+				return TypeReturn{
+					success: false
+					message: 'Unsupported expression'
+					token:   token_return
+				}
 			}
 		}
 	}
