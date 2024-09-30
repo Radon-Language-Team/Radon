@@ -19,14 +19,20 @@ pub fn (mut p Parser) parse_return(index int) !Return {
 
 	ret.new_index += 1
 
-	for p.all_tokens[ret.new_index].token_type != token.TokenType.semicolon {
+	for p.all_tokens[ret.new_index].token_type != token.TokenType.semicolon && ret.new_index < p.all_tokens.len {
 		ret.value += p.all_tokens[ret.new_index].value
 		ret.new_index += 1
 		tokens_to_return << p.all_tokens[ret.new_index]
 	}
 
-	ret.return_type = util.get_type(tokens_to_return).token_type
+	ret_type := util.check_expression(tokens_to_return)
 
+	if !ret_type.success {
+		p.throw_parse_error(ret_type.message)
+		exit(1)
+	}
+
+	ret.return_type = ret_type.token.token_type
 	ret.new_index += 1
 
 	return Return{
