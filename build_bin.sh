@@ -32,6 +32,7 @@ if [ "$USER_OS" = "Linux" ]; then
     else
         echo "Linux build failed."
         echo "Check error.log for any warnings or errors."
+        echo "Error: $(cat error.log)"
         read -p "Press any key to continue... " -n1 -s
     fi
 
