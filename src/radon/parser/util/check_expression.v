@@ -14,6 +14,7 @@ pub fn check_expression(tokens []token.Token) TypeReturn {
 	mut i := 0
 	mut token_return := token.Token{}
 	math_operators := ['+', '-', '*', '/']
+	mut expected_type := tokens[0].token_type
 
 	println(term.gray('Trying to figure our return type for ${tokens.len} tokens'))
 
@@ -23,9 +24,9 @@ pub fn check_expression(tokens []token.Token) TypeReturn {
 		token_return = tokens[0]
 	} else {
 		for token in tokens {
-			mut last_type := token.token_type
-			mut expected_type := token.token_type
-			last_type = token.token_type
+			last_type := tokens[i].token_type
+
+			println('Reading ${token.value} with ${last_type} - Expected type: ${expected_type}')
 
 			if last_type != expected_type {
 				return TypeReturn{
@@ -38,6 +39,8 @@ pub fn check_expression(tokens []token.Token) TypeReturn {
 			if last_type == TokenType.type_int {
 				i += 1
 
+				println('Now reading ${tokens[i].value} with ${tokens[i].token_type}')
+
 				if tokens[i].value !in math_operators {
 					return TypeReturn{
 						success: false
@@ -48,7 +51,7 @@ pub fn check_expression(tokens []token.Token) TypeReturn {
 				// This skips the operator. The loop will then continue with the next token
 				expected_type = TokenType.type_int
 				i += 1
-				break
+				continue
 			} else {
 				// yet unsupported expression
 				return TypeReturn{
