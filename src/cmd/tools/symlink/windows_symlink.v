@@ -1,7 +1,8 @@
-module tools
+module symlink
 
 import os
 import term
+import tools
 
 pub fn windows_symlink() {
 	tools.print_art()

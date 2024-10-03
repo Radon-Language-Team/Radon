@@ -1,7 +1,10 @@
-module tools
+module help
 
 import os
 import term
+import tools
+import update
+import symlink
 
 pub fn help() {
 	tools.print_art()
@@ -20,10 +23,10 @@ pub fn help() {
 	command := os.input('Enter the REPL command you want to run: ')
 
 	match command {
-		'link' { link() }
-		'unlink' { unlink() }
+		'link' { symlink.link() }
+		'unlink' { symlink.unlink() }
 		'help' { help() }
-		'update' { update() }
+		'update' { update.update() }
 		'exit' { return }
 		else { println('Invalid command. Please run ${term.bg_blue('help')} for a list of commands') }
 	}

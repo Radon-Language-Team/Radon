@@ -2,6 +2,7 @@ module tools
 
 import term
 import os
+import git
 
 pub fn print_art() {
 	user_os := os.user_os()
@@ -19,5 +20,5 @@ ______          _
 	println(term.blue(radon_ascii_art))
 	println(term.bg_blue('REPL for the Radon Programming Language'))
 	println(term.bg_blue('Current OS: ${user_os}'))
-	println(term.bg_blue('Git Hash: ${get_git_hash()}\n'))
+	println(term.bg_blue('Git Hash: ${git.get_git_hash()}\n'))
 }
