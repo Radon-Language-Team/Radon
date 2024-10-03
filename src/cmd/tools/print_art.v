@@ -19,5 +19,5 @@ ______          _
 	println(term.blue(radon_ascii_art))
 	println(term.bg_blue('REPL for the Radon Programming Language'))
 	println(term.bg_blue('Current OS: ${user_os}'))
-	println(term.bg_blue('Git Hash: ${git.get_git_hash()}\n'))
+	println(term.bg_blue('Git Hash: ${get_git_hash()}\n'))
 }

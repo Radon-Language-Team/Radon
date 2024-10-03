@@ -1,9 +1,8 @@
 // Unlinker for Linux
-module symlink
+module tools
 
 import term
 import os
-import tools
 
 pub fn unlink() {
 	tools.print_art()

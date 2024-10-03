@@ -1,9 +1,8 @@
 // Symlinker for Linux
-module symlink
+module tools
 
 import os
 import term
-import tools
 
 pub fn link() {
 	tools.print_art()
