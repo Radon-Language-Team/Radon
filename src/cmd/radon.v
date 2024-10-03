@@ -2,18 +2,18 @@ module main
 
 import term
 import os
-import tools.symlink
-import tools.help
-import tools.run
-import tools.update
+// import tools.symlink
+// import tools.help
+// import tools.run
+// import tools.update
 import tools
 
 fn main() {
 	user_os := os.user_os()
 	if os.args.len > 1 {
 		match os.args[1] {
-			'run' { run.radon_run() }
-			'update' { update.update() }
+			'run' { tools.radon_run() }
+			'update' { tools.update() }
 			else { println('Invalid command. Please run ${term.bg_blue('help')} for a list of commands \n\n') }
 		}
 		return
@@ -26,19 +26,19 @@ fn main() {
 	match command {
 		'link' {
 			match user_os {
-				'linux' { symlink.link() }
-				'windows' { symlink.windows_symlink() }
+				'linux' { tools.link() }
+				'windows' { tools.windows_symlink() }
 				else { println('OS not supported') }
 			}
 		}
 		'unlink' {
-			symlink.unlink()
+			tools.unlink()
 		}
 		'help' {
-			help.help()
+			tools.help()
 		}
 		'update' {
-			update.update()
+			tools.update()
 		}
 		'exit' {
 			return

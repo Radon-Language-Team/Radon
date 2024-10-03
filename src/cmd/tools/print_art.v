@@ -2,7 +2,6 @@ module tools
 
 import term
 import os
-import git
 
 pub fn print_art() {
 	user_os := os.user_os()

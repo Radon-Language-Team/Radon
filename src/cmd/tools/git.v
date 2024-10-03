@@ -1,4 +1,4 @@
-module git
+module tools
 
 import os
 import term
