@@ -45,6 +45,7 @@ else
     else
         echo "Windows build failed."
         echo "Check error.log for any warnings or errors."
+        echo "Error: $(cat error.log)"
         read -p "Press any key to continue... " -n1 -s
     fi
 
