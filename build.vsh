@@ -22,7 +22,7 @@ match os.user_os() {
 	}
 }
 
-mkdir(output_dir) or {
+os.mkdir(output_dir) or {
 	if !os.exists(output_dir) {
 		println(term.red('Failed to create output directory with error: ${os.last_error()}'))
 		exit(1)
