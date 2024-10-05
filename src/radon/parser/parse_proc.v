@@ -71,7 +71,7 @@ pub fn (mut p Parser) parse_proc(index int) !nodes.NodeProc {
 		proc.new_index += 1
 	}
 
-	proc_body := p.parse_proc_inside(proc.new_index) or {
+	proc_body := p.parse_proc_inside(proc.new_index, proc.return_type) or {
 		p.throw_parse_error('Failed to parse proc body')
 		exit(1)
 	}
@@ -129,7 +129,7 @@ fn parse_proc_args(tokens []token.Token, index int) !ProcArgs {
 	}
 }
 
-fn (mut p Parser) parse_proc_inside(i int) ![]nodes.Node {
+fn (mut p Parser) parse_proc_inside(i int, proc_return_type token.TokenType) ![]nodes.Node {
 	tokens := p.all_tokens
 	mut index := i
 	mut proc_body_nodes := []nodes.Node{}
@@ -146,10 +146,15 @@ fn (mut p Parser) parse_proc_inside(i int) ![]nodes.Node {
 			return_kind := nodes.NodeKind{
 				return_node: return_result.node_return
 			}
+			println('Got return statement with value: ${return_result.node_return.value}')
+
+			if proc_return_type != return_result.node_return.return_type {
+				p.throw_parse_error('Proc has a declared return type of ${proc_return_type} but returns an expression of type ${return_result.node_return.return_type}')
+				exit(1)
+			}
 			proc_body_nodes << nodes.Node{
 				node_kind: return_kind
 			}
-			println('Got return statement with value: ${return_result.node_return.value}')
 		} else if tokens[index].token_type == token.TokenType.close_brace {
 			return proc_body_nodes
 		} else {

@@ -26,14 +26,14 @@ pub fn (mut p Parser) parse_return(index int) !Return {
 		ret.new_index += 1
 	}
 
-	ret_type := util.check_expression(tokens_to_return)
+	expression := util.parse_expression(tokens_to_return)
 
-	if !ret_type.success {
-		p.throw_parse_error(ret_type.message)
+	if !expression.success {
+		p.throw_parse_error(expression.message)
 		exit(1)
 	}
 
-	ret.return_type = ret_type.token.token_type
+	ret.return_type = expression.expression_type
 	ret.new_index += 1
 
 	return Return{
