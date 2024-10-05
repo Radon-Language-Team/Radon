@@ -2,10 +2,10 @@ module main
 
 import term
 import os
-import tools.symlink
-import tools.help
 import tools.run
+import tools.help
 import tools.update
+import tools.symlink
 import tools
 
 fn main() {

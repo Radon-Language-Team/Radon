@@ -1,4 +1,5 @@
 all: build
 
 build:
-	./build_bin.sh
+	@echo "Building..."
+	@v run build.vsh

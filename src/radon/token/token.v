@@ -47,15 +47,16 @@ pub enum TokenType {
 	ampersand   // &
 	pipe        // |
 	var_name    // reserved for variables
+	proc_name   // reserved for proc names
 	radon_null  // Only used for the compiler
 
 	// replacement tokens
 	function_return // ->
 	var_assign      // :=
 	equal_equal     // ==
+	array_full      // []
 }
 
-@[minify]
 pub struct Token {
 pub mut:
 	token_type  TokenType
@@ -89,8 +90,8 @@ pub fn (mut t Token) is_special(letter rune) bool {
 	}
 }
 
-pub fn (mut t Token) find_token(token string) TokenType {
-	match token {
+pub fn (mut t Token) find_token(token_to_find string) TokenType {
+	match token_to_find {
 		'proc' { return TokenType.key_proc }
 		'main' { return TokenType.key_main }
 		'if' { return TokenType.key_if }
@@ -154,6 +155,8 @@ pub fn remove_token_and_replace(tokens []Token, token_index int, replacement_tok
 	return new_tokens
 }
 
+// Replaces two tokens with a new token
+// Only possible for some token combinations
 pub fn find_replacement_token_type(token_str_one string, token_str_two string) TokenType {
 	combo := [token_str_one, token_str_two]
 
@@ -161,6 +164,19 @@ pub fn find_replacement_token_type(token_str_one string, token_str_two string) T
 		['-', '>'] { return TokenType.function_return }
 		[':', '='] { return TokenType.var_assign }
 		['=', '='] { return TokenType.equal_equal }
+		['[', ']'] { return TokenType.array_full }
 		else { return TokenType.radon_null }
 	}
+}
+
+// Checks if a token is a token type
+pub fn check_if_token_is_type(token_type TokenType) bool {
+	result := match token_type.str() {
+		'${TokenType.type_int}' { true }
+		'${TokenType.type_float}' { true }
+		'${TokenType.type_bool}' { true }
+		'${TokenType.type_string}' { true }
+		else { false }
+	}
+	return result
 }

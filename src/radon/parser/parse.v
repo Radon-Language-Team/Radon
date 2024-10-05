@@ -30,14 +30,13 @@ fn (mut p Parser) parse_tokens() {
 		p.token = p.all_tokens[p.token_index]
 
 		if p.token.token_type == TokenType.key_proc {
-			result := p.parse_proc() or {
-				p.throw_parse_error('Error parsing proc')
-				exit(1)
-			}
-			p.token_index = result.new_index
+			proc := p.parse_proc(p.token_index) or { exit(1) }
+			p.token_index = proc.new_index
+			println(term.gray('Parsed proc "${proc.name}" with ${proc.params.len} arguments'))
+			return
 		} else {
 			// Bad top-level token
-			p.throw_parse_error('"${p.token.token_type}" is not a valid top-level token')
+			p.throw_parse_error('"${p.token.value}" is not a valid top-level token. Expected either import, proc or const')
 			exit(1)
 		}
 	}

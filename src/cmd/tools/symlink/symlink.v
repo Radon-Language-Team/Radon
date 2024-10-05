@@ -10,9 +10,6 @@ pub fn link() {
 	mut dest_dir := '/usr/local/bin'
 	println('${os.getwd()}')
 
-	// Since we run on linux, we will remove the radon executable for windows
-	os.rm('radon.exe') or {}
-
 	if !os.exists(dest_dir) {
 		os.mkdir_all(dest_dir) or {
 			println(term.red('Failed to create symlink > Try with sudo'))

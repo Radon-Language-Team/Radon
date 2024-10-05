@@ -2,9 +2,9 @@ module help
 
 import os
 import term
-import symlink
-import update
 import tools
+import update
+import symlink
 
 pub fn help() {
 	tools.print_art()
