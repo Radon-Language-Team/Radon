@@ -28,7 +28,7 @@ My goal is to create a language that is easy to use, fast, and might be consider
 > [!NOTE]
 > Clone the repository and then build the radon binary using the `build.vsh` script.
 > This requires the `V` Compiler to be installed. This builds both the Linux and Windows binaries.
-> `cd` into the `bin` directory and run the `radon` binary.
+> `cd` into the `radon` directory and run the `radon` executable.
 > You should now be able to run the Radon REPL.
 
 When you have built the binary, you can create a symbolic link to the binary in the `bin` directory.
