@@ -12,6 +12,7 @@ pub struct NodeKind {
 pub:
 	proc        NodeProc
 	return_node NodeReturn
+	var_node		NodeVar
 }
 
 pub struct NodeProcArg {
@@ -42,4 +43,28 @@ pub mut:
 	new_index   int
 	value       string
 	return_type token.TokenType
+}
+
+pub enum VarAssignOptions {
+	assign
+	reassign
+}
+
+/*
+NodeVar is a struct that represents a variable in the Radon language
+
+new_index: The new index of the parser after parsing the variable
+name: The name of the variable
+scope_id: The scope id of the variable [Experimental - Not yet implemented]
+var_kind: The kind of variable assignment [assign or reassign]
+var_type: The type of the variable [int, string, bool, etc.]
+*/
+pub struct NodeVar {
+pub mut:
+	new_index int
+	name      string
+	value     string
+	scope_id  int
+	var_kind  VarAssignOptions
+	var_type  token.TokenType
 }

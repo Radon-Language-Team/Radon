@@ -137,29 +137,44 @@ fn (mut p Parser) parse_proc_inside(i int, proc_return_type token.TokenType) ![]
 	println(term.gray('Parsing ${tokens[i..].len} tokens inside proc'))
 
 	for index < p.all_tokens.len {
-		if tokens[index].token_type == token.TokenType.key_ret {
-			return_result := p.parse_return(index) or {
-				p.throw_parse_error('Failed to parse return statement')
-				exit(1)
-			}
-			index = return_result.new_index
-			return_kind := nodes.NodeKind{
-				return_node: return_result.node_return
-			}
-			println('Got return statement with value: ${return_result.node_return.value}')
+		token_to_match := tokens[index].token_type.str()
+		match token_to_match {
+			'${token.TokenType.key_ret}' {
+				return_result := p.parse_return(index)
+				index = return_result.new_index
+				return_node := return_result
 
-			if proc_return_type != return_result.node_return.return_type {
-				p.throw_parse_error('Proc has a declared return type of ${proc_return_type} but returns an expression of type ${return_result.node_return.return_type}')
+				if proc_return_type != return_result.return_type {
+					p.throw_parse_error('Proc has a declared return type of ${proc_return_type} but returns an expression of type ${return_result.return_type}')
+					exit(1)
+				}
+
+				return_kind_assign := nodes.NodeKind{
+					return_node: return_node
+				}
+
+				proc_body_nodes << nodes.Node{
+					node_kind: return_kind_assign
+				}
+			}
+			'${token.TokenType.var_name}' {
+				var_result := p.parse_variable(index)
+				index = var_result.new_index
+				var_kind_assign := nodes.NodeKind{
+					var_node: var_result
+				}
+
+				proc_body_nodes << nodes.Node{
+					node_kind: var_kind_assign
+				}
+			}
+			'${token.TokenType.close_brace}' {
+				index += 1
+			}
+			else {
+				p.throw_parse_error('Unknown token: "${tokens[index].value}"')
 				exit(1)
 			}
-			proc_body_nodes << nodes.Node{
-				node_kind: return_kind
-			}
-		} else if tokens[index].token_type == token.TokenType.close_brace {
-			return proc_body_nodes
-		} else {
-			p.throw_parse_error('Unknown token: "${tokens[index].value}"')
-			exit(1)
 		}
 	}
 

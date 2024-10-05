@@ -4,12 +4,7 @@ import nodes
 import token
 import radon.parser.util
 
-struct Return {
-	new_index   int
-	node_return nodes.NodeReturn
-}
-
-pub fn (mut p Parser) parse_return(index int) !Return {
+pub fn (mut p Parser) parse_return(index int) nodes.NodeReturn {
 	mut tokens_to_return := []token.Token{}
 	mut ret := nodes.NodeReturn{
 		new_index:   index
@@ -36,8 +31,5 @@ pub fn (mut p Parser) parse_return(index int) !Return {
 	ret.return_type = expression.expression_type
 	ret.new_index += 1
 
-	return Return{
-		new_index:   ret.new_index
-		node_return: ret
-	}
+	return ret
 }
