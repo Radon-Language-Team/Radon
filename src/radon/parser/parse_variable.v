@@ -27,6 +27,7 @@ pub fn (mut p Parser) parse_variable(index int) nodes.NodeVar {
 		}
 		else {
 			p.throw_parse_error('Expected either ":=" or "=" but got ${var_kind_token.value}')
+			exit(1)
 		}
 	}
 
