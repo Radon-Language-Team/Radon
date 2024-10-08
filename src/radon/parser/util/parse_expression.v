@@ -1,13 +1,15 @@
 module util
 
 import term
+import nodes
 import radon.token { TokenType }
 
 struct ParsedExpression {
 pub:
-	success         bool
-	message         string
-	expression_type TokenType
+	success          bool
+	message          string
+	expression_value string
+	expression_type  TokenType
 }
 
 pub fn parse_expression(tokens []token.Token) ParsedExpression {
@@ -16,6 +18,7 @@ pub fn parse_expression(tokens []token.Token) ParsedExpression {
 	math_operators := ['+', '-', '*', '/']
 	mut expected_type := tokens[0].token_type
 	mut expression_type := TokenType.radon_null
+	mut expression_value := ''
 
 	println(term.gray('Parsing expression of ${tokens.len} tokens'))
 
@@ -37,6 +40,7 @@ pub fn parse_expression(tokens []token.Token) ParsedExpression {
 				// break the loop as we have reached the end of the expression
 				break
 			}
+			expression_value += tokens[i].value
 			i += 1
 
 			if tokens[i].value !in math_operators {
@@ -46,11 +50,26 @@ pub fn parse_expression(tokens []token.Token) ParsedExpression {
 					expression_type: token_return.token_type
 				}
 			}
+			expression_value += tokens[i].value
 
 			// This skips the operator. The loop will then continue with the next token
 			expected_type = TokenType.type_int
 			i += 1
 			continue
+		} else if last_type == TokenType.var_name {
+
+			variable := util.variable_table(nodes.NodeVar{}, tokens[i].value, Operation.get)
+
+			if !variable.success == true {
+				return ParsedExpression{
+					success:         false
+					message:         'Tried to access variable "${tokens[i].value}" but it was not found!'
+					expression_type: token_return.token_type
+				}
+			}
+
+			println('HOLY MOLY I GOT A VARIABLE: ${variable.variable}')
+
 		} else {
 			return ParsedExpression{
 				success:         false
@@ -60,8 +79,9 @@ pub fn parse_expression(tokens []token.Token) ParsedExpression {
 		}
 	}
 	return ParsedExpression{
-		success:         true
-		message:         ''
-		expression_type: expression_type
+		success:          true
+		message:          ''
+		expression_value: expression_value
+		expression_type:  expression_type
 	}
 }

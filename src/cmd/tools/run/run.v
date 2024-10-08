@@ -41,7 +41,8 @@ pub fn radon_run() {
 		exit(1)
 	}
 
-	println(term.green('Optimization successful | Tokens after opt: ${optimized_tokens.len} | ${math.round(optimized_tokens.len / lexed_file.all_tokens.len * 100)}%'))
+	opt_percentage := math.round((optimized_tokens.len / lexed_file.all_tokens.len) * 100)	
+	println(term.green('Optimization successful | Tokens after opt: ${optimized_tokens.len} | ${opt_percentage}%'))
 
 	parser.parse(optimized_tokens, file_name, file_path)
 

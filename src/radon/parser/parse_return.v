@@ -16,7 +16,6 @@ pub fn (mut p Parser) parse_return(index int) nodes.NodeReturn {
 
 	for p.all_tokens[ret.new_index].token_type != token.TokenType.semicolon
 		|| ret.new_index >= p.all_tokens.len {
-		ret.value += p.all_tokens[ret.new_index].value
 		tokens_to_return << p.all_tokens[ret.new_index]
 		ret.new_index += 1
 	}
@@ -29,6 +28,7 @@ pub fn (mut p Parser) parse_return(index int) nodes.NodeReturn {
 	}
 
 	ret.return_type = expression.expression_type
+	ret.value = expression.expression_value
 	ret.new_index += 1
 
 	return ret
