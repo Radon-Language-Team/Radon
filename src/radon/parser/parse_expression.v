@@ -1,4 +1,4 @@
-module util
+module parser
 
 import term
 import nodes
@@ -12,7 +12,7 @@ pub:
 	expression_type  TokenType
 }
 
-pub fn parse_expression(tokens []token.Token) ParsedExpression {
+pub fn (mut p Parser) parse_expression(tokens []token.Token) ParsedExpression {
 	mut i := 0
 	mut token_return := token.Token{}
 	math_operators := ['+', '-', '*', '/']
@@ -57,8 +57,7 @@ pub fn parse_expression(tokens []token.Token) ParsedExpression {
 			i += 1
 			continue
 		} else if last_type == TokenType.var_name {
-
-			variable := util.variable_table(nodes.NodeVar{}, tokens[i].value, Operation.get)
+			variable := p.variable_table(nodes.NodeVar{}, tokens[i].value, VarOperation.get)
 
 			if !variable.success == true {
 				return ParsedExpression{
@@ -69,7 +68,7 @@ pub fn parse_expression(tokens []token.Token) ParsedExpression {
 			}
 
 			println('HOLY MOLY I GOT A VARIABLE: ${variable.variable}')
-
+			exit(1)
 		} else {
 			return ParsedExpression{
 				success:         false

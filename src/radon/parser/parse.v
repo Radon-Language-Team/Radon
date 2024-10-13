@@ -2,6 +2,7 @@ module parser
 
 import term
 import radon.token { Token, TokenType }
+import nodes
 
 @[minify]
 pub struct Parser {
@@ -9,6 +10,8 @@ pub mut:
 	file_name   string
 	file_path   string
 	token_index int
+	variable_names []string
+	variables      []nodes.NodeVar
 	all_tokens  []Token
 	token       Token
 }

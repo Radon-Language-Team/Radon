@@ -3,7 +3,6 @@ module parser
 import term
 import token
 import nodes
-import util { Operation }
 
 struct ProcArgs {
 	args      []nodes.NodeProcArg
@@ -168,7 +167,7 @@ fn (mut p Parser) parse_proc_inside(i int, proc_return_type token.TokenType) ![]
 				proc_body_nodes << nodes.Node{
 					node_kind: var_kind_assign
 				}
-				util.variable_table(var_result, '', Operation.set)
+				p.variable_table(var_result, '', VarOperation.set)
 			}
 			'${token.TokenType.close_brace}' {
 				index += 1

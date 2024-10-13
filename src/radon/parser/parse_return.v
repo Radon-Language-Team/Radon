@@ -2,7 +2,6 @@ module parser
 
 import nodes
 import token
-import radon.parser.util
 
 pub fn (mut p Parser) parse_return(index int) nodes.NodeReturn {
 	mut tokens_to_return := []token.Token{}
@@ -20,7 +19,7 @@ pub fn (mut p Parser) parse_return(index int) nodes.NodeReturn {
 		ret.new_index += 1
 	}
 
-	expression := util.parse_expression(tokens_to_return)
+	expression := p.parse_expression(tokens_to_return)
 
 	if !expression.success {
 		p.throw_parse_error(expression.message)
