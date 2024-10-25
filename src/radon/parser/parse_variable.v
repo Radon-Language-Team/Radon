@@ -47,6 +47,7 @@ pub fn (mut p Parser) parse_variable(index int) nodes.NodeVar {
 	}
 
 	var.var_type = expression.expression_type
+	var.value = expression.expression_value
 	var.new_index += 1
 
 	return var

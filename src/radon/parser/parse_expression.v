@@ -22,25 +22,64 @@ pub fn (mut p Parser) parse_expression(tokens []token.Token) ParsedExpression {
 
 	println(term.gray('Parsing expression of ${tokens.len} tokens'))
 
+	// For single token expressions such as "x" or "5"
+	// Important: A string is also considered a single token expression as the lexer
+	// will return a single token with the type TokenType.string and it's value
+	if tokens.len == 1 {
+		if tokens[0].token_type == TokenType.var_name {
+			variable := p.variable_table(nodes.NodeVar{}, tokens[0].value, VarOperation.get)
+			return ParsedExpression{
+				success:          true
+				message:          ''
+				expression_value: variable.variable?.value
+				expression_type:  variable.variable?.var_type
+			}
+		} else {
+			return ParsedExpression{
+				success:          true
+				message:          ''
+				expression_value: tokens[0].value
+				expression_type:  tokens[0].token_type
+			}
+		}
+	}
+
 	for i < tokens.len {
 		current_token := tokens[i]
-		last_type := current_token.token_type
+		mut last_type := current_token.token_type
 		expression_type = last_type
 
+		// We seem to have reached the end of the expression
+		if i + 1 > tokens.len {
+			break
+		}
+
 		if last_type != expected_type {
-			return ParsedExpression{
-				success:         false
-				message:         'Expected type "${expected_type}" but got "${last_type}"'
-				expression_type: token_return.token_type
+			if last_type == TokenType.var_name {
+				variable := p.variable_table(nodes.NodeVar{}, tokens[i].value, VarOperation.get)
+
+				if variable.variable?.var_type != expected_type {
+					return ParsedExpression{
+						success:         false
+						message:         'Variable ${tokens[i].value} either not found or not of type ${expected_type}'
+						expression_type: token_return.token_type
+					}
+				}
+				expression_type = variable.variable?.var_type
+			} else {
+				return ParsedExpression{
+					success:         false
+					message:         'Expected type "${expected_type}" but got "${last_type}"'
+					expression_type: token_return.token_type
+				}
 			}
 		}
 
 		if last_type == TokenType.type_int {
-			if i + 1 == tokens.len {
-				// break the loop as we have reached the end of the expression
+			expression_value += tokens[i].value
+			if i + 1 >= tokens.len {
 				break
 			}
-			expression_value += tokens[i].value
 			i += 1
 
 			if tokens[i].value !in math_operators {
@@ -58,17 +97,24 @@ pub fn (mut p Parser) parse_expression(tokens []token.Token) ParsedExpression {
 			continue
 		} else if last_type == TokenType.var_name {
 			variable := p.variable_table(nodes.NodeVar{}, tokens[i].value, VarOperation.get)
+			expression_value += variable.variable?.value
+			if i + 1 >= tokens.len {
+				break
+			}
+			i += 1
 
-			if !variable.success == true {
+			if tokens[i].value !in math_operators {
 				return ParsedExpression{
 					success:         false
-					message:         'Tried to access variable "${tokens[i].value}" but it was not found!'
+					message:         'Expected math operator but got "${tokens[i].value}"'
 					expression_type: token_return.token_type
 				}
 			}
+			expression_value += tokens[i].value
 
-			println('HOLY MOLY I GOT A VARIABLE: ${variable.variable}')
-			exit(1)
+			expected_type = variable.variable?.var_type
+			i += 1
+			continue
 		} else {
 			return ParsedExpression{
 				success:         false
