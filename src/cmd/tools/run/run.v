@@ -6,6 +6,7 @@ import os
 import radon.lexer
 import radon.opt
 import radon.parser
+import radon.gen
 
 pub fn radon_run() {
 	args := os.args
@@ -41,10 +42,17 @@ pub fn radon_run() {
 		exit(1)
 	}
 
-	opt_percentage := math.round((optimized_tokens.len / lexed_file.all_tokens.len) * 100)	
+	opt_percentage := math.round((optimized_tokens.len / lexed_file.all_tokens.len) * 100)
 	println(term.green('Optimization successful | Tokens after opt: ${optimized_tokens.len} | ${opt_percentage}%'))
 
-	parser.parse(optimized_tokens, file_name, file_path)
+	parsed_nodes := parser.parse(optimized_tokens, file_name, file_path) or {
+		println(term.red('radon_parser Error: Error while trying to parse tokens'))
+		exit(1)
+	}
 
-	println(term.green('Parsing successful'))
+	println(term.green('Parsing successful | Parsed nodes: ${parsed_nodes.parsed_nodes.len}'))
+
+	gen.generate(parsed_nodes.parsed_nodes, file_name, file_path)
+
+	println(term.green('Code generation successful'))
 }

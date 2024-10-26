@@ -2,30 +2,35 @@ module parser
 
 import term
 import radon.token { Token, TokenType }
-import nodes
+import nodes { NodeProc }
 
 @[minify]
 pub struct Parser {
 pub mut:
-	file_name   string
-	file_path   string
-	token_index int
+	file_name      string
+	file_path      string
+	token_index    int
 	variable_names []string
 	variables      []nodes.NodeVar
-	all_tokens  []Token
-	token       Token
+	all_tokens     []Token
+	token          Token
+
+	parsed_nodes []NodeProc
 }
 
-pub fn parse(tokens []Token, file_name string, file_path string) {
+pub fn parse(tokens []Token, file_name string, file_path string) !Parser {
 	mut parser := Parser{
 		file_name:   file_name
 		file_path:   file_path
 		token_index: 0
 		all_tokens:  tokens
 		token:       Token{}
+
+		parsed_nodes: []NodeProc{}
 	}
 
 	parser.parse_tokens()
+	return parser
 }
 
 fn (mut p Parser) parse_tokens() {
@@ -33,9 +38,14 @@ fn (mut p Parser) parse_tokens() {
 		p.token = p.all_tokens[p.token_index]
 
 		if p.token.token_type == TokenType.key_proc {
-			proc := p.parse_proc(p.token_index) or { exit(1) }
+			proc := p.parse_proc(p.token_index) or {
+				p.throw_parse_error('Failed to parse proc')
+				exit(1)
+			}
 			p.token_index = proc.new_index
 			println(term.gray('Parsed proc "${proc.name}" with ${proc.params.len} arguments'))
+			p.parsed_nodes << proc
+			// This only works for ONE function right now... Well, it's a start
 			return
 		} else {
 			// Bad top-level token

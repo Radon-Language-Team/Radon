@@ -2,7 +2,7 @@ module parser
 
 import term
 import token
-import nodes
+import nodes { NodeProc }
 
 struct ProcArgs {
 	args      []nodes.NodeProcArg
@@ -11,7 +11,7 @@ struct ProcArgs {
 	message   string
 }
 
-pub fn (mut p Parser) parse_proc(index int) !nodes.NodeProc {
+pub fn (mut p Parser) parse_proc(index int) !NodeProc {
 	mut proc := nodes.NodeProc{
 		new_index:     index
 		name:          ''
@@ -163,11 +163,12 @@ fn (mut p Parser) parse_proc_inside(i int, proc_return_type token.TokenType) ![]
 				var_kind_assign := nodes.NodeKind{
 					var_node: var_result
 				}
-
+ 
 				proc_body_nodes << nodes.Node{
 					node_kind: var_kind_assign
 				}
 				p.variable_table(var_result, '', VarOperation.set)
+				println(term.bright_green('Parsed variable: ${var_result.name} with value: ${var_result.value}'))
 			}
 			'${token.TokenType.close_brace}' {
 				index += 1
