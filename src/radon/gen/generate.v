@@ -14,7 +14,7 @@ pub mut:
 	generated_code string
 }
 
-pub fn generate(parsed_nodes []NodeProc, file_name string, file_path string) {
+pub fn generate(parsed_nodes []NodeProc, file_name string, file_path string) string {
 	mut generator := Generator{
 		file_name:      file_name
 		file_path:      file_path
@@ -25,12 +25,10 @@ pub fn generate(parsed_nodes []NodeProc, file_name string, file_path string) {
 	}
 
 	generator.generate_code()
+	return generator.generated_code
 }
 
 fn (mut g Generator) generate_code() {
-	println(term.gray('Generating code...'))
-	println(term.gray('Going through ${g.nodes.len} nodes'))
-
 	for g.node_index < g.nodes.len {
 		g.node = g.nodes[g.node_index]
 
@@ -38,8 +36,6 @@ fn (mut g Generator) generate_code() {
 		g.generate_proc()
 		g.node_index += 1
 	}
-
-	println('Generated code: ${g.generated_code}')
 }
 
 fn (mut g Generator) throw_gen_error(err_msg string) {

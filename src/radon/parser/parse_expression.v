@@ -1,6 +1,5 @@
 module parser
 
-import term
 import nodes
 import radon.token { TokenType }
 
@@ -19,8 +18,6 @@ pub fn (mut p Parser) parse_expression(tokens []token.Token) ParsedExpression {
 	mut expected_type := tokens[0].token_type
 	mut expression_type := TokenType.radon_null
 	mut expression_value := ''
-
-	println(term.gray('Parsing expression of ${tokens.len} tokens'))
 
 	// For single token expressions such as "x" or "5"
 	// Important: A string is also considered a single token expression as the lexer

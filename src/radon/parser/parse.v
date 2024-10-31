@@ -43,7 +43,6 @@ fn (mut p Parser) parse_tokens() {
 				exit(1)
 			}
 			p.token_index = proc.new_index
-			println(term.gray('Parsed proc "${proc.name}" with ${proc.params.len} arguments'))
 			p.parsed_nodes << proc
 			// This only works for ONE function right now... Well, it's a start
 			return

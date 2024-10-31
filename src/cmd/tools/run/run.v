@@ -1,7 +1,6 @@
 module run
 
 import term
-import math
 import os
 import radon.lexer
 import radon.opt
@@ -29,30 +28,67 @@ pub fn radon_run() {
 		return
 	}
 
-	println(term.gray('[INFO]: Running file: ${file_name}'))
 	lexed_file := lexer.lex(file_name, file_path) or {
 		println(term.red('radon_lexer Error: Error while trying to lex file'))
 		exit(1)
 	}
-
-	println(term.green('Lexing successful | Lexed tokens: ${lexed_file.all_tokens.len}'))
 
 	optimized_tokens := opt.optimize(lexed_file.all_tokens) or {
 		println(term.red('radon_opt Error: Error while trying to optimize tokens'))
 		exit(1)
 	}
 
-	opt_percentage := math.round((optimized_tokens.len / lexed_file.all_tokens.len) * 100)
-	println(term.green('Optimization successful | Tokens after opt: ${optimized_tokens.len} | ${opt_percentage}%'))
-
 	parsed_nodes := parser.parse(optimized_tokens, file_name, file_path) or {
 		println(term.red('radon_parser Error: Error while trying to parse tokens'))
 		exit(1)
 	}
 
-	println(term.green('Parsing successful | Parsed nodes: ${parsed_nodes.parsed_nodes.len}'))
+	code := gen.generate(parsed_nodes.parsed_nodes, file_name, file_path)
 
-	gen.generate(parsed_nodes.parsed_nodes, file_name, file_path)
+	gen_file_name := file_name.replace('.rad', '.c')
+	gen_file_name_exec := file_name.replace('.rad', '')
+	gen_file_path := os.join_path(os.getwd(), gen_file_name)
 
-	println(term.green('Code generation successful'))
+	if os.exists(gen_file_path) {
+		os.rm(gen_file_path) or {
+			println(term.red('radon_run Error: Error while trying to remove existing generated file'))
+			exit(1)
+		}
+	}
+
+	mut gen_file := os.create(gen_file_path) or {
+		println(term.red('radon_run Error: Error while trying to create generated file'))
+		exit(1)
+	}
+
+	os.write_file(gen_file_path, code) or {
+		println(term.red('radon_run Error: Error while trying to write to generated file'))
+		exit(1)
+	}
+
+	gen_file.close()
+	compile_code := os.system('gcc ${gen_file_name} -o ${gen_file_name_exec}')
+
+	if compile_code != 0 {
+		println(term.red('radon_run Error: Error while trying to compile generated file'))
+		exit(1)
+	}
+
+	exec_code := os.system('./${gen_file_name_exec}')
+
+	if exec_code != 0 {
+		println(term.yellow('${gen_file_name_exec} returned non-zero exit code'))
+	}
+
+	// Remove generated file after execution
+	os.rm(gen_file_path) or {
+		println(term.red('radon_run Error: Error while trying to remove generated file'))
+		exit(1)
+	}
+	os.rm('${gen_file_name_exec}') or {
+		println(term.red('radon_run Error: Error while trying to remove compiled radon file'))
+		exit(1)
+	}
+
+	println(term.green('[RADON] Execution successful'))
 }

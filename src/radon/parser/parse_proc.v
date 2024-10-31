@@ -1,6 +1,5 @@
 module parser
 
-import term
 import token
 import nodes { NodeProc }
 
@@ -134,8 +133,6 @@ fn (mut p Parser) parse_proc_inside(i int, proc_return_type token.TokenType) ![]
 	mut index := i
 	mut proc_body_nodes := []nodes.Node{}
 
-	println(term.gray('Parsing ${tokens[i..].len} tokens inside proc'))
-
 	for index < p.all_tokens.len {
 		token_to_match := tokens[index].token_type.str()
 		match token_to_match {
@@ -170,7 +167,6 @@ fn (mut p Parser) parse_proc_inside(i int, proc_return_type token.TokenType) ![]
 					node_kind: var_kind_assign
 				}
 				p.variable_table(var_result, '', VarOperation.set)
-				println(term.bright_green('Parsed variable: ${var_result.name} with value: ${var_result.value}'))
 			}
 			'${token.TokenType.close_brace}' {
 				index += 1

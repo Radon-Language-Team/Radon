@@ -1,6 +1,5 @@
 module gen
 
-import term
 import nodes { Node, NodeType }
 import token
 import util { gen_assignment, gen_return }
@@ -9,9 +8,7 @@ fn (mut g Generator) generate_proc() {
 	node := g.node
 
 	mut temp_proc_args := ''
-	if node.params.len == 0 {
-		temp_proc_args += ''
-	} else {
+	if node.params.len != 0 {
 		for arg in node.params {
 			temp_proc_args += arg.arg_type + ': ' + arg.arg_name + ', '
 		}
@@ -22,12 +19,10 @@ fn (mut g Generator) generate_proc() {
 	proc_type := token.convert_radon_to_c_type(node.return_type)
 	proc_body := g.gen_proc_body(node.body)
 
-	g.generated_code += '${proc_type} ${proc_name}${proc_args} \n{${proc_body}}\n'
+	g.generated_code += '${proc_type} ${proc_name}${proc_args} \n{ \n${proc_body} \n}\n'
 }
 
 fn (mut g Generator) gen_proc_body(proc_body []Node) string {
-	println(term.gray('Going through ${proc_body.len} proc body nodes'))
-
 	mut temp_proc_body := ''
 
 	for tmp_node in proc_body {
