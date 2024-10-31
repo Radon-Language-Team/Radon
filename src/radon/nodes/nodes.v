@@ -2,9 +2,17 @@ module nodes
 
 import token
 
+pub enum NodeType {
+	proc
+	return_node
+	var_node
+	none // For cases where no node type is active
+}
+
 @[minify]
 pub struct Node {
 pub:
+	node_type NodeType
 	node_kind NodeKind
 }
 
@@ -12,7 +20,7 @@ pub struct NodeKind {
 pub:
 	proc        NodeProc
 	return_node NodeReturn
-	var_node		NodeVar
+	var_node    NodeVar
 }
 
 pub struct NodeProcArg {

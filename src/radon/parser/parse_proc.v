@@ -12,7 +12,7 @@ struct ProcArgs {
 }
 
 pub fn (mut p Parser) parse_proc(index int) !NodeProc {
-	mut proc := nodes.NodeProc{
+	mut proc := NodeProc{
 		new_index:     index
 		name:          ''
 		params:        []nodes.NodeProcArg{}
@@ -154,6 +154,7 @@ fn (mut p Parser) parse_proc_inside(i int, proc_return_type token.TokenType) ![]
 				}
 
 				proc_body_nodes << nodes.Node{
+					node_type: nodes.NodeType.return_node
 					node_kind: return_kind_assign
 				}
 			}
@@ -163,8 +164,9 @@ fn (mut p Parser) parse_proc_inside(i int, proc_return_type token.TokenType) ![]
 				var_kind_assign := nodes.NodeKind{
 					var_node: var_result
 				}
- 
+
 				proc_body_nodes << nodes.Node{
+					node_type: nodes.NodeType.var_node
 					node_kind: var_kind_assign
 				}
 				p.variable_table(var_result, '', VarOperation.set)
