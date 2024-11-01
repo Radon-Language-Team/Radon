@@ -8,7 +8,12 @@ import radon.parser
 import radon.gen
 
 pub fn radon_run() {
+	mut preserve_files := false
 	args := os.args
+
+	if '--p' in args || '--preserve' in args {
+		preserve_files = true
+	}
 
 	// [0]: radon | [1]: run | [2]: file_name
 	file_name := args[2] or {
@@ -80,14 +85,16 @@ pub fn radon_run() {
 		println(term.yellow('${gen_file_name_exec} returned non-zero exit code'))
 	}
 
-	// Remove generated file after execution
-	os.rm(gen_file_path) or {
-		println(term.red('radon_run Error: Error while trying to remove generated file'))
-		exit(1)
-	}
-	os.rm('${gen_file_name_exec}') or {
-		println(term.red('radon_run Error: Error while trying to remove compiled radon file'))
-		exit(1)
+	if !preserve_files {
+		// Remove generated file after execution
+		os.rm(gen_file_path) or {
+			println(term.red('radon_run Error: Error while trying to remove generated file'))
+			exit(1)
+		}
+		os.rm('${gen_file_name_exec}') or {
+			println(term.red('radon_run Error: Error while trying to remove compiled radon file'))
+			exit(1)
+		}
 	}
 
 	println(term.green('[RADON] Execution successful'))
