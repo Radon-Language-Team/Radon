@@ -2,7 +2,6 @@ module parser
 
 import token
 import nodes { VarAssignOptions }
-import radon.parser.util
 
 pub fn (mut p Parser) parse_variable(index int) nodes.NodeVar {
 	mut var_expression := []token.Token{}
@@ -27,6 +26,7 @@ pub fn (mut p Parser) parse_variable(index int) nodes.NodeVar {
 		}
 		else {
 			p.throw_parse_error('Expected either ":=" or "=" but got ${var_kind_token.value}')
+			exit(1)
 		}
 	}
 
@@ -39,7 +39,7 @@ pub fn (mut p Parser) parse_variable(index int) nodes.NodeVar {
 		var.new_index += 1
 	}
 
-	expression := util.parse_expression(var_expression)
+	expression := p.parse_expression(var_expression)
 
 	if !expression.success {
 		p.throw_parse_error(expression.message)
@@ -47,6 +47,7 @@ pub fn (mut p Parser) parse_variable(index int) nodes.NodeVar {
 	}
 
 	var.var_type = expression.expression_type
+	var.value = expression.expression_value
 	var.new_index += 1
 
 	return var

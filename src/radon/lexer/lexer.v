@@ -33,7 +33,6 @@ pub fn lex(file_name string, file_path string) !Lexer {
 
 	defer {
 		file_to_lex.close()
-		println(term.gray('[INFO]: Closed file: ${file_name}'))
 	}
 
 	content := os.read_file(file_path) or {
@@ -56,7 +55,6 @@ pub fn lex(file_name string, file_path string) !Lexer {
 fn (mut l Lexer) lex_file() {
 	for c in l.file_content {
 		if l.index >= l.file_content.len {
-			println(term.gray('[INFO]: Finished lexing file: ${l.file_name} - ${c}'))
 			break
 		}
 		if l.token.is_alpha(l.file_content[l.index]) {
@@ -68,7 +66,7 @@ fn (mut l Lexer) lex_file() {
 		} else if l.token.is_special(l.file_content[l.index]) {
 			l.lex_special()
 		} else {
-			l.throw_lex_error('Invalid character: ${l.file_content[l.index].ascii_str()}')
+			l.throw_lex_error('Invalid character: "${l.file_content[l.index].ascii_str()}" - ${c}')
 			exit(1)
 		}
 	}

@@ -180,3 +180,14 @@ pub fn check_if_token_is_type(token_type TokenType) bool {
 	}
 	return result
 }
+
+pub fn convert_radon_to_c_type(token_type TokenType) string {
+	result := match '${token_type}' {
+		'${TokenType.type_int}' { 'int' }
+		'${TokenType.type_float}' { 'float' }
+		'${TokenType.type_bool}' { 'bool' }
+		'${TokenType.type_string}' { 'char*' }
+		else { 'void' }
+	}
+	return result
+}

@@ -1,8 +1,7 @@
 module parser
 
-import term
 import token
-import nodes
+import nodes { NodeProc }
 
 struct ProcArgs {
 	args      []nodes.NodeProcArg
@@ -11,8 +10,8 @@ struct ProcArgs {
 	message   string
 }
 
-pub fn (mut p Parser) parse_proc(index int) !nodes.NodeProc {
-	mut proc := nodes.NodeProc{
+pub fn (mut p Parser) parse_proc(index int) !NodeProc {
+	mut proc := NodeProc{
 		new_index:     index
 		name:          ''
 		params:        []nodes.NodeProcArg{}
@@ -134,8 +133,6 @@ fn (mut p Parser) parse_proc_inside(i int, proc_return_type token.TokenType) ![]
 	mut index := i
 	mut proc_body_nodes := []nodes.Node{}
 
-	println(term.gray('Parsing ${tokens[i..].len} tokens inside proc'))
-
 	for index < p.all_tokens.len {
 		token_to_match := tokens[index].token_type.str()
 		match token_to_match {
@@ -154,6 +151,7 @@ fn (mut p Parser) parse_proc_inside(i int, proc_return_type token.TokenType) ![]
 				}
 
 				proc_body_nodes << nodes.Node{
+					node_type: nodes.NodeType.return_node
 					node_kind: return_kind_assign
 				}
 			}
@@ -165,8 +163,10 @@ fn (mut p Parser) parse_proc_inside(i int, proc_return_type token.TokenType) ![]
 				}
 
 				proc_body_nodes << nodes.Node{
+					node_type: nodes.NodeType.var_node
 					node_kind: var_kind_assign
 				}
+				p.variable_table(var_result, '', VarOperation.set)
 			}
 			'${token.TokenType.close_brace}' {
 				index += 1
