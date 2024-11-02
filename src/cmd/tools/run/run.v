@@ -72,7 +72,7 @@ pub fn radon_run() {
 	}
 
 	gen_file.close()
-	compile_code := os.system('gcc ${gen_file_name} -o ${gen_file_name_exec}')
+	compile_code := os.system('tcc -o ${gen_file_name_exec} -c ${gen_file_name}')
 
 	if compile_code != 0 {
 		println(term.red('radon_run Error: Error while trying to compile generated file'))
@@ -82,7 +82,7 @@ pub fn radon_run() {
 	exec_code := os.system('./${gen_file_name_exec}')
 
 	if exec_code != 0 {
-		println(term.yellow('${gen_file_name_exec} returned non-zero exit code'))
+		println(term.yellow('Proc "${gen_file_name_exec}" in "${file_name}" returned non-zero exit code! Possible error: \n${os.last_error()}'))
 	}
 
 	if !preserve_files {
