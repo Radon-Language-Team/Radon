@@ -15,23 +15,51 @@
 
 ## What is Radon?
 
-Radon is my attempt at creating a programming language. I have no degree in computer science, so I am learning as I go.
-This is project is 100% my own work, and I am not using any other programming language as a reference (probably a bad idea).
-The Syntax is inspired heavily by the V Programming language which is also used to build Radon.
-This is merely a hobby project and will take a long time to complete (if ever).
-My goal is to create a language that is easy to use, fast, and might be considered in a small "test" project.
-**As of now, Radon is in the very early stages of development.**
-**We just have a Lexer and a Parser.**
+Radon is a statically-typed compiled programming language that is, unlike other languages, not really focused on how easy it is to code with it. <br>
+Instead, Radon provides features that make it more of a convienience to write code, such as `type inference` and `optional function arguments`. <br>
+It is my own personal hobby project and I am working on it in my free time. <br>
+[Join the Discord Server by the way!!](https://discord.gg/UwKeDFssNH) <br>
+The syntax is heavily inspired by the V programming language, which is also used to write the Radon compiler. <br>
+The language is still so early in development that it is not even close to being usable for any real-world projects. <br>
+Some Radon Code that compiles today:
+
+```radon
+proc main() -> int {
+  a := 5;
+  b := 10;
+  c := a + b;
+  d := c - 15;
+  return d;
+}
+```
+
+Radon does not do much more yet, but I am working on it and I am planning to add many more features in the future :) <br>
+
+## Planned Features
+- [x] Basic Syntax
+- [] Basic Type System
+- [] Radon Standard Library
+- [] Radon Documentation
+- [] Radon Website
+
+These might come off as very ambitious, but you gotta aim high, right? <br>
+
+## Contributing
+Contributions are always welcome as this is kind of a huge project for me to work on alone. <br>
+If you want to contribute, feel free to fork the repository and open a pull request. <br>
 
 ## Building Radon
 
 > [!NOTE]
-> Clone the repository and then build the radon binary using the `build.vsh` script.
-> This requires the `V` Compiler to be installed. This builds both the Linux and Windows binaries.
-> `cd` into the `radon` directory and run the `radon` executable.
+> This requires the `V` Compiler to be installed! <br>
+> Clone the repository and then build the radon binary using the `build.vsh` script by running `v run build.vsh`. <br>
+> `cd` into the `radon` directory and run the `radon` executable. <br>
 > You should now be able to run the Radon REPL.
 
-When you have built the binary, you can create a symbolic link to the binary in the `bin` directory.
-This allows you to run the `radon` command from anywhere in the terminal.
-All you have to do is run the REPL with admin permissions and then run the `link` command
-Everything is done for you automatically. **Make sure to restart your shell after running the `link` command.**
+### Symlinking the Radon Binary
+
+Radon provides an easy way to symlink the binary to your system path. <br>
+When you have built the binary, run it as administrator. <br>
+Once running, type `symlink` and press enter. <br>
+The binary should now be symlinked to your system path. <br>
+**Make sure to restart your terminal after running the command.**
