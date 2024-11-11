@@ -43,6 +43,7 @@ pub fn (mut p Parser) parse_expression(tokens []token.Token) ParsedExpression {
 
 	for i < tokens.len {
 		current_token := tokens[i]
+		current_value := current_token.value
 		mut last_type := current_token.token_type
 		expression_type = last_type
 
@@ -64,53 +65,71 @@ pub fn (mut p Parser) parse_expression(tokens []token.Token) ParsedExpression {
 				}
 				expression_type = variable.variable?.var_type
 			} else {
-				return ParsedExpression{
-					success:         false
-					message:         'Expected type "${expected_type}" but got "${last_type}"'
-					expression_type: token_return.token_type
+				if (expected_type == TokenType.type_string && current_value !in math_operators)
+					|| (expected_type == TokenType.type_int && current_value !in math_operators) {
+					return ParsedExpression{
+						success:         false
+						message:         'Expected "${expected_type}" but got "${last_type}"'
+						expression_type: token_return.token_type
+					}
 				}
 			}
 		}
 
 		if last_type == TokenType.type_int {
 			expression_value += tokens[i].value
-			if i + 1 >= tokens.len {
-				break
-			}
-			i += 1
+			expected_type = TokenType.type_int
 
-			if tokens[i].value !in math_operators {
+			i++
+			continue
+		} else if last_type == TokenType.plus {
+			if i + 1 >= tokens.len {
 				return ParsedExpression{
 					success:         false
-					message:         'Expected math operator but got "${tokens[i].value}"'
+					message:         'Expected expression after "+"'
 					expression_type: token_return.token_type
 				}
 			}
-			expression_value += tokens[i].value
 
-			// This skips the operator. The loop will then continue with the next token
-			expected_type = TokenType.type_int
-			i += 1
+			mut left_hand := tokens[i - 1].token_type
+			mut right_hand := tokens[i + 1].token_type
+
+			if left_hand == TokenType.var_name {
+				variable := p.variable_table(nodes.NodeVar{}, tokens[i - 1].value, VarOperation.get)
+				left_hand = variable.variable?.var_type
+			}
+
+			if right_hand == TokenType.var_name {
+				variable := p.variable_table(nodes.NodeVar{}, tokens[i + 1].value, VarOperation.get)
+				right_hand = variable.variable?.var_type
+			}
+
+			if left_hand != right_hand {
+				return ParsedExpression{
+					success:         false
+					message:         'Expected same type on both sides of "+" but got "${left_hand}" and "${right_hand}"'
+					expression_type: token_return.token_type
+				}
+			}
+
+			expression_value += tokens[i].value
+			expected_type = left_hand
+
+			i++
 			continue
 		} else if last_type == TokenType.var_name {
 			variable := p.variable_table(nodes.NodeVar{}, tokens[i].value, VarOperation.get)
+
 			expression_value += variable.variable?.value
-			if i + 1 >= tokens.len {
-				break
-			}
-			i += 1
-
-			if tokens[i].value !in math_operators {
-				return ParsedExpression{
-					success:         false
-					message:         'Expected math operator but got "${tokens[i].value}"'
-					expression_type: token_return.token_type
-				}
-			}
-			expression_value += tokens[i].value
-
 			expected_type = variable.variable?.var_type
-			i += 1
+
+			i++
+			continue
+		} else if last_type == TokenType.type_string {
+			expression_value += tokens[i].value
+			expected_type = TokenType.type_string
+
+			i++
 			continue
 		} else {
 			return ParsedExpression{

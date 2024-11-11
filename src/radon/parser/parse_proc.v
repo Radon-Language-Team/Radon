@@ -142,7 +142,7 @@ fn (mut p Parser) parse_proc_inside(i int, proc_return_type token.TokenType) ![]
 				return_node := return_result
 
 				if proc_return_type != return_result.return_type {
-					p.throw_parse_error('Proc has a declared return type of ${proc_return_type} but returns an expression of type ${return_result.return_type}')
+					p.throw_parse_error('Proc has a declared return of ${proc_return_type} but returns an expression of ${return_result.return_type}')
 					exit(1)
 				}
 

@@ -14,10 +14,10 @@ pub fn radon_run() {
 	mut compiler_to_use := ''
 	args := os.args
 
-	if '--p' in args || '--preserve' in args {
+	if '-p' in args || '--preserve' in args {
 		preserve_files = true
-	} else if '--cc' in args {
-		compiler_to_use = args[args.index('--cc') + 1] or {
+	} else if '-cc' in args {
+		compiler_to_use = args[args.index('-cc') + 1] or {
 			println(term.red('radon_run Error: No C Compiler provided after "--cc" flag'))
 			return
 		}
