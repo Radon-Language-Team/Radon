@@ -1,7 +1,7 @@
 import os
 import term
 
-src := 'src/cmd/radon.v'
+src := 'src/radon.v'
 output_dir := 'radon'
 mut executable_name := ''
 
