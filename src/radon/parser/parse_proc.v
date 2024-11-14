@@ -96,16 +96,16 @@ fn parse_proc_args(tokens []token.Token, index int) !ProcArgs {
 			}
 		} else {
 			current_arg.arg_name = tokens[i].value
-			i += 1
+			i++
 		}
 		if tokens[i].token_type == token.TokenType.array_full {
 			current_arg.is_array = true
-			i += 1
+			i++
 		}
 		arg_is_token_type := token.check_if_token_is_type(tokens[i].token_type)
 		if arg_is_token_type {
 			current_arg.arg_type = tokens[i].value
-			i += 1
+			i++
 		} else {
 			return ProcArgs{
 				args:      args
@@ -117,10 +117,10 @@ fn parse_proc_args(tokens []token.Token, index int) !ProcArgs {
 
 		args << current_arg
 		if tokens[i].token_type == token.TokenType.comma {
-			i += 1
+			i++
 		}
 	}
-	i += 1
+	i++
 	return ProcArgs{
 		args:      args
 		new_index: i
