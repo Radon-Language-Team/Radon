@@ -42,17 +42,26 @@ fn (mut p Parser) parse_tokens() {
 				p.throw_parse_error('Failed to parse proc')
 				exit(1)
 			}
-			p.token_index = proc.new_index
 			p.parsed_nodes << proc
-			// This only works for ONE function right now... Well, it's a start
-			return
+
+			if p.token_index >= p.all_tokens.len {
+				// We reached the end of the file
+				// Leave this here for the future, in case we want to do something after parsing :)
+				// println('End of file with ${p.token_index} tokens from ${p.all_tokens.len}')
+				break
+			} else {
+				// parse_proc updates the token_index while parsing the insides of the proc
+				// When done, we want to jump to the next token, which is why we increment here
+				p.token_index++
+				continue
+			}
 		} else {
 			// Bad top-level token
 			p.throw_parse_error('"${p.token.value}" is not a valid top-level token. Expected either import, proc or const')
 			exit(1)
 		}
 	}
-	exit(1)
+	return
 }
 
 fn (mut p Parser) throw_parse_error(err_msg string) {

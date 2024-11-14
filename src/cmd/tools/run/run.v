@@ -68,7 +68,7 @@ pub fn radon_run() {
 		println(term.red('radon_lexer Error: Error while trying to lex file'))
 		exit(1)
 	}
-
+	
 	optimized_tokens := opt.optimize(lexed_file.all_tokens) or {
 		println(term.red('radon_opt Error: Error while trying to optimize tokens'))
 		exit(1)

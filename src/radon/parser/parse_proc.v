@@ -26,7 +26,7 @@ pub fn (mut p Parser) parse_proc(index int) !NodeProc {
 	// This should either be of token type proc_name or key_main
 	if p.all_tokens[proc.new_index].token_type != token.TokenType.proc_name
 		&& p.all_tokens[proc.new_index].token_type != token.TokenType.key_main {
-		p.throw_parse_error('Expected token of type proc_name or key_main but got ${p.all_tokens[proc.new_index].token_type}')
+		p.throw_parse_error('Expected token of type proc_name or key_main but got ${p.all_tokens[proc.new_index].token_type} with value "${p.all_tokens[proc.new_index].value}"')
 		exit(1)
 	}
 
@@ -70,7 +70,7 @@ pub fn (mut p Parser) parse_proc(index int) !NodeProc {
 		proc.new_index += 1
 	}
 
-	proc_body := p.parse_proc_inside(proc.new_index, proc.return_type) or {
+	proc_body := p.parse_proc_inside(proc.new_index, proc.return_type, proc.bracket_count) or {
 		p.throw_parse_error('Failed to parse proc body')
 		exit(1)
 	}
@@ -128,9 +128,10 @@ fn parse_proc_args(tokens []token.Token, index int) !ProcArgs {
 	}
 }
 
-fn (mut p Parser) parse_proc_inside(i int, proc_return_type token.TokenType) ![]nodes.Node {
+fn (mut p Parser) parse_proc_inside(i int, proc_return_type token.TokenType, b_count int) ![]nodes.Node {
 	tokens := p.all_tokens
 	mut index := i
+	mut bracket_count := b_count
 	mut proc_body_nodes := []nodes.Node{}
 
 	for index < p.all_tokens.len {
@@ -154,6 +155,7 @@ fn (mut p Parser) parse_proc_inside(i int, proc_return_type token.TokenType) ![]
 					node_type: nodes.NodeType.return_node
 					node_kind: return_kind_assign
 				}
+				p.token_index = index
 			}
 			'${token.TokenType.var_name}' {
 				var_result := p.parse_variable(index)
@@ -167,12 +169,18 @@ fn (mut p Parser) parse_proc_inside(i int, proc_return_type token.TokenType) ![]
 					node_kind: var_kind_assign
 				}
 				p.variable_table(var_result, '', VarOperation.set)
+				p.token_index = index
 			}
 			'${token.TokenType.close_brace}' {
-				index += 1
+				p.token_index = index++
+				bracket_count -= 1
+
+				if bracket_count == 0 {
+					return proc_body_nodes
+				}
 			}
 			else {
-				p.throw_parse_error('Unknown token: "${tokens[index].value}"')
+				p.throw_parse_error('Unknown (inside) token: "${tokens[index].value}"')
 				exit(1)
 			}
 		}
