@@ -44,7 +44,7 @@ pub fn (mut p Parser) parse_proc(index int) !NodeProc {
 		}
 
 		if !proc_args.success {
-			p.throw_parse_error('Failed to parse proc arguments! Message: ${proc_args.message}')
+			p.throw_parse_error('Failed to parse proc arguments: \n\n${proc_args.message}')
 			exit(1)
 		}
 
@@ -53,9 +53,9 @@ pub fn (mut p Parser) parse_proc(index int) !NodeProc {
 	}
 
 	if p.all_tokens[proc.new_index].token_type != token.TokenType.function_return
-		|| token.check_if_token_is_type(p.all_tokens[proc.new_index + 1].token_type) != true {
+		|| token.check_if_token_is_type(p.all_tokens[proc.new_index + 1]) != true {
 		p.throw_parse_error('Expected function to have return type but got ${p.all_tokens[
-			proc.new_index + 1].token_type}')
+			proc.new_index + 1].token_type} with value "${p.all_tokens[proc.new_index + 1].value}"')
 		exit(1)
 	}
 	proc.new_index += 1
@@ -102,7 +102,7 @@ fn parse_proc_args(tokens []token.Token, index int) !ProcArgs {
 			current_arg.is_array = true
 			i++
 		}
-		arg_is_token_type := token.check_if_token_is_type(tokens[i].token_type)
+		arg_is_token_type := token.check_if_token_is_type(tokens[i])
 		if arg_is_token_type {
 			current_arg.arg_type = tokens[i].value
 			i++
@@ -111,7 +111,7 @@ fn parse_proc_args(tokens []token.Token, index int) !ProcArgs {
 				args:      args
 				new_index: i
 				success:   false
-				message:   'Expected token type but got ${tokens[i].token_type}'
+				message:   'Expected token type but got ${tokens[i].token_type} with value "${tokens[i].value}"'
 			}
 		}
 
