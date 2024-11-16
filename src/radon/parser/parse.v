@@ -2,7 +2,7 @@ module parser
 
 import term
 import radon.token { Token, TokenType }
-import nodes { NodeProc }
+import nodes { NodeProc, NodeVar }
 
 @[minify]
 pub struct Parser {
@@ -11,7 +11,9 @@ pub mut:
 	file_path      string
 	token_index    int
 	variable_names []string
-	variables      []nodes.NodeVar
+	variables      []NodeVar
+	proc_names     []string
+	procs          []NodeProc
 	all_tokens     []Token
 	token          Token
 
@@ -20,11 +22,15 @@ pub mut:
 
 pub fn parse(tokens []Token, file_name string, file_path string) !Parser {
 	mut parser := Parser{
-		file_name:   file_name
-		file_path:   file_path
-		token_index: 0
-		all_tokens:  tokens
-		token:       Token{}
+		file_name:      file_name
+		file_path:      file_path
+		token_index:    0
+		variable_names: []
+		variables:      []
+		proc_names:     []
+		procs:          []
+		all_tokens:     tokens
+		token:          Token{}
 
 		parsed_nodes: []NodeProc{}
 	}
@@ -43,6 +49,7 @@ fn (mut p Parser) parse_tokens() {
 				exit(1)
 			}
 			p.parsed_nodes << proc
+			p.function_table(proc, proc.name, ProcOperation.set)
 
 			if p.token_index >= p.all_tokens.len {
 				// We reached the end of the file
@@ -61,6 +68,19 @@ fn (mut p Parser) parse_tokens() {
 			exit(1)
 		}
 	}
+
+	// We don't use the function table ".get" method here because we
+	// want to throw the error here, at the end of the parsing
+	if 'main' !in p.proc_names {
+		// In case there is only one proc and it's not a main proc
+		// the input ends afer that proc, meaning the index is already at the end
+		if p.token_index >= p.all_tokens.len {
+			p.token_index--
+		}
+		p.throw_parse_error('Expected a function called "main" but none was found')
+		exit(1)
+	}
+
 	return
 }
 

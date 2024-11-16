@@ -15,6 +15,7 @@ struct VariableTableResult {
 	variable ?nodes.NodeVar
 }
 
+// Stores a list of variables and their names
 pub fn (mut p Parser) variable_table(var nodes.NodeVar, variable_name string, operation VarOperation) VariableTableResult {
 	match operation.str() {
 		'${VarOperation.get}' {
