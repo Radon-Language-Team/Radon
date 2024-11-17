@@ -8,6 +8,7 @@ pub enum ProcOperation {
 	set
 	delete
 	debug
+	clear
 }
 
 struct ProcTableResult {
@@ -56,6 +57,13 @@ pub fn (mut p Parser) function_table(proc nodes.NodeProc, proc_name string, oper
 		'${ProcOperation.delete}' {
 			return ProcTableResult{
 				success: false
+			}
+		}
+		'${ProcOperation.clear}' {
+			p.proc_names = []
+			p.procs = []
+			return ProcTableResult{
+				success: true
 			}
 		}
 		else {

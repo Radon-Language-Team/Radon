@@ -49,6 +49,9 @@ fn (mut p Parser) parse_tokens() {
 				exit(1)
 			}
 			p.parsed_nodes << proc
+			// Clear the variable table and function table after parsing a proc
+			// We do this because we don't want to keep the variables and functions from the previous proc
+			p.variable_table(NodeVar{}, 'main', VarOperation.clear)
 			p.function_table(proc, proc.name, ProcOperation.set)
 
 			if p.token_index >= p.all_tokens.len {
@@ -81,6 +84,9 @@ fn (mut p Parser) parse_tokens() {
 		exit(1)
 	}
 
+	// We also clear the function table at the end of parsing
+	// Will be helpful when we want to parse multiple files
+	p.function_table(NodeProc{}, 'main', ProcOperation.clear)
 	return
 }
 

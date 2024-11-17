@@ -8,6 +8,7 @@ pub enum VarOperation {
 	set
 	delete
 	debug
+	clear
 }
 
 struct VariableTableResult {
@@ -54,6 +55,13 @@ pub fn (mut p Parser) variable_table(var nodes.NodeVar, variable_name string, op
 		'${VarOperation.delete}' {
 			return VariableTableResult{
 				success: false
+			}
+		}
+		'${VarOperation.clear}' {
+			p.variable_names = []
+			p.variables = []
+			return VariableTableResult{
+				success: true
 			}
 		}
 		else {

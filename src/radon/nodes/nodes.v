@@ -6,7 +6,7 @@ pub enum NodeType {
 	proc
 	return_node
 	var_node
-	none // For cases where no node type is active
+	null // For cases where no node type is active
 }
 
 @[minify]
@@ -28,6 +28,7 @@ pub mut:
 	arg_name string
 	arg_type string
 	is_array bool
+	is_optional bool
 }
 
 // Struct for the proc node
