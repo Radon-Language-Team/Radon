@@ -13,8 +13,7 @@ match os.user_os() {
 		executable_name = 'radon.exe'
 	}
 	'darwin' {
-		println(term.red('Unsupported OS'))
-		exit(1)
+		executable_name = 'radon'
 	}
 	else {
 		println(term.red('Unsupported OS'))
