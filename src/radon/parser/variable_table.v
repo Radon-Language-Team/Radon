@@ -6,7 +6,6 @@ import nodes
 pub enum VarOperation {
 	get
 	set
-	delete
 	debug
 	clear
 }
@@ -37,8 +36,8 @@ pub fn (mut p Parser) variable_table(var nodes.NodeVar, variable_name string, op
 		}
 		'${VarOperation.debug}' {
 			println(term.yellow('Variable table:'))
-			for i, table_itemt in p.variables {
-				println(term.yellow('  ${i}: ${table_itemt.name} = ${table_itemt.value}'))
+			for i, table_item in p.variables {
+				println(term.yellow('  ${i}: ${table_item.name} = ${table_item.value}'))
 			}
 			return VariableTableResult{
 				success: true
@@ -50,11 +49,6 @@ pub fn (mut p Parser) variable_table(var nodes.NodeVar, variable_name string, op
 			return VariableTableResult{
 				success:  true
 				variable: var
-			}
-		}
-		'${VarOperation.delete}' {
-			return VariableTableResult{
-				success: false
 			}
 		}
 		'${VarOperation.clear}' {

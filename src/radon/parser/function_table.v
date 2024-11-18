@@ -6,7 +6,6 @@ import nodes
 pub enum ProcOperation {
 	get
 	set
-	delete
 	debug
 	clear
 }
@@ -39,8 +38,8 @@ pub fn (mut p Parser) function_table(proc nodes.NodeProc, proc_name string, oper
 		}
 		'${ProcOperation.debug}' {
 			println(term.yellow('Function table:'))
-			for i, table_itemt in p.procs {
-				println(term.yellow('  ${i}: ${table_itemt.name}'))
+			for i, table_item in p.procs {
+				println(term.yellow('  ${i}: ${table_item.name}'))
 			}
 			return ProcTableResult{
 				success: true
@@ -52,11 +51,6 @@ pub fn (mut p Parser) function_table(proc nodes.NodeProc, proc_name string, oper
 			return ProcTableResult{
 				success:  true
 				function: proc
-			}
-		}
-		'${ProcOperation.delete}' {
-			return ProcTableResult{
-				success: false
 			}
 		}
 		'${ProcOperation.clear}' {

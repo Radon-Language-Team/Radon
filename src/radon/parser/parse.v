@@ -2,7 +2,7 @@ module parser
 
 import term
 import radon.token { Token, TokenType }
-import nodes { NodeProc, NodeVar }
+import nodes { NodeProc, NodeProcArg, NodeVar }
 
 @[minify]
 pub struct Parser {
@@ -14,6 +14,11 @@ pub mut:
 	variables      []NodeVar
 	proc_names     []string
 	procs          []NodeProc
+	proc_args      []NodeProcArg
+	// This holds a combination of a function name and its arguments
+	// We do this in case a function has multiple arguments
+	// Makes it easier to find the index of the argument
+	proc_arg_proc_names []string
 	all_tokens     []Token
 	token          Token
 
@@ -29,6 +34,8 @@ pub fn parse(tokens []Token, file_name string, file_path string) !Parser {
 		variables:      []
 		proc_names:     []
 		procs:          []
+		proc_args:      []
+		proc_arg_proc_names: []
 		all_tokens:     tokens
 		token:          Token{}
 
@@ -53,6 +60,9 @@ fn (mut p Parser) parse_tokens() {
 			// We do this because we don't want to keep the variables and functions from the previous proc
 			p.variable_table(NodeVar{}, 'main', VarOperation.clear)
 			p.function_table(proc, proc.name, ProcOperation.set)
+			parsed_args := p.function_arg_table(NodeProcArg{}, '', ArgOperation.debug)
+
+			println('Parsed args: ${parsed_args}')
 
 			if p.token_index >= p.all_tokens.len {
 				// We reached the end of the file

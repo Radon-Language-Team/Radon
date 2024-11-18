@@ -25,6 +25,7 @@ pub:
 
 pub struct NodeProcArg {
 pub mut:
+	proc_name string
 	arg_name string
 	arg_type string
 	is_array bool

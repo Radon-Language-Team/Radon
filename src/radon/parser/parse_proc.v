@@ -38,7 +38,7 @@ pub fn (mut p Parser) parse_proc(index int) !NodeProc {
 		exit(1)
 	} else {
 		proc.new_index += 1
-		proc_args := parse_proc_args(p.all_tokens, proc.new_index) or {
+		proc_args := p.parse_proc_args(p.all_tokens, proc.new_index, proc.name) or {
 			p.throw_parse_error('Failed to parse proc arguments')
 			exit(1)
 		}
@@ -80,13 +80,15 @@ pub fn (mut p Parser) parse_proc(index int) !NodeProc {
 	return proc
 }
 
-fn parse_proc_args(tokens []token.Token, index int) !ProcArgs {
+fn (mut p Parser) parse_proc_args(tokens []token.Token, index int, proc_name string) !ProcArgs {
 	mut i := index
 	mut args := []nodes.NodeProcArg{}
 	mut current_arg := nodes.NodeProcArg{}
 
 	for tokens[i].token_type != token.TokenType.close_paren && i <= tokens.len {
 		current_arg.is_array = false
+		current_arg.is_optional = false
+		current_arg.proc_name = proc_name
 		if tokens[i].token_type != token.TokenType.var_name {
 			return ProcArgs{
 				args:      args
@@ -116,6 +118,7 @@ fn parse_proc_args(tokens []token.Token, index int) !ProcArgs {
 		}
 
 		args << current_arg
+		p.function_arg_table(current_arg, '${proc_name}-${current_arg.arg_name}', ArgOperation.set)
 		if tokens[i].token_type == token.TokenType.comma {
 			i++
 		}
