@@ -1,7 +1,7 @@
 <div align="center" style="display:grid;place-items:center;">
 
 <p>
-  <a href="https://github.com/Radon-Language-Team" target="_blank"><img width="90" src="https://raw.githubusercontent.com/Radon-Language-Team/Radon/master/assets/Radon_1.jpeg?sanitize=true">
+  <a href="https://github.com/Radon-Language-Team" target="_blank"><img width="90" src="./assets/Radon_1.jpg">
   </a>
 </p>
 
