@@ -1,6 +1,6 @@
 module util
 
-import token { convert_radon_to_c_type }
+import token { TokenType, convert_radon_to_c_type }
 import nodes { NodeVar, VarAssignOptions }
 
 pub fn gen_assignment(node NodeVar) string {
@@ -10,7 +10,19 @@ pub fn gen_assignment(node NodeVar) string {
 		node_code += '${convert_radon_to_c_type(node.var_type)}'
 	}
 
-	node_code += ' ${node.name} = ${node.value};\n'
+	node_value := match '${node.var_type}' {
+		'${TokenType.type_string}' {
+			'"${node.value}"'
+		}
+		'${TokenType.type_int}' {
+			'${node.value}'
+		}
+		else {
+			'${node.value}'
+		}
+	}
+
+	node_code += ' ${node.name} = ${node_value};\n'
 
 	return node_code
 }

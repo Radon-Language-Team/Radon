@@ -92,9 +92,9 @@ fn (mut l Lexer) lex_alpha() {
 
 	if new_token.token_type == TokenType.radon_null {
 		// If the previous token was not a keyword, then it must be a variable
-		if l.prev_token.token_type == TokenType.key_proc {
+		if l.token.token_type == TokenType.key_proc {
 			new_token.token_type = TokenType.proc_name
-		} else if l.prev_token.token_type == TokenType.key_mut {
+		} else if l.token.token_type == TokenType.key_mut {
 			new_token.token_type = TokenType.var_name
 		} else {
 			new_token.token_type = TokenType.var_name

@@ -6,8 +6,8 @@ import nodes
 pub enum VarOperation {
 	get
 	set
-	delete
 	debug
+	clear
 }
 
 struct VariableTableResult {
@@ -15,6 +15,7 @@ struct VariableTableResult {
 	variable ?nodes.NodeVar
 }
 
+// Stores a list of variables and their names
 pub fn (mut p Parser) variable_table(var nodes.NodeVar, variable_name string, operation VarOperation) VariableTableResult {
 	match operation.str() {
 		'${VarOperation.get}' {
@@ -35,8 +36,8 @@ pub fn (mut p Parser) variable_table(var nodes.NodeVar, variable_name string, op
 		}
 		'${VarOperation.debug}' {
 			println(term.yellow('Variable table:'))
-			for i, table_itemt in p.variables {
-				println(term.yellow('  ${i}: ${table_itemt.name} = ${table_itemt.value}'))
+			for i, table_item in p.variables {
+				println(term.yellow('  ${i}: ${table_item.name} = ${table_item.value}'))
 			}
 			return VariableTableResult{
 				success: true
@@ -50,9 +51,11 @@ pub fn (mut p Parser) variable_table(var nodes.NodeVar, variable_name string, op
 				variable: var
 			}
 		}
-		'${VarOperation.delete}' {
+		'${VarOperation.clear}' {
+			p.variable_names = []
+			p.variables = []
 			return VariableTableResult{
-				success: false
+				success: true
 			}
 		}
 		else {

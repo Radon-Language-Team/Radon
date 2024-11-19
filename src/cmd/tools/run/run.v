@@ -9,10 +9,41 @@ import radon.gen
 
 pub fn radon_run() {
 	mut preserve_files := false
+	mut use_different_compiler := false
+	c_compilers := ['tcc', 'gcc', 'clang']
+	mut compiler_to_use := ''
 	args := os.args
 
-	if '--p' in args || '--preserve' in args {
+	if '-p' in args || '--preserve' in args {
 		preserve_files = true
+	} else if '-cc' in args {
+		compiler_to_use = args[args.index('-cc') + 1] or {
+			println(term.red('radon_run Error: No C Compiler provided after "--cc" flag'))
+			return
+		}
+		println(term.gray('Using "${compiler_to_use}" as C Compiler'))
+		use_different_compiler = true
+	}
+
+	if !use_different_compiler {
+		for compiler in c_compilers {
+			result := os.execute('${compiler} --version')
+			if result.exit_code == 0 {
+				compiler_to_use = compiler
+				break
+			}
+		}
+	} else {
+		result := os.execute('${compiler_to_use} --version')
+		if result.exit_code != 0 {
+			println(term.red('radon_run Error: "${compiler_to_use}" is either not a valid C Compiler or not installed'))
+			return
+		}
+	}
+
+	if compiler_to_use == '' {
+		println(term.red('radon_run Error: No C Compiler found! \nEither install one of the following ${c_compilers} or use the "--cc" flag to specify a C Compiler'))
+		return
 	}
 
 	// [0]: radon | [1]: run | [2]: file_name
@@ -37,7 +68,7 @@ pub fn radon_run() {
 		println(term.red('radon_lexer Error: Error while trying to lex file'))
 		exit(1)
 	}
-
+	
 	optimized_tokens := opt.optimize(lexed_file.all_tokens) or {
 		println(term.red('radon_opt Error: Error while trying to optimize tokens'))
 		exit(1)
@@ -72,18 +103,19 @@ pub fn radon_run() {
 	}
 
 	gen_file.close()
-	compile_code := os.system('gcc ${gen_file_name} -o ${gen_file_name_exec}')
+	compile_code := os.system('${compiler_to_use} -o ${gen_file_name_exec} ${gen_file_name}')
 
 	if compile_code != 0 {
 		println(term.red('radon_run Error: Error while trying to compile generated file'))
 		exit(1)
 	}
 
-	exec_code := os.system('./${gen_file_name_exec}')
+	os.system('./${gen_file_name_exec}')
 
-	if exec_code != 0 {
-		println(term.yellow('${gen_file_name_exec} returned non-zero exit code'))
-	}
+	// We'll leave this for now as it's not really necessary - Even if the C Compliation fails, the error will be shown
+	// if exec_code != 0 {
+	// 	println(term.yellow('Proc "${gen_file_name_exec}" in "${file_name}" returned non-zero exit code! Possible error: \n${os.last_error()}'))
+	// }
 
 	if !preserve_files {
 		// Remove generated file after execution

@@ -2,11 +2,11 @@ module main
 
 import term
 import os
-import tools.run
-import tools.help
-import tools.update
-import tools.symlink
-import tools
+import cmd.tools.run
+import cmd.tools.help
+import cmd.tools.update
+import cmd.tools.symlink
+import cmd.tools
 
 fn main() {
 	user_os := os.user_os()

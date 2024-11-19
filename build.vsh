@@ -1,7 +1,7 @@
 import os
 import term
 
-src := 'src/cmd/radon.v'
+src := 'src/radon.v'
 output_dir := 'radon'
 mut executable_name := ''
 
@@ -13,8 +13,7 @@ match os.user_os() {
 		executable_name = 'radon.exe'
 	}
 	'darwin' {
-		println(term.red('Unsupported OS'))
-		exit(1)
+		executable_name = 'radon'
 	}
 	else {
 		println(term.red('Unsupported OS'))

@@ -1,7 +1,7 @@
 <div align="center" style="display:grid;place-items:center;">
 
 <p>
-  <a href="https://github.com/Radon-Language-Team" target="_blank"><img width="90" src="https://raw.githubusercontent.com/Radon-Language-Team/Radon/master/assets/Radon_Logo.jpeg?sanitize=true">
+  <a href="https://github.com/Radon-Language-Team" target="_blank"><img width="90" src="https://raw.githubusercontent.com/Radon-Language-Team/Radon/master/assets/Radon_1.jpeg?sanitize=true">
   </a>
 </p>
 
@@ -63,3 +63,12 @@ When you have built the binary, run it as administrator. <br>
 Once running, type `symlink` and press enter. <br>
 The binary should now be symlinked to your system path. <br>
 **Make sure to restart your terminal after running the command.**
+
+### C Compiler
+The Radon Compiler uses a C Compiler to compile the generated C code. <br>
+By default, the compiler uses `tcc` as it is very fast and lightweight. <br>
+If `tcc` is not installed, Radon will check for `gcc` and `clang` as well. <br>
+If none of these are installed, you can use the `-cc` flag to specify a different compiler. <br>
+For example, to use `msvc`, you can run `radon -cc cl`. <br>
+
+In case you don't want the generated C code to be deleted after compilation, you can use the `-p` or `--preserve` flags. <br>

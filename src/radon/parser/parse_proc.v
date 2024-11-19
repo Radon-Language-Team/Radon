@@ -26,7 +26,7 @@ pub fn (mut p Parser) parse_proc(index int) !NodeProc {
 	// This should either be of token type proc_name or key_main
 	if p.all_tokens[proc.new_index].token_type != token.TokenType.proc_name
 		&& p.all_tokens[proc.new_index].token_type != token.TokenType.key_main {
-		p.throw_parse_error('Expected token of type proc_name or key_main but got ${p.all_tokens[proc.new_index].token_type}')
+		p.throw_parse_error('Expected token of type proc_name or key_main but got ${p.all_tokens[proc.new_index].token_type} with value "${p.all_tokens[proc.new_index].value}"')
 		exit(1)
 	}
 
@@ -38,13 +38,13 @@ pub fn (mut p Parser) parse_proc(index int) !NodeProc {
 		exit(1)
 	} else {
 		proc.new_index += 1
-		proc_args := parse_proc_args(p.all_tokens, proc.new_index) or {
+		proc_args := p.parse_proc_args(p.all_tokens, proc.new_index, proc.name) or {
 			p.throw_parse_error('Failed to parse proc arguments')
 			exit(1)
 		}
 
 		if !proc_args.success {
-			p.throw_parse_error('Failed to parse proc arguments! Message: ${proc_args.message}')
+			p.throw_parse_error('Failed to parse proc arguments: \n\n${proc_args.message}')
 			exit(1)
 		}
 
@@ -53,9 +53,9 @@ pub fn (mut p Parser) parse_proc(index int) !NodeProc {
 	}
 
 	if p.all_tokens[proc.new_index].token_type != token.TokenType.function_return
-		|| token.check_if_token_is_type(p.all_tokens[proc.new_index + 1].token_type) != true {
+		|| token.check_if_token_is_type(p.all_tokens[proc.new_index + 1]) != true {
 		p.throw_parse_error('Expected function to have return type but got ${p.all_tokens[
-			proc.new_index + 1].token_type}')
+			proc.new_index + 1].token_type} with value "${p.all_tokens[proc.new_index + 1].value}"')
 		exit(1)
 	}
 	proc.new_index += 1
@@ -70,7 +70,7 @@ pub fn (mut p Parser) parse_proc(index int) !NodeProc {
 		proc.new_index += 1
 	}
 
-	proc_body := p.parse_proc_inside(proc.new_index, proc.return_type) or {
+	proc_body := p.parse_proc_inside(proc.new_index, proc.return_type, proc.bracket_count) or {
 		p.throw_parse_error('Failed to parse proc body')
 		exit(1)
 	}
@@ -80,13 +80,15 @@ pub fn (mut p Parser) parse_proc(index int) !NodeProc {
 	return proc
 }
 
-fn parse_proc_args(tokens []token.Token, index int) !ProcArgs {
+fn (mut p Parser) parse_proc_args(tokens []token.Token, index int, proc_name string) !ProcArgs {
 	mut i := index
 	mut args := []nodes.NodeProcArg{}
 	mut current_arg := nodes.NodeProcArg{}
 
 	for tokens[i].token_type != token.TokenType.close_paren && i <= tokens.len {
 		current_arg.is_array = false
+		current_arg.is_optional = false
+		current_arg.proc_name = proc_name
 		if tokens[i].token_type != token.TokenType.var_name {
 			return ProcArgs{
 				args:      args
@@ -96,31 +98,32 @@ fn parse_proc_args(tokens []token.Token, index int) !ProcArgs {
 			}
 		} else {
 			current_arg.arg_name = tokens[i].value
-			i += 1
+			i++
 		}
 		if tokens[i].token_type == token.TokenType.array_full {
 			current_arg.is_array = true
-			i += 1
+			i++
 		}
-		arg_is_token_type := token.check_if_token_is_type(tokens[i].token_type)
+		arg_is_token_type := token.check_if_token_is_type(tokens[i])
 		if arg_is_token_type {
 			current_arg.arg_type = tokens[i].value
-			i += 1
+			i++
 		} else {
 			return ProcArgs{
 				args:      args
 				new_index: i
 				success:   false
-				message:   'Expected token type but got ${tokens[i].token_type}'
+				message:   'Expected token type but got ${tokens[i].token_type} with value "${tokens[i].value}"'
 			}
 		}
 
 		args << current_arg
+		p.function_arg_table(current_arg, '${proc_name}-${current_arg.arg_name}', ArgOperation.set)
 		if tokens[i].token_type == token.TokenType.comma {
-			i += 1
+			i++
 		}
 	}
-	i += 1
+	i++
 	return ProcArgs{
 		args:      args
 		new_index: i
@@ -128,9 +131,10 @@ fn parse_proc_args(tokens []token.Token, index int) !ProcArgs {
 	}
 }
 
-fn (mut p Parser) parse_proc_inside(i int, proc_return_type token.TokenType) ![]nodes.Node {
+fn (mut p Parser) parse_proc_inside(i int, proc_return_type token.TokenType, b_count int) ![]nodes.Node {
 	tokens := p.all_tokens
 	mut index := i
+	mut bracket_count := b_count
 	mut proc_body_nodes := []nodes.Node{}
 
 	for index < p.all_tokens.len {
@@ -142,7 +146,7 @@ fn (mut p Parser) parse_proc_inside(i int, proc_return_type token.TokenType) ![]
 				return_node := return_result
 
 				if proc_return_type != return_result.return_type {
-					p.throw_parse_error('Proc has a declared return type of ${proc_return_type} but returns an expression of type ${return_result.return_type}')
+					p.throw_parse_error('Proc has a declared return of ${proc_return_type} but returns an expression of ${return_result.return_type}')
 					exit(1)
 				}
 
@@ -154,6 +158,7 @@ fn (mut p Parser) parse_proc_inside(i int, proc_return_type token.TokenType) ![]
 					node_type: nodes.NodeType.return_node
 					node_kind: return_kind_assign
 				}
+				p.token_index = index
 			}
 			'${token.TokenType.var_name}' {
 				var_result := p.parse_variable(index)
@@ -167,12 +172,18 @@ fn (mut p Parser) parse_proc_inside(i int, proc_return_type token.TokenType) ![]
 					node_kind: var_kind_assign
 				}
 				p.variable_table(var_result, '', VarOperation.set)
+				p.token_index = index
 			}
 			'${token.TokenType.close_brace}' {
-				index += 1
+				p.token_index = index++
+				bracket_count -= 1
+
+				if bracket_count == 0 {
+					return proc_body_nodes
+				}
 			}
 			else {
-				p.throw_parse_error('Unknown token: "${tokens[index].value}"')
+				p.throw_parse_error('Unknown (inside) token: "${tokens[index].value}"')
 				exit(1)
 			}
 		}

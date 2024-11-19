@@ -6,7 +6,7 @@ pub enum NodeType {
 	proc
 	return_node
 	var_node
-	none // For cases where no node type is active
+	null // For cases where no node type is active
 }
 
 @[minify]
@@ -25,9 +25,11 @@ pub:
 
 pub struct NodeProcArg {
 pub mut:
+	proc_name string
 	arg_name string
 	arg_type string
 	is_array bool
+	is_optional bool
 }
 
 // Struct for the proc node
@@ -39,10 +41,13 @@ pub mut:
 	return_type token.TokenType
 	body        []Node
 
-	// Bracket count for tracking open and close function brackets
-	// In the case of us parsing more open brackets than close brackets
-	// we know that the function is not closed properly and we can throw an error
-	// Is this smart? I don't know, but it works
+	/*
+	Bracket count for tracking open and close function brackets
+	When parsing a function, the count goes up to at least one, garanteed!
+	When parsing the inside of a function and we hit a closing bracket,
+	we decrement the count by one. When the count reaches zero, we know
+	we have reached the end of the function
+	*/
 	bracket_count int
 }
 
@@ -53,6 +58,11 @@ pub mut:
 	return_type token.TokenType
 }
 
+/*
+VarAssignOptions represents the kind of variable assignment
+":=" is for assigning a new variable
+"=" is for reassigning a variable
+*/
 pub enum VarAssignOptions {
 	assign
 	reassign
