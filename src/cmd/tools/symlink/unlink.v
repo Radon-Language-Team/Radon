@@ -34,6 +34,18 @@ pub fn unlink() {
 
 		radon_symlink := os.join_path(radon_symlink_dir, 'radon.exe')
 
+		if !os.exists(radon_symlink) {
+			println(term.red('Symlink does not exist'))
+			exit(1)
+		}
+
+		existing_path := os.getenv('PATH')
+
+		if existing_path.contains(radon_symlink_dir) {
+			new_path := existing_path.replace(radon_symlink_dir, '')
+			os.setenv('PATH', new_path, true)
+		}
+
 		os.rm(radon_symlink) or {
 			println(term.red('Failed to remove symlink > Try with administator privileges \n> Error ${err}'))
 			exit(1)
