@@ -24,20 +24,18 @@ pub fn unlink() {
 
 		println(term.green('Symlink removed successfully'))
 	} else if user_os == 'windows' {
-		println(term.red('Unlinking for windows is not yet good enough...'))
-		exit(1)
 		user_home := os.getenv('USERPROFILE')
 		radon_symlink_dir := os.join_path(user_home, '.bin')
 
 		if !os.exists(radon_symlink_dir) {
-			println(term.red('Symlink does not exist'))
+			println(term.red('Symlink dir does not exist'))
 			exit(1)
 		}
 
 		radon_symlink := os.join_path(radon_symlink_dir, 'radon.exe')
 
 		os.rm(radon_symlink) or {
-			println(term.red('Failed to remove symlink > Try with administator privileges'))
+			println(term.red('Failed to remove symlink > Try with administator privileges \n> Error ${err}'))
 			exit(1)
 		}
 
