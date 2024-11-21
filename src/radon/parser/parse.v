@@ -60,9 +60,6 @@ fn (mut p Parser) parse_tokens() {
 			// We do this because we don't want to keep the variables and functions from the previous proc
 			p.variable_table(NodeVar{}, 'main', VarOperation.clear)
 			p.function_table(proc, proc.name, ProcOperation.set)
-			parsed_args := p.function_arg_table(NodeProcArg{}, '', ArgOperation.debug)
-
-			println('Parsed args: ${parsed_args}')
 
 			if p.token_index >= p.all_tokens.len {
 				// We reached the end of the file

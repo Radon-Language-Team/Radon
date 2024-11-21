@@ -51,6 +51,15 @@ pub mut:
 	bracket_count int
 }
 
+pub struct NodeProcCall {
+pub mut:
+	new_index int
+	called_proc NodeProc
+	name      string
+	args      []string
+	arg_types []token.TokenType
+}
+
 pub struct NodeReturn {
 pub mut:
 	new_index   int

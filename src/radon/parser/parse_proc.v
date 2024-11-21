@@ -174,6 +174,9 @@ fn (mut p Parser) parse_proc_inside(i int, proc_return_type token.TokenType, b_c
 				p.variable_table(var_result, '', VarOperation.set)
 				p.token_index = index
 			}
+			'${token.TokenType.proc_call}' {
+				p.parse_proc_call(index)
+			}
 			'${token.TokenType.close_brace}' {
 				p.token_index = index++
 				bracket_count -= 1
@@ -183,7 +186,7 @@ fn (mut p Parser) parse_proc_inside(i int, proc_return_type token.TokenType, b_c
 				}
 			}
 			else {
-				p.throw_parse_error('Unknown (inside) token: "${tokens[index].value}"')
+				p.throw_parse_error('Unknown (inside) token: "${tokens[index].value}" of type ${tokens[index].token_type}')
 				exit(1)
 			}
 		}

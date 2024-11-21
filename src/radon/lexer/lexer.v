@@ -91,13 +91,16 @@ fn (mut l Lexer) lex_alpha() {
 	}
 
 	if new_token.token_type == TokenType.radon_null {
-		// If the previous token was not a keyword, then it must be a variable
-		if l.token.token_type == TokenType.key_proc {
-			new_token.token_type = TokenType.proc_name
-		} else if l.token.token_type == TokenType.key_mut {
-			new_token.token_type = TokenType.var_name
-		} else {
-			new_token.token_type = TokenType.var_name
+		match l.token.token_type.str() {
+			'${TokenType.key_proc}' { new_token.token_type = TokenType.proc_name }
+			'${TokenType.key_mut}' { new_token.token_type = TokenType.var_name }
+			else { new_token.token_type = TokenType.var_name }
+		}
+	}
+
+	if new_token.token_type == TokenType.var_name {
+		if l.peek_next_char() == '(' {
+			new_token.token_type = TokenType.proc_call
 		}
 	}
 
@@ -187,6 +190,20 @@ fn (mut l Lexer) token_manager(new_token Token) {
 	l.prev_token = l.token
 	l.token = new_token
 	l.all_tokens << new_token
+}
+
+fn (mut l Lexer) peek_next_char() string {
+	if l.index + 1 >= l.file_content.len {
+		return ''
+	}
+	for c in l.file_content[l.index].ascii_str() {
+		// Skip whitespaces
+		if l.token.is_white(c) {
+			continue
+		}
+		return c.ascii_str()
+	}
+	return ''
 }
 
 fn (mut l Lexer) throw_lex_error(err_msg string) {

@@ -48,6 +48,7 @@ pub enum TokenType {
 	pipe        // |
 	var_name    // reserved for variables
 	proc_name   // reserved for proc names
+	proc_call   // reserved for proc calls
 	radon_null  // Only used for the compiler
 
 	// replacement tokens
@@ -180,7 +181,6 @@ pub fn check_if_token_is_type(token Token) bool {
 		else { false }
 	}
 
-
 	name_result := match token.value {
 		'int' { true }
 		'float' { true }
@@ -193,7 +193,7 @@ pub fn check_if_token_is_type(token Token) bool {
 		return true
 	} else {
 		return false
-	} 
+	}
 }
 
 pub fn convert_radon_to_c_type(token_type TokenType) string {
