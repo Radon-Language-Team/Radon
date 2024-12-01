@@ -91,7 +91,7 @@ pub fn (mut t Token) is_special(letter rune) bool {
 	}
 }
 
-pub fn (mut t Token) find_token(token_to_find string) TokenType {
+pub fn find_token(token_to_find string) TokenType {
 	match token_to_find {
 		'proc' { return TokenType.key_proc }
 		'main' { return TokenType.key_main }

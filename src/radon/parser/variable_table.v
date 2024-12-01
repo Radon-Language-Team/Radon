@@ -22,6 +22,30 @@ pub fn (mut p Parser) variable_table(var nodes.NodeVar, variable_name string, op
 			var_name_index := p.variable_names.index(variable_name)
 			if var_name_index == -1 {
 				p.throw_parse_error('Expected variable "${variable_name}" to exist but it does not')
+
+				println(term.yellow('Checking if function argument'))
+				// Check if the variable is a function argument
+				current_proc := p.function_arg_table(nodes.NodeProcArg{}, '${p.current_proc_name}-${variable_name}',
+					ArgOperation.get)
+
+				if current_proc.success {
+					println(term.yellow('Found function argument'))
+
+					arag_as_var := nodes.NodeVar{
+						new_index: 0
+						name:      current_proc.arg!.arg_name
+						// As for args, we don't know the value yet
+						// It is for the user to set
+						value:    current_proc.arg!.arg_name
+						var_type: current_proc.arg!.arg_type
+					}
+
+					return VariableTableResult{
+						success:  true
+						variable: arag_as_var
+					}
+				}
+
 				exit(1)
 			}
 

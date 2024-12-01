@@ -10,7 +10,7 @@ fn (mut g Generator) generate_proc() {
 	mut temp_proc_args := ''
 	if node.params.len != 0 {
 		for arg in node.params {
-			temp_proc_args += (token.convert_radon_arg_to_c_type(arg.arg_type))+ " " + arg.arg_name
+			temp_proc_args += token.convert_radon_to_c_type(arg.arg_type) + ' ' + arg.arg_name
 			// If the argument is not the last one, add a comma
 			if arg != node.params[node.params.len - 1] {
 				temp_proc_args += ', '

@@ -7,37 +7,39 @@ import nodes { NodeProc, NodeProcArg, NodeVar }
 @[minify]
 pub struct Parser {
 pub mut:
-	file_name      string
-	file_path      string
-	token_index    int
-	variable_names []string
-	variables      []NodeVar
-	proc_names     []string
-	procs          []NodeProc
-	proc_args      []NodeProcArg
+	file_name         string
+	file_path         string
+	token_index       int
+	variable_names    []string
+	variables         []NodeVar
+	current_proc_name string
+	proc_names        []string
+	procs             []NodeProc
+	proc_args         []NodeProcArg
 	// This holds a combination of a function name and its arguments
 	// We do this in case a function has multiple arguments
 	// Makes it easier to find the index of the argument
 	proc_arg_proc_names []string
-	all_tokens     []Token
-	token          Token
+	all_tokens          []Token
+	token               Token
 
 	parsed_nodes []NodeProc
 }
 
 pub fn parse(tokens []Token, file_name string, file_path string) !Parser {
 	mut parser := Parser{
-		file_name:      file_name
-		file_path:      file_path
-		token_index:    0
-		variable_names: []
-		variables:      []
-		proc_names:     []
-		procs:          []
-		proc_args:      []
+		file_name:           file_name
+		file_path:           file_path
+		token_index:         0
+		variable_names:      []
+		variables:           []
+		current_proc_name:   ''
+		proc_names:          []
+		procs:               []
+		proc_args:           []
 		proc_arg_proc_names: []
-		all_tokens:     tokens
-		token:          Token{}
+		all_tokens:          tokens
+		token:               Token{}
 
 		parsed_nodes: []NodeProc{}
 	}

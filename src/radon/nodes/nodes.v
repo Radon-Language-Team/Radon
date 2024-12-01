@@ -27,7 +27,7 @@ pub struct NodeProcArg {
 pub mut:
 	proc_name string
 	arg_name string
-	arg_type string
+	arg_type token.TokenType
 	is_array bool
 	is_optional bool
 }

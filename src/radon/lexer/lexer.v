@@ -53,7 +53,7 @@ pub fn lex(file_name string, file_path string) !Lexer {
 }
 
 fn (mut l Lexer) lex_file() {
-	for c in l.file_content {
+	for _ in l.file_content {
 		if l.index >= l.file_content.len {
 			break
 		}
@@ -66,7 +66,7 @@ fn (mut l Lexer) lex_file() {
 		} else if l.token.is_special(l.file_content[l.index]) {
 			l.lex_special()
 		} else {
-			l.throw_lex_error('Invalid character: "${l.file_content[l.index].ascii_str()}" - ${c}')
+			l.throw_lex_error('Invalid character: "${l.file_content[l.index].ascii_str()}"')
 			exit(1)
 		}
 	}
@@ -85,11 +85,17 @@ fn (mut l Lexer) lex_alpha() {
 		}
 	}
 	mut new_token := Token{
-		token_type:  l.token.find_token(l.buffer)
+		token_type:  token.find_token(l.buffer)
 		value:       l.buffer
 		line_number: l.line_count
 	}
 
+	// radon_null represents an unknown token type
+	// We determine the token type based on the previous token
+	// [mut] -> [var_name]
+	// [proc] -> [proc_name]
+	// In case there is no previous token, we default to [var_name]
+	// [radon_null] -> [var_name]
 	if new_token.token_type == TokenType.radon_null {
 		match l.token.token_type.str() {
 			'${TokenType.key_proc}' { new_token.token_type = TokenType.proc_name }
@@ -98,6 +104,9 @@ fn (mut l Lexer) lex_alpha() {
 		}
 	}
 
+	// In case we have a variable name that is followed by a '('
+	// we change the token type to a function call
+	// [var_name] -> ( -> [proc_call]
 	if new_token.token_type == TokenType.var_name {
 		if l.peek_next_char() == '(' {
 			new_token.token_type = TokenType.proc_call
@@ -138,7 +147,7 @@ fn (mut l Lexer) lex_special() {
 	}
 
 	new_token := Token{
-		token_type:  l.token.find_token(l.file_content[l.index].ascii_str())
+		token_type:  token.find_token(l.file_content[l.index].ascii_str())
 		value:       l.file_content[l.index].ascii_str()
 		line_number: l.line_count
 	}

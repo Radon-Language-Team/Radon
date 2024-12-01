@@ -31,6 +31,7 @@ pub fn (mut p Parser) parse_proc(index int) !NodeProc {
 	}
 
 	proc.name = p.all_tokens[proc.new_index].value
+	p.current_proc_name = proc.name
 	proc.new_index += 1
 
 	if p.all_tokens[proc.new_index].token_type != token.TokenType.open_paren {
@@ -106,7 +107,7 @@ fn (mut p Parser) parse_proc_args(tokens []token.Token, index int, proc_name str
 		}
 		arg_is_token_type := token.check_if_token_is_type(tokens[i])
 		if arg_is_token_type {
-			current_arg.arg_type = tokens[i].value
+			current_arg.arg_type = token.find_token(tokens[i].value)
 			i++
 		} else {
 			return ProcArgs{
