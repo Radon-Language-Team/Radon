@@ -8,8 +8,7 @@ pub fn (mut p Parser) parse_proc_call(index int) nodes.NodeProcCall {
 		new_index:   index
 		called_proc: nodes.NodeProc{}
 		name:        ''
-		args:        []string{}
-		arg_types:   []TokenType{}
+		args:        []token.Token{}
 	}
 
 	proc_call.name = p.all_tokens[index].value
@@ -46,7 +45,8 @@ pub fn (mut p Parser) parse_proc_call(index int) nodes.NodeProcCall {
 		p.throw_parse_error('Expected argument count for function "${proc_call.called_proc.name}": ${proc_call.called_proc.params.len} \nReceived: ${arguments.len}')
 		exit(1)
 	}
-	
+
+	proc_call.args = arguments
 	proc_call.new_index++
 
 	return proc_call

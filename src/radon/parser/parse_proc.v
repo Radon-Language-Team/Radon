@@ -176,7 +176,18 @@ fn (mut p Parser) parse_proc_inside(i int, proc_return_type token.TokenType, b_c
 				p.token_index = index
 			}
 			'${token.TokenType.proc_call}' {
-				p.parse_proc_call(index)
+				call_result := p.parse_proc_call(index)
+
+				index = call_result.new_index
+				proc_call_kind_assign := nodes.NodeKind{
+					proc_call: call_result
+				}
+
+				proc_body_nodes << nodes.Node{
+					node_type: nodes.NodeType.proc_call
+					node_kind: proc_call_kind_assign
+				}
+				p.token_index = index
 			}
 			'${token.TokenType.close_brace}' {
 				p.token_index = index++

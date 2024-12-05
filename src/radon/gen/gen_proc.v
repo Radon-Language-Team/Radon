@@ -2,7 +2,7 @@ module gen
 
 import nodes { Node, NodeType }
 import token
-import util { gen_assignment, gen_return }
+import util { gen_assignment, gen_proc_call, gen_return }
 
 fn (mut g Generator) generate_proc() {
 	node := g.node
@@ -36,6 +36,9 @@ fn (mut g Generator) gen_proc_body(proc_body []Node) string {
 			}
 			'${NodeType.return_node}' {
 				gen_return(tmp_node.node_kind.return_node)
+			}
+			'${NodeType.proc_call}' {
+				gen_proc_call(tmp_node.node_kind.proc_call)
 			}
 			else {
 				g.throw_gen_error('Unknown node type: ${tmp_node.node_type}')
