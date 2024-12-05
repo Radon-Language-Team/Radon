@@ -50,6 +50,17 @@ pub fn (mut p Parser) parse_proc_call(index int) nodes.NodeProcCall {
 		exit(1)
 	}
 
+	// Now we now that we have the correct amount of arguments
+	// We can continue to check if they all have the correct type
+	for i, arg in arguments {
+		arg_to_compare := proc_call.called_proc.params[i]
+		if arg.token_type != arg_to_compare.arg_type {
+			p.token_index = proc_call.new_index
+			p.throw_parse_error('Expected argument type for function "${proc_call.called_proc.name}" and argument "${arg_to_compare.arg_name}": ${proc_call.called_proc.params[i].arg_type} \nReceived: ${arg.token_type}')
+			exit(1)
+		}
+	}
+
 	proc_call.args = arguments
 	proc_call.new_index++
 

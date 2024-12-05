@@ -40,5 +40,5 @@ fn (mut g Generator) generate_code() {
 
 fn (mut g Generator) throw_gen_error(err_msg string) {
 	err := term.red(err_msg)
-	println('radon_gen Error: \n\n${err} \nIn file: ${g.file_name} \nFull path: ${g.file_path}')
+	println('${term.blue('radon_generator Error:')} \n\n${err} \nIn file: ${g.file_name} \nFull path: ${g.file_path}')
 }

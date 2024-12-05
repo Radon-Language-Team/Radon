@@ -23,6 +23,7 @@ pub enum TokenType {
 	type_float  // float
 	type_bool   // bool
 	type_string // string
+	type_void   // void
 	// Symbols
 	open_paren  // (
 	close_paren // )
@@ -109,6 +110,7 @@ pub fn find_token(token_to_find string) TokenType {
 		'float' { return TokenType.type_float }
 		'bool' { return TokenType.type_bool }
 		'string' { return TokenType.type_string }
+		'void' { return TokenType.type_void }
 		'(' { return TokenType.open_paren }
 		')' { return TokenType.close_paren }
 		'{' { return TokenType.open_brace }
@@ -178,6 +180,7 @@ pub fn check_if_token_is_type(token Token) bool {
 		'${TokenType.type_float}' { true }
 		'${TokenType.type_bool}' { true }
 		'${TokenType.type_string}' { true }
+		'${TokenType.type_void}' { true }
 		else { false }
 	}
 
@@ -186,6 +189,7 @@ pub fn check_if_token_is_type(token Token) bool {
 		'float' { true }
 		'bool' { true }
 		'string' { true }
+		'void' { true }
 		else { false }
 	}
 
