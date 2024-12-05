@@ -107,6 +107,11 @@ pub fn radon_run() {
 
 	if compile_code != 0 {
 		println(term.red('radon_run Error: Error while trying to compile generated file'))
+
+		// This would mean that the Radon Compiler messed up the generated code
+		// This should never happen
+		msg := term.blue('\nThis means that the Radon Compiler has generated invalid C code. \nThis is something that should never ever happen! \nPlease report this issue on the Radon GitHub Repository')
+		println(msg)
 		exit(1)
 	}
 
