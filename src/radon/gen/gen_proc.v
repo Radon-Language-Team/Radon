@@ -22,7 +22,7 @@ fn (mut g Generator) generate_proc() {
 	proc_name := node.name
 	proc_type := token.convert_radon_to_c_type(node.return_type)
 	proc_body := g.gen_proc_body(node.body)
-
+	g.generated_code = '${proc_type} ${proc_name}${proc_args};\n' + g.generated_code
 	g.generated_code += '${proc_type} ${proc_name}${proc_args} \n{ \n${proc_body} \n}\n'
 }
 
