@@ -4,6 +4,8 @@ import nodes { Node, NodeType }
 import token
 import util { gen_assignment, gen_proc_call, gen_return }
 
+const core_functions = ['print']
+
 fn (mut g Generator) generate_proc() {
 	node := g.node
 
@@ -18,12 +20,24 @@ fn (mut g Generator) generate_proc() {
 		}
 	}
 
-	proc_args := '(${temp_proc_args})'
 	proc_name := node.name
+	proc_args := '(${temp_proc_args})'
 	proc_type := token.convert_radon_to_c_type(node.return_type)
 	proc_body := g.gen_proc_body(node.body)
 
-	g.generated_code += '${proc_type} ${proc_name}${proc_args} \n{ \n${proc_body} \n}\n'
+	if proc_name in core_functions {
+		match proc_name {
+			'print' {
+				g.generated_code += '#include<stdio.h> \n'
+				g.generated_code += '${proc_type} ${proc_name}(char* str) \n{ \nprintf("%s", str); \n}\n'
+			}
+			else {
+				g.throw_gen_error('Unknown core function: ${proc_name}')
+			}
+		}
+	} else {
+		g.generated_code += '${proc_type} ${proc_name}${proc_args} \n{ \n${proc_body} \n}\n'
+	}
 }
 
 fn (mut g Generator) gen_proc_body(proc_body []Node) string {

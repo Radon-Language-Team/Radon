@@ -4,7 +4,7 @@ import radon.token { Token, TokenType, find_replacement_token_type, remove_token
 import term
 
 @[minify]
-pub struct Optimizer {
+struct Optimizer {
 pub mut:
 	token_index int
 	all_tokens  []Token

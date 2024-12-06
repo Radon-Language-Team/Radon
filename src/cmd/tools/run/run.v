@@ -2,6 +2,7 @@ module run
 
 import term
 import os
+import radon.prep
 import radon.lexer
 import radon.opt
 import radon.parser
@@ -64,11 +65,13 @@ pub fn radon_run() {
 		return
 	}
 
-	lexed_file := lexer.lex(file_name, file_path) or {
+	file_content := prep.preprocess(file_path)
+
+	lexed_file := lexer.lex(file_name, file_path, file_content) or {
 		println(term.red('radon_lexer Error: Error while trying to lex file'))
 		exit(1)
 	}
-	
+
 	optimized_tokens := opt.optimize(lexed_file.all_tokens) or {
 		println(term.red('radon_opt Error: Error while trying to optimize tokens'))
 		exit(1)

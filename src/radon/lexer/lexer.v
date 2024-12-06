@@ -1,6 +1,5 @@
 module lexer
 
-import os
 import term
 import token { Token, TokenType }
 
@@ -18,30 +17,15 @@ pub mut:
 	prev_token   Token
 }
 
-pub fn lex(file_name string, file_path string) !Lexer {
+pub fn lex(file_name string, file_path string, full_content string) !Lexer {
 	mut lexer := Lexer{
-		file_name:  file_name
-		file_path:  file_path
-		line_count: 1
-		all_tokens: []
+		file_name:    file_name
+		file_path:    file_path
+		file_content: full_content
+		line_count:   1
+		all_tokens:   []
 	}
-
-	mut file_to_lex := os.open(file_path) or {
-		lexer.throw_lex_error('Could not open file: ${file_name}')
-		exit(1)
-	}
-
-	defer {
-		file_to_lex.close()
-	}
-
-	content := os.read_file(file_path) or {
-		lexer.throw_lex_error('Could not read file: ${file_name}')
-		exit(1)
-	}
-
-	lexer.file_content = content
-
+	
 	if lexer.file_content.trim_space().len == 0 {
 		lexer.throw_lex_error('File is empty')
 		exit(1)

@@ -14,7 +14,12 @@ pub:
 pub fn (mut p Parser) parse_expression(tokens []token.Token) ParsedExpression {
 	mut i := 0
 	mut token_return := token.Token{}
-	math_operators := ['+', '-', '*', '/']
+	// math_operators := ['+', '-', '*', '/']
+	mut math_operators := []TokenType{}
+	math_operators << TokenType.plus
+	math_operators << TokenType.minus
+	math_operators << TokenType.star
+	math_operators << TokenType.slash
 	mut expected_type := tokens[0].token_type
 	mut expression_type := TokenType.radon_null
 	mut expression_value := ''
@@ -65,8 +70,9 @@ pub fn (mut p Parser) parse_expression(tokens []token.Token) ParsedExpression {
 				}
 				expression_type = variable.variable?.var_type
 			} else {
-				if (expected_type == TokenType.type_string && current_value !in math_operators)
-					|| (expected_type == TokenType.type_int && current_value !in math_operators) {
+				current_as_token := token.find_token(current_value)
+				if (expected_type == TokenType.type_string && current_as_token !in math_operators)
+					|| (expected_type == TokenType.type_int && current_as_token !in math_operators) {
 					return ParsedExpression{
 						success:         false
 						message:         'Expected "${expected_type}" but got "${last_type}"'
@@ -82,7 +88,7 @@ pub fn (mut p Parser) parse_expression(tokens []token.Token) ParsedExpression {
 
 			i++
 			continue
-		} else if last_type == TokenType.plus {
+		} else if last_type in math_operators {
 			if i + 1 >= tokens.len {
 				return ParsedExpression{
 					success:         false
@@ -93,6 +99,14 @@ pub fn (mut p Parser) parse_expression(tokens []token.Token) ParsedExpression {
 
 			mut left_hand := tokens[i - 1].token_type
 			mut right_hand := tokens[i + 1].token_type
+
+			if left_hand == TokenType.type_string && right_hand == TokenType.type_string && last_type != TokenType.plus {
+				return ParsedExpression{
+					success: false
+					message: 'Sign "${last_type}" is not defined/supported for strings. Only "+" is so far.'
+					expression_type: token_return.token_type
+				}
+			}
 
 			if left_hand == TokenType.var_name {
 				variable := p.variable_table(nodes.NodeVar{}, tokens[i - 1].value, VarOperation.get)
@@ -107,7 +121,7 @@ pub fn (mut p Parser) parse_expression(tokens []token.Token) ParsedExpression {
 			if left_hand != right_hand {
 				return ParsedExpression{
 					success:         false
-					message:         'Expected same type on both sides of "+" but got "${left_hand}" and "${right_hand}"'
+					message:         'Expected same type on both sides of "${last_type}" but got "${left_hand}" and "${right_hand}"'
 					expression_type: token_return.token_type
 				}
 			}
