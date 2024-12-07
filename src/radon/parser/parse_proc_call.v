@@ -42,7 +42,7 @@ pub fn (mut p Parser) parse_proc_call(index int) nodes.NodeProcCall {
 	if unsplit_arguments.len > 1 {
 		arguments = unsplit_arguments.filter(it.token_type != TokenType.comma)
 	} else {
-		arguments = unsplit_arguments.clone()
+		arguments << p.parse_expression(unsplit_arguments).complete_token
 	}
 
 	if arguments.len != proc_call.called_proc.params.len {

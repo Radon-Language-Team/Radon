@@ -9,6 +9,7 @@ pub:
 	message          string
 	expression_value string
 	expression_type  TokenType
+	complete_token   token.Token
 }
 
 pub fn (mut p Parser) parse_expression(tokens []token.Token) ParsedExpression {
@@ -35,6 +36,10 @@ pub fn (mut p Parser) parse_expression(tokens []token.Token) ParsedExpression {
 				message:          ''
 				expression_value: variable.variable?.value
 				expression_type:  variable.variable?.var_type
+				complete_token: token.Token{
+					value:      variable.variable?.value
+					token_type: variable.variable?.var_type
+				}
 			}
 		} else {
 			return ParsedExpression{
@@ -42,6 +47,10 @@ pub fn (mut p Parser) parse_expression(tokens []token.Token) ParsedExpression {
 				message:          ''
 				expression_value: tokens[0].value
 				expression_type:  tokens[0].token_type
+				complete_token: token.Token{
+					value:      tokens[0].value
+					token_type: tokens[0].token_type
+				}
 			}
 		}
 	}
@@ -100,10 +109,11 @@ pub fn (mut p Parser) parse_expression(tokens []token.Token) ParsedExpression {
 			mut left_hand := tokens[i - 1].token_type
 			mut right_hand := tokens[i + 1].token_type
 
-			if left_hand == TokenType.type_string && right_hand == TokenType.type_string && last_type != TokenType.plus {
+			if left_hand == TokenType.type_string && right_hand == TokenType.type_string
+				&& last_type != TokenType.plus {
 				return ParsedExpression{
-					success: false
-					message: 'Sign "${last_type}" is not defined/supported for strings. Only "+" is so far.'
+					success:         false
+					message:         'Sign "${last_type}" is not defined/supported for strings. Only "+" is so far.'
 					expression_type: token_return.token_type
 				}
 			}
@@ -158,5 +168,9 @@ pub fn (mut p Parser) parse_expression(tokens []token.Token) ParsedExpression {
 		message:          ''
 		expression_value: expression_value
 		expression_type:  expression_type
+		complete_token:   token.Token{
+			value:      expression_value
+			token_type: expression_type
+		}
 	}
 }

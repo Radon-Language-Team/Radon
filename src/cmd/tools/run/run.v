@@ -137,5 +137,5 @@ pub fn radon_run() {
 		}
 	}
 
-	println(term.green('[RADON] Execution successful'))
+	println(term.green('\n\n[RADON] Execution successful'))
 }
