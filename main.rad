@@ -1,6 +1,0 @@
-proc main() -> int {
-  print("Test");
-  print("asd");
-  println("Hello, world");
-  return 0;
-}

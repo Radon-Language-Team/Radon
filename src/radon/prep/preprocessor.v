@@ -20,7 +20,7 @@ pub fn preprocess(file_path string) string {
 }
 
 fn (mut p Preprocessor) start_prep(file_path string) {
-	core_script_path := '/home/crative/dev/radon/radon/src/std/core.rad'
+	core_script_path := '/home/marwin/dev/Radon/src/std/core.rad'
 
 	if !os.exists(core_script_path) {
 		println(term.red('radon_prep Error: Was not able to locate standard library'))
