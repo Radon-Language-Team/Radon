@@ -31,6 +31,10 @@ fn (mut g Generator) generate_proc() {
 				g.generated_code += '#include<stdio.h> \n'
 				g.generated_code += '${proc_type} ${proc_name}(char* str) \n{ \nprintf("%s", str); \n}\n'
 			}
+			'println' {
+				g.generated_code += '#include<stdio.h> \n'
+				g.generated_code += '${proc_type} ${proc_name}(char* str) \n{ \nprintf("%s\n", str); \n}\n'
+			}
 			else {
 				g.throw_gen_error('Unknown core function: ${proc_name}')
 			}

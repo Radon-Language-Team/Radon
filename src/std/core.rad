@@ -1,6 +1,7 @@
 proc print(x string) -> void {}
 
+proc println(x string) -> void {}
+
 proc pow(x int) -> int {
   return x * x;
 }
-
