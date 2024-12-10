@@ -35,7 +35,7 @@ pub fn gen_core_proc(node NodeProc, generated_code &string) string {
 			if !gen_code_so_far.contains('#include <stdio.h>') {
 				node_code += '#include <stdio.h>\n'
 			}
-			node_code += '${return_type} ${proc_name}(char* str) \n{ \nprintf("%s \\n", str); \n}\n'
+			node_code += '${return_type} ${proc_name}(char* str) \n{ \nprintf("%s\\n", str); \n}\n'
 		}
 		else {
 			// If the proc is not a core proc, generate an empty proc

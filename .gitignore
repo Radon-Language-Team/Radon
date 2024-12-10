@@ -2,3 +2,5 @@
 /radon
 *.c
 .direnv/
+main
+main.rad
