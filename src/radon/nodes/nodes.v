@@ -6,6 +6,7 @@ pub enum NodeType {
 	proc
 	return_node
 	var_node
+	proc_call
 	null // For cases where no node type is active
 }
 
@@ -21,13 +22,14 @@ pub:
 	proc        NodeProc
 	return_node NodeReturn
 	var_node    NodeVar
+	proc_call   NodeProcCall
 }
 
 pub struct NodeProcArg {
 pub mut:
 	proc_name string
 	arg_name string
-	arg_type string
+	arg_type token.TokenType
 	is_array bool
 	is_optional bool
 }
@@ -49,6 +51,14 @@ pub mut:
 	we have reached the end of the function
 	*/
 	bracket_count int
+}
+
+pub struct NodeProcCall {
+pub mut:
+	new_index int
+	called_proc NodeProc
+	name      string
+	args      []token.Token
 }
 
 pub struct NodeReturn {

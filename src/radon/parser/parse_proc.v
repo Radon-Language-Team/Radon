@@ -31,6 +31,7 @@ pub fn (mut p Parser) parse_proc(index int) !NodeProc {
 	}
 
 	proc.name = p.all_tokens[proc.new_index].value
+	p.current_proc_name = proc.name
 	proc.new_index += 1
 
 	if p.all_tokens[proc.new_index].token_type != token.TokenType.open_paren {
@@ -106,7 +107,7 @@ fn (mut p Parser) parse_proc_args(tokens []token.Token, index int, proc_name str
 		}
 		arg_is_token_type := token.check_if_token_is_type(tokens[i])
 		if arg_is_token_type {
-			current_arg.arg_type = tokens[i].value
+			current_arg.arg_type = token.find_token(tokens[i].value)
 			i++
 		} else {
 			return ProcArgs{
@@ -174,6 +175,20 @@ fn (mut p Parser) parse_proc_inside(i int, proc_return_type token.TokenType, b_c
 				p.variable_table(var_result, '', VarOperation.set)
 				p.token_index = index
 			}
+			'${token.TokenType.proc_call}' {
+				call_result := p.parse_proc_call(index)
+
+				index = call_result.new_index
+				proc_call_kind_assign := nodes.NodeKind{
+					proc_call: call_result
+				}
+
+				proc_body_nodes << nodes.Node{
+					node_type: nodes.NodeType.proc_call
+					node_kind: proc_call_kind_assign
+				}
+				p.token_index = index
+			}
 			'${token.TokenType.close_brace}' {
 				p.token_index = index++
 				bracket_count -= 1
@@ -183,7 +198,7 @@ fn (mut p Parser) parse_proc_inside(i int, proc_return_type token.TokenType, b_c
 				}
 			}
 			else {
-				p.throw_parse_error('Unknown (inside) token: "${tokens[index].value}"')
+				p.throw_parse_error('Unknown (inside) token: "${tokens[index].value}" of type ${tokens[index].token_type}')
 				exit(1)
 			}
 		}

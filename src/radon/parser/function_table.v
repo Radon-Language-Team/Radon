@@ -12,7 +12,7 @@ pub enum ProcOperation {
 
 struct ProcTableResult {
 	success  bool
-	function ?nodes.NodeProc
+	function nodes.NodeProc
 }
 
 // Stores a list of functions and their names

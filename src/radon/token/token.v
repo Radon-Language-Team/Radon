@@ -23,6 +23,7 @@ pub enum TokenType {
 	type_float  // float
 	type_bool   // bool
 	type_string // string
+	type_void   // void
 	// Symbols
 	open_paren  // (
 	close_paren // )
@@ -48,6 +49,7 @@ pub enum TokenType {
 	pipe        // |
 	var_name    // reserved for variables
 	proc_name   // reserved for proc names
+	proc_call   // reserved for proc calls
 	radon_null  // Only used for the compiler
 
 	// replacement tokens
@@ -90,7 +92,7 @@ pub fn (mut t Token) is_special(letter rune) bool {
 	}
 }
 
-pub fn (mut t Token) find_token(token_to_find string) TokenType {
+pub fn find_token(token_to_find string) TokenType {
 	match token_to_find {
 		'proc' { return TokenType.key_proc }
 		'main' { return TokenType.key_main }
@@ -108,6 +110,7 @@ pub fn (mut t Token) find_token(token_to_find string) TokenType {
 		'float' { return TokenType.type_float }
 		'bool' { return TokenType.type_bool }
 		'string' { return TokenType.type_string }
+		'void' { return TokenType.type_void }
 		'(' { return TokenType.open_paren }
 		')' { return TokenType.close_paren }
 		'{' { return TokenType.open_brace }
@@ -177,15 +180,16 @@ pub fn check_if_token_is_type(token Token) bool {
 		'${TokenType.type_float}' { true }
 		'${TokenType.type_bool}' { true }
 		'${TokenType.type_string}' { true }
+		'${TokenType.type_void}' { true }
 		else { false }
 	}
-
 
 	name_result := match token.value {
 		'int' { true }
 		'float' { true }
 		'bool' { true }
 		'string' { true }
+		'void' { true }
 		else { false }
 	}
 
@@ -193,7 +197,7 @@ pub fn check_if_token_is_type(token Token) bool {
 		return true
 	} else {
 		return false
-	} 
+	}
 }
 
 pub fn convert_radon_to_c_type(token_type TokenType) string {

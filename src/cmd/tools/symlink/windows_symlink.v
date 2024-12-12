@@ -6,8 +6,7 @@ import tools
 
 pub fn windows_symlink() {
 	tools.print_art()
-
-	original_exe := os.real_path('${os.getwd()}/radon.exe')
+	original_exe := os.real_path('${os.getwd()}/radon/radon.exe')
 
 	user_home := os.getenv('USERPROFILE')
 	radon_symlink_dir := os.join_path(user_home, '.bin')
@@ -21,6 +20,12 @@ pub fn windows_symlink() {
 
 	// Full path to where the symlink will be created
 	radon_symlink := os.join_path(radon_symlink_dir, 'radon.exe')
+
+	if os.exists(radon_symlink) {
+		os.rm(radon_symlink) or {
+			println(term.yellow('Was not able to remove old radon symlink: ${err}'))
+		}
+	}
 
 	os.symlink(original_exe, radon_symlink) or {
 		println(term.red('Failed to create symlink: ${err}'))

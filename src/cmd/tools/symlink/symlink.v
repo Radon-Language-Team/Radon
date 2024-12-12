@@ -7,20 +7,18 @@ import tools
 
 pub fn link() {
 	tools.print_art()
-	mut dest_dir := '/usr/local/bin'
-	println('${os.getwd()}')
+	symlink_path := '/usr/local/bin/radon'
 
-	if !os.exists(dest_dir) {
-		os.mkdir_all(dest_dir) or {
-			println(term.red('Failed to create symlink > Try with sudo'))
-			exit(1)
+	// Remove old symlink if it exists
+	if os.exists(symlink_path) {
+		os.rm(symlink_path) or {
+			println(term.yellow('Was not able to remove old radon symlink: ${err}'))
 		}
 	}
-	dest_dir = dest_dir + '/radon'
 
-	os.rm(dest_dir) or { println(term.yellow('Was not able to remove old symlink')) }
-	os.symlink('${os.getwd()}/radon', dest_dir) or {
-		println(term.red('Failed to create symlink > Try with sudo -> ${dest_dir}'))
+	// Create new symlink pointing to the executable
+	os.symlink('${os.getwd()}/radon/radon', symlink_path) or {
+		println(term.red('Failed to create symlink > Try with sudo > Tried to link to: ${symlink_path} \n> Error: ${err}'))
 		exit(1)
 	}
 
