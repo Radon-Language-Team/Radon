@@ -16,7 +16,7 @@ pub fn preprocess(file_path string) string {
 	}
 
 	p.start_prep(file_path) or {
-		println(term.red('radon_prep Error: Failed to start preprocessing'))
+		println(term.red('radon_prep Error: Was either not able to locate the standard library or to read the core.rad file'))
 		exit(1)
 	}
 	return p.new_content
@@ -34,15 +34,8 @@ fn (mut p Preprocessor) start_prep(file_path string) ! {
 		exit(1)
 	}
 
-	core_script_content := os.read_file(core_script_path) or {
-		println(term.red('radon_prep Error: Was not able to read standard library'))
-		exit(1)
-	}
-
-	file_path_content := os.read_file(file_path) or {
-		println(term.red('radon_prep Error: Was not able to read file'))
-		exit(1)
-	}
+	core_script_content := os.read_file(core_script_path)!
+	file_path_content := os.read_file(file_path)!
 
 	full_content := core_script_content + '\n' + file_path_content
 
