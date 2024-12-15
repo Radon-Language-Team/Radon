@@ -23,19 +23,21 @@ pub fn gen_core_proc(node NodeProc, generated_code &string) string {
 
 	return_type := token.convert_radon_to_c_type(node.return_type)
 	proc_name := node.name
+	proc_args := node.params
 
 	match node.name {
 		'print' {
 			if !gen_code_so_far.contains('#include <stdio.h>') {
 				node_code += '#include <stdio.h>\n'
 			}
-			node_code += '${return_type} ${proc_name}(char* str) \n{ \nprintf("%s", str); \n}\n'
+			// In case of print, we only have one argument meaning we can just use node.params[0]
+			node_code += '${return_type} ${proc_name}(${token.convert_radon_to_c_type(proc_args[0].arg_type)} x) \n{ \nprintf("%s", x); \n}\n'
 		}
 		'println' {
 			if !gen_code_so_far.contains('#include <stdio.h>') {
 				node_code += '#include <stdio.h>\n'
 			}
-			node_code += '${return_type} ${proc_name}(char* str) \n{ \nprintf("%s\\n", str); \n}\n'
+			node_code += '${return_type} ${proc_name}(${token.convert_radon_to_c_type(proc_args[0].arg_type)} x) \n{ \nprintf("%s\\n", x); \n}\n'
 		}
 		else {
 			// If the proc is not a core proc, generate an empty proc
