@@ -12,7 +12,7 @@ pub:
 	complete_token   token.Token
 }
 
-pub fn (mut p Parser) parse_expression(tokens []token.Token) ParsedExpression {
+pub fn (mut p Parser) parse_expression(tokens []token.Token) ?ParsedExpression {
 	mut i := 0
 	mut token_return := token.Token{}
 	// math_operators := ['+', '-', '*', '/']
@@ -30,15 +30,17 @@ pub fn (mut p Parser) parse_expression(tokens []token.Token) ParsedExpression {
 	// will return a single token with the type TokenType.string and it's value
 	if tokens.len == 1 {
 		if tokens[0].token_type == TokenType.var_name {
-			variable := p.variable_table(nodes.NodeVar{}, tokens[0].value, VarOperation.get)
+			// Check if the variable exists
+			_ := p.variable_table(nodes.NodeVar{}, tokens[0].value, VarOperation.get) or { exit(1) }
+
 			return ParsedExpression{
 				success:          true
 				message:          ''
-				expression_value: variable.variable?.value
-				expression_type:  variable.variable?.var_type
-				complete_token: token.Token{
-					value:      variable.variable?.value
-					token_type: variable.variable?.var_type
+				expression_value: tokens[0].value
+				expression_type:  TokenType.var_name
+				complete_token:   token.Token{
+					value:      tokens[0].value
+					token_type: tokens[0].token_type
 				}
 			}
 		} else {
@@ -47,7 +49,7 @@ pub fn (mut p Parser) parse_expression(tokens []token.Token) ParsedExpression {
 				message:          ''
 				expression_value: tokens[0].value
 				expression_type:  tokens[0].token_type
-				complete_token: token.Token{
+				complete_token:   token.Token{
 					value:      tokens[0].value
 					token_type: tokens[0].token_type
 				}
@@ -68,7 +70,9 @@ pub fn (mut p Parser) parse_expression(tokens []token.Token) ParsedExpression {
 
 		if last_type != expected_type {
 			if last_type == TokenType.var_name {
-				variable := p.variable_table(nodes.NodeVar{}, tokens[i].value, VarOperation.get)
+				variable := p.variable_table(nodes.NodeVar{}, tokens[i].value, VarOperation.get) or {
+					exit(1)
+				}
 
 				if variable.variable?.var_type != expected_type {
 					return ParsedExpression{
@@ -119,12 +123,16 @@ pub fn (mut p Parser) parse_expression(tokens []token.Token) ParsedExpression {
 			}
 
 			if left_hand == TokenType.var_name {
-				variable := p.variable_table(nodes.NodeVar{}, tokens[i - 1].value, VarOperation.get)
+				variable := p.variable_table(nodes.NodeVar{}, tokens[i - 1].value, VarOperation.get) or {
+					exit(1)
+				}
 				left_hand = variable.variable?.var_type
 			}
 
 			if right_hand == TokenType.var_name {
-				variable := p.variable_table(nodes.NodeVar{}, tokens[i + 1].value, VarOperation.get)
+				variable := p.variable_table(nodes.NodeVar{}, tokens[i + 1].value, VarOperation.get) or {
+					exit(1)
+				}
 				right_hand = variable.variable?.var_type
 			}
 
@@ -142,7 +150,9 @@ pub fn (mut p Parser) parse_expression(tokens []token.Token) ParsedExpression {
 			i++
 			continue
 		} else if last_type == TokenType.var_name {
-			variable := p.variable_table(nodes.NodeVar{}, tokens[i].value, VarOperation.get)
+			variable := p.variable_table(nodes.NodeVar{}, tokens[i].value, VarOperation.get) or {
+				exit(1)
+			}
 
 			expression_value += variable.variable?.value
 			expected_type = variable.variable?.var_type

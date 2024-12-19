@@ -39,7 +39,10 @@ pub fn (mut p Parser) parse_variable(index int) nodes.NodeVar {
 		var.new_index += 1
 	}
 
-	expression := p.parse_expression(var_expression)
+	expression := p.parse_expression(var_expression) or {
+		p.throw_parse_error('Failed to parse expression')
+		exit(1)
+	}
 
 	if !expression.success {
 		p.throw_parse_error(expression.message)

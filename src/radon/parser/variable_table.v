@@ -16,7 +16,7 @@ struct VariableTableResult {
 }
 
 // Stores a list of variables and their names
-pub fn (mut p Parser) variable_table(var nodes.NodeVar, variable_name string, operation VarOperation) VariableTableResult {
+pub fn (mut p Parser) variable_table(var nodes.NodeVar, variable_name string, operation VarOperation) ?VariableTableResult {
 	match operation.str() {
 		'${VarOperation.get}' {
 			var_name_index := p.variable_names.index(variable_name)
@@ -26,13 +26,15 @@ pub fn (mut p Parser) variable_table(var nodes.NodeVar, variable_name string, op
 					ArgOperation.get)
 
 				if current_proc.success {
+					arg_name := current_proc.arg?.arg_name
+					arg_type := current_proc.arg?.arg_type
 					arag_as_var := nodes.NodeVar{
 						new_index: 0
-						name:      current_proc.arg!.arg_name
+						name:      arg_name
 						// As for args, we don't know the value yet
 						// It is for the user to set
-						value:    current_proc.arg!.arg_name
-						var_type: current_proc.arg!.arg_type
+						value:    ''
+						var_type: arg_type
 					}
 
 					return VariableTableResult{

@@ -19,7 +19,10 @@ pub fn (mut p Parser) parse_return(index int) nodes.NodeReturn {
 		ret.new_index += 1
 	}
 
-	expression := p.parse_expression(tokens_to_return)
+	expression := p.parse_expression(tokens_to_return) or {
+		p.throw_parse_error('Error while parsing return expression')
+		exit(1)		
+	}
 
 	if !expression.success {
 		p.throw_parse_error(expression.message)
