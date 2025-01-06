@@ -107,6 +107,4 @@ pub fn radon_run() ! {
 		os.rm(gen_file_path)!
 		os.rm('${gen_file_name_exec}')!
 	}
-
-	println(term.green('\n\n[RADON] Execution successful'))
 }

@@ -31,16 +31,18 @@ pub fn (mut p Parser) parse_expression(tokens []token.Token) ?ParsedExpression {
 	if tokens.len == 1 {
 		if tokens[0].token_type == TokenType.var_name {
 			// Check if the variable exists
-			_ := p.variable_table(nodes.NodeVar{}, tokens[0].value, VarOperation.get) or { exit(1) }
+			var := p.variable_table(nodes.NodeVar{}, tokens[0].value, VarOperation.get) or {
+				exit(1)
+			}
 
 			return ParsedExpression{
 				success:          true
 				message:          ''
-				expression_value: tokens[0].value
-				expression_type:  TokenType.var_name
+				expression_value: var.variable?.value
+				expression_type:  var.variable?.var_type
 				complete_token:   token.Token{
-					value:      tokens[0].value
-					token_type: tokens[0].token_type
+					value:      var.variable?.value
+					token_type: var.variable?.var_type
 				}
 			}
 		} else {

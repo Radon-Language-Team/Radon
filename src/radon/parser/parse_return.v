@@ -6,9 +6,9 @@ import token
 pub fn (mut p Parser) parse_return(index int) nodes.NodeReturn {
 	mut tokens_to_return := []token.Token{}
 	mut ret := nodes.NodeReturn{
-		new_index:   index
-		value:       ''
-		return_type: token.TokenType.radon_null
+		new_index:           index
+		value:               ''
+		return_type:         token.TokenType.radon_null
 	}
 
 	ret.new_index += 1
@@ -21,7 +21,7 @@ pub fn (mut p Parser) parse_return(index int) nodes.NodeReturn {
 
 	expression := p.parse_expression(tokens_to_return) or {
 		p.throw_parse_error('Error while parsing return expression')
-		exit(1)		
+		exit(1)
 	}
 
 	if !expression.success {
