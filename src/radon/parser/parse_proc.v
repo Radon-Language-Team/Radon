@@ -139,9 +139,8 @@ fn (mut p Parser) parse_proc_inside(i int, proc_return_type token.TokenType, b_c
 	mut proc_body_nodes := []nodes.Node{}
 
 	for index < p.all_tokens.len {
-		token_to_match := tokens[index].token_type.str()
-		match token_to_match {
-			'${token.TokenType.key_ret}' {
+		match tokens[index].token_type {
+			.key_ret {
 				return_result := p.parse_return(index)
 				index = return_result.new_index
 				return_node := return_result
@@ -161,7 +160,7 @@ fn (mut p Parser) parse_proc_inside(i int, proc_return_type token.TokenType, b_c
 				}
 				p.token_index = index
 			}
-			'${token.TokenType.var_name}' {
+			.var_name {
 				var_result := p.parse_variable(index)
 				index = var_result.new_index
 				var_kind_assign := nodes.NodeKind{
@@ -175,7 +174,7 @@ fn (mut p Parser) parse_proc_inside(i int, proc_return_type token.TokenType, b_c
 				p.variable_table(var_result, '', VarOperation.set)
 				p.token_index = index
 			}
-			'${token.TokenType.proc_call}' {
+			.proc_call {
 				call_result := p.parse_proc_call(index)
 
 				index = call_result.new_index
@@ -189,7 +188,7 @@ fn (mut p Parser) parse_proc_inside(i int, proc_return_type token.TokenType, b_c
 				}
 				p.token_index = index
 			}
-			'${token.TokenType.close_brace}' {
+			.close_brace {
 				p.token_index = index++
 				bracket_count -= 1
 

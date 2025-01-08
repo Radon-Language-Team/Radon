@@ -1,6 +1,6 @@
 module gen
 
-import nodes { Node, NodeType }
+import nodes { Node }
 import token
 import util { gen_assignment, gen_core_proc, gen_proc_call, gen_return }
 
@@ -36,14 +36,14 @@ fn (mut g Generator) gen_proc_body(proc_body []Node) string {
 	mut temp_proc_body := ''
 
 	for tmp_node in proc_body {
-		node_code := match '${tmp_node.node_type}' {
-			'${NodeType.var_node}' {
+		node_code := match tmp_node.node_type {
+			.var_node {
 				gen_assignment(tmp_node.node_kind.var_node)
 			}
-			'${NodeType.return_node}' {
+			.return_node {
 				gen_return(tmp_node.node_kind.return_node)
 			}
-			'${NodeType.proc_call}' {
+			.proc_call {
 				gen_proc_call(tmp_node.node_kind.proc_call)
 			}
 			else {

@@ -17,11 +17,11 @@ pub fn (mut p Parser) parse_variable(index int) nodes.NodeVar {
 	var.new_index += 1
 
 	var_kind_token := p.all_tokens[var.new_index]
-	match var_kind_token.token_type.str() {
-		'${token.TokenType.var_assign}' {
+	match var_kind_token.token_type {
+		.var_assign {
 			var.var_kind = VarAssignOptions.assign
 		}
-		'${token.TokenType.equal}' {
+		.equal {
 			var.var_kind = VarAssignOptions.reassign
 		}
 		else {

@@ -17,8 +17,8 @@ struct VariableTableResult {
 
 // Stores a list of variables and their names
 pub fn (mut p Parser) variable_table(var nodes.NodeVar, variable_name string, operation VarOperation) ?VariableTableResult {
-	match operation.str() {
-		'${VarOperation.get}' {
+	match operation {
+		.get {
 			var_name_index := p.variable_names.index(variable_name)
 			if var_name_index == -1 {
 				// Check if the variable is a function argument
@@ -55,7 +55,7 @@ pub fn (mut p Parser) variable_table(var nodes.NodeVar, variable_name string, op
 
 			return variable_result
 		}
-		'${VarOperation.debug}' {
+		.debug {
 			println(term.yellow('Variable table:'))
 			for i, table_item in p.variables {
 				println(term.yellow('  ${i}: ${table_item.name} = ${table_item.value}'))
@@ -64,7 +64,7 @@ pub fn (mut p Parser) variable_table(var nodes.NodeVar, variable_name string, op
 				success: true
 			}
 		}
-		'${VarOperation.set}' {
+		.set {
 			p.variable_names << var.name
 			p.variables << var
 			return VariableTableResult{
@@ -72,17 +72,11 @@ pub fn (mut p Parser) variable_table(var nodes.NodeVar, variable_name string, op
 				variable: var
 			}
 		}
-		'${VarOperation.clear}' {
+		.clear {
 			p.variable_names = []
 			p.variables = []
 			return VariableTableResult{
 				success: true
-			}
-		}
-		else {
-			println(term.yellow('Unknown variable operation'))
-			return VariableTableResult{
-				success: false
 			}
 		}
 	}

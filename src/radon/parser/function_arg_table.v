@@ -23,8 +23,8 @@ proc_name_arg_name: The name of the function and the argument ('main-arg') - ${p
 operation: The operation to perform on the function argument table
 */
 pub fn (mut p Parser) function_arg_table(arg nodes.NodeProcArg, proc_name_arg_name string, operation ArgOperation) ArgTableResult {
-	match operation.str() {
-		'${ArgOperation.get}' {
+	match operation {
+		.get {
 			arg_name_index := p.proc_arg_proc_names.index(proc_name_arg_name)
 
 			if arg_name_index == -1 {
@@ -40,7 +40,7 @@ pub fn (mut p Parser) function_arg_table(arg nodes.NodeProcArg, proc_name_arg_na
 			}
 			return arg_result
 		}
-		'${ArgOperation.debug}' {
+		.debug {
 			println(term.yellow('Function argument table:'))
 			for i, table_item in p.proc_args {
 				println(term.yellow('  ${i}: Argument ${table_item.arg_name} in function ${table_item.proc_name} with type ${table_item.arg_type}: isArray: ${table_item.is_array} | isOptional: ${table_item.is_optional}'))
@@ -49,7 +49,7 @@ pub fn (mut p Parser) function_arg_table(arg nodes.NodeProcArg, proc_name_arg_na
 				success: true
 			}
 		}
-		'${ArgOperation.set}' {
+		.set {
 			p.proc_arg_proc_names << '${arg.proc_name}-${arg.arg_name}'
 			p.proc_args << arg
 			return ArgTableResult{
@@ -57,16 +57,12 @@ pub fn (mut p Parser) function_arg_table(arg nodes.NodeProcArg, proc_name_arg_na
 				arg:     arg
 			}
 		}
-		'${ArgOperation.clear}' {
+		.clear {
 			p.proc_arg_proc_names = []
 			p.proc_args = []
 			return ArgTableResult{
 				success: true
 			}
-		}
-		else {
-			p.throw_parse_error('Invalid operation: ${operation}')
-			exit(1)
 		}
 	}
 }

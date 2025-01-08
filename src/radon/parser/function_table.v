@@ -19,8 +19,8 @@ struct ProcTableResult {
 // This makes it easy to look up functions by name
 // and to see if a function exists
 pub fn (mut p Parser) function_table(proc nodes.NodeProc, proc_name string, operation ProcOperation) ProcTableResult {
-	match operation.str() {
-		'${ProcOperation.get}' {
+	match operation {
+		.get {
 			proc_name_index := p.proc_names.index(proc_name)
 			if proc_name_index == -1 {
 				p.throw_parse_error('Expected function "${proc_name}" to exist but it does not')
@@ -36,7 +36,7 @@ pub fn (mut p Parser) function_table(proc nodes.NodeProc, proc_name string, oper
 
 			return proc_result
 		}
-		'${ProcOperation.debug}' {
+		.debug {
 			println(term.yellow('Function table:'))
 			for i, table_item in p.procs {
 				println(term.yellow('  ${i}: ${table_item.name}'))
@@ -45,7 +45,7 @@ pub fn (mut p Parser) function_table(proc nodes.NodeProc, proc_name string, oper
 				success: true
 			}
 		}
-		'${ProcOperation.set}' {
+		.set {
 			p.proc_names << proc.name
 			p.procs << proc
 			return ProcTableResult{
@@ -53,17 +53,11 @@ pub fn (mut p Parser) function_table(proc nodes.NodeProc, proc_name string, oper
 				function: proc
 			}
 		}
-		'${ProcOperation.clear}' {
+		.clear {
 			p.proc_names = []
 			p.procs = []
 			return ProcTableResult{
 				success: true
-			}
-		}
-		else {
-			println(term.yellow('Unknown function operation'))
-			return ProcTableResult{
-				success: false
 			}
 		}
 	}
