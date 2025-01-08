@@ -29,6 +29,9 @@ pub fn generate(parsed_nodes []NodeProc, file_name string, file_path string) str
 }
 
 fn (mut g Generator) generate_code() {
+	// We can include the standard library here
+	// This is because built in functions like println or print are being supplied either way
+	g.generated_code += '#include <stdio.h>\n\n'
 	for g.node_index < g.nodes.len {
 		g.node = g.nodes[g.node_index]
 

@@ -24,7 +24,7 @@ fn (mut g Generator) generate_proc() {
 	proc_body := g.gen_proc_body(node.body)
 
 	if util.is_core_proc(node) {
-		proc_code := gen_core_proc(node, &g.generated_code)
+		proc_code := gen_core_proc(node)
 		g.generated_code += proc_code
 	} else {
 		proc_code := '${proc_type} ${proc_name}${proc_args} \n{ \n${proc_body} \n}\n'
