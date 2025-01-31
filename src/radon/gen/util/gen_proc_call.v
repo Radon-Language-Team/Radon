@@ -1,6 +1,5 @@
 module util
 
-import term
 import token
 import nodes { NodeProcCall }
 
@@ -28,7 +27,6 @@ pub fn gen_proc_call(node NodeProcCall) string {
 			}
 			continue
 		} else {
-			println(term.yellow('Unknown argument type: ${arg.token_type}'))
 			if last_arg {
 				proc_args += '${arg.value}'
 			} else {
