@@ -27,10 +27,10 @@ pub:
 
 pub struct NodeProcArg {
 pub mut:
-	proc_name string
-	arg_name string
-	arg_type token.TokenType
-	is_array bool
+	proc_name   string
+	arg_name    string
+	arg_type    token.TokenType
+	is_array    bool
 	is_optional bool
 }
 
@@ -55,10 +55,10 @@ pub mut:
 
 pub struct NodeProcCall {
 pub mut:
-	new_index int
+	new_index   int
 	called_proc NodeProc
-	name      string
-	args      []token.Token
+	name        string
+	args        []token.Token
 }
 
 pub struct NodeReturn {
@@ -78,21 +78,31 @@ pub enum VarAssignOptions {
 	reassign
 }
 
+pub enum VarKindOptions {
+	proc_var
+	scope_var
+	const_var
+}
+
 /*
 NodeVar is a struct that represents a variable in the Radon language
 
 new_index: The new index of the parser after parsing the variable
 name: The name of the variable
 scope_id: The scope id of the variable [Experimental - Not yet implemented]
-var_kind: The kind of variable assignment [assign or reassign]
+var_assign: The kind of variable assignment [assign or reassign]
 var_type: The type of the variable [int, string, bool, etc.]
+var_kind: The kind of variable [function_var, scope_var, const_var]
+is_var: If true, the generator will generate 'x' instead of '"x"' -> Leaving it as a raw variable
 */
 pub struct NodeVar {
 pub mut:
-	new_index int
-	name      string
-	value     string
-	scope_id  int
-	var_kind  VarAssignOptions
-	var_type  token.TokenType
+	new_index  int
+	name       string
+	value      string
+	scope_id   int
+	var_assign VarAssignOptions
+	var_type   token.TokenType
+	var_kind   VarKindOptions
+	is_var     bool
 }

@@ -12,7 +12,7 @@ pub enum VarOperation {
 
 struct VariableTableResult {
 	success  bool
-	variable ?nodes.NodeVar
+	variable nodes.NodeVar
 }
 
 // Stores a list of variables and their names

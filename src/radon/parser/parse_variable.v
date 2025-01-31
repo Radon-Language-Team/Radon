@@ -19,10 +19,10 @@ pub fn (mut p Parser) parse_variable(index int) nodes.NodeVar {
 	var_kind_token := p.all_tokens[var.new_index]
 	match var_kind_token.token_type {
 		.var_assign {
-			var.var_kind = VarAssignOptions.assign
+			var.var_assign = VarAssignOptions.assign
 		}
 		.equal {
-			var.var_kind = VarAssignOptions.reassign
+			var.var_assign = VarAssignOptions.reassign
 		}
 		else {
 			p.throw_parse_error('Expected either ":=" or "=" but got ${var_kind_token.value}')
@@ -49,8 +49,13 @@ pub fn (mut p Parser) parse_variable(index int) nodes.NodeVar {
 		exit(1)
 	}
 
+	println('Parsed expression with return type of ${expression.expression_type} and value of ${expression.expression_value}')
+
+	// Define this variable as a scoped variable and not a function arg or a const var
+	var.var_kind = nodes.VarKindOptions.scope_var
 	var.var_type = expression.expression_type
 	var.value = expression.expression_value
+	var.is_var = expression.is_var
 	var.new_index += 1
 
 	return var
