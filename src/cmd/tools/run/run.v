@@ -8,47 +8,65 @@ import radon.opt
 import radon.parser
 import radon.gen
 
-pub fn radon_run() ! {
-	mut preserve_files := false
-	mut use_different_compiler := false
-	c_compilers := ['tcc', 'gcc', 'clang']
-	mut compiler_to_use := ''
-	args := os.args
+struct App {
+mut:
+	preserve_files         bool
+	use_different_compiler bool
+	use_different_std_path bool
 
-	if '-p' in args || '--preserve' in args {
-		preserve_files = true
-	} else if '-cc' in args {
-		compiler_to_use = args[args.index('-cc') + 1] or {
-			println(term.red('radon_run Error: No C Compiler provided after "--cc" flag'))
-			return
-		}
-		println(term.gray('Using "${compiler_to_use}" as C Compiler'))
-		use_different_compiler = true
+	args            []string
+	c_compilers     []string
+	compiler_to_use string
+	std_path        string
+}
+
+fn new_app() App {
+	return App{
+		preserve_files:         '-p' in os.args || '--preserve' in os.args
+		use_different_compiler: '-cc' in os.args
+		use_different_std_path: '-std' in os.args
+
+		args:        os.args.clone()
+		c_compilers: ['tcc', 'gcc', 'clang', 'cc']
+		std_path:    ''
 	}
+}
 
-	if !use_different_compiler {
-		for compiler in c_compilers {
-			result := os.execute('${compiler} --version')
+pub fn radon_run() ! {
+	mut app := new_app()
+
+	if !app.use_different_compiler {
+		for compiler in app.c_compilers {
+			result := os.execute('${compiler}')
 			if result.exit_code == 0 {
-				compiler_to_use = compiler
+				app.compiler_to_use = compiler
 				break
 			}
 		}
 	} else {
-		result := os.execute('${compiler_to_use} --version')
+		app.compiler_to_use = app.args[app.args.index('-cc') + 1]
+		println(term.gray('Using "${app.compiler_to_use}" as C Compiler'))
+		result := os.execute('${app.compiler_to_use} --version')
 		if result.exit_code != 0 {
-			println(term.red('radon_run Error: "${compiler_to_use}" is either not a valid C Compiler or not installed'))
+			println(term.red('radon_run Error: "${app.compiler_to_use}" is either not a valid C Compiler or not installed'))
 			return
 		}
 	}
 
-	if compiler_to_use == '' {
-		println(term.red('radon_run Error: No C Compiler found! \nEither install one of the following ${c_compilers} or use the "--cc" flag to specify a C Compiler'))
+	if app.use_different_std_path {
+		app.std_path = app.args[app.args.index('-std') + 1]
+		println(term.gray('Using "${app.std_path}" as standard library path'))
+	} else {
+		app.std_path = ''
+	}
+
+	if app.compiler_to_use == '' {
+		println(term.red('radon_run Error: No C Compiler found! \nEither install one of the following ${app.c_compilers} or use the "--cc" flag to specify a C Compiler'))
 		return
 	}
 
 	// [0]: radon | [1]: run | [2]: file_name
-	file_name := args[2] or {
+	file_name := app.args[2] or {
 		println(term.red('radon_run Error: No file name provided'))
 		return
 	}
@@ -65,7 +83,7 @@ pub fn radon_run() ! {
 		return
 	}
 
-	file_content := prep.preprocess(file_path)
+	file_content := prep.preprocess(file_path, app.std_path)!
 	lexed_file := lexer.lex(file_name, file_path, file_content)!
 	optimized_tokens := opt.optimize(lexed_file.all_tokens)!
 	parsed_nodes := parser.parse(optimized_tokens, file_name, file_path)!
@@ -83,7 +101,7 @@ pub fn radon_run() ! {
 	os.write_file(gen_file_path, code)!
 
 	gen_file.close()
-	compile_code := os.system('${compiler_to_use} -o ${gen_file_name_exec} ${gen_file_name}')
+	compile_code := os.system('${app.compiler_to_use} -o ${gen_file_name_exec} ${gen_file_name}')
 
 	if compile_code != 0 {
 		println(term.red('radon_run Error: Error while trying to compile generated file'))
@@ -97,16 +115,10 @@ pub fn radon_run() ! {
 
 	os.system('./${gen_file_name_exec}')
 
-	// We'll leave this for now as it's not really necessary - Even if the C Compliation fails, the error will be shown
-	// if exec_code != 0 {
-	// 	println(term.yellow('Proc "${gen_file_name_exec}" in "${file_name}" returned non-zero exit code! Possible error: \n${os.last_error()}'))
-	// }
-
-	if !preserve_files {
-		// Remove generated file after execution
+	if app.preserve_files {
+		println(term.gray('Preserving generated files'))
+	} else {
 		os.rm(gen_file_path)!
 		os.rm('${gen_file_name_exec}')!
 	}
-
-	println(term.green('\n\n[RADON] Execution successful'))
 }

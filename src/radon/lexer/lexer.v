@@ -25,7 +25,7 @@ pub fn lex(file_name string, file_path string, full_content string) !Lexer {
 		line_count:   1
 		all_tokens:   []
 	}
-	
+
 	if lexer.file_content.trim_space().len == 0 {
 		lexer.throw_lex_error('File is empty')
 		exit(1)
@@ -81,9 +81,9 @@ fn (mut l Lexer) lex_alpha() {
 	// In case there is no previous token, we default to [var_name]
 	// [radon_null] -> [var_name]
 	if new_token.token_type == TokenType.radon_null {
-		match l.token.token_type.str() {
-			'${TokenType.key_proc}' { new_token.token_type = TokenType.proc_name }
-			'${TokenType.key_mut}' { new_token.token_type = TokenType.var_name }
+		match l.token.token_type {
+			.key_proc { new_token.token_type = TokenType.proc_name }
+			.key_mut { new_token.token_type = TokenType.var_name }
 			else { new_token.token_type = TokenType.var_name }
 		}
 	}

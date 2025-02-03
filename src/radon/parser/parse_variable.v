@@ -17,12 +17,12 @@ pub fn (mut p Parser) parse_variable(index int) nodes.NodeVar {
 	var.new_index += 1
 
 	var_kind_token := p.all_tokens[var.new_index]
-	match var_kind_token.token_type.str() {
-		'${token.TokenType.var_assign}' {
-			var.var_kind = VarAssignOptions.assign
+	match var_kind_token.token_type {
+		.var_assign {
+			var.var_assign = VarAssignOptions.assign
 		}
-		'${token.TokenType.equal}' {
-			var.var_kind = VarAssignOptions.reassign
+		.equal {
+			var.var_assign = VarAssignOptions.reassign
 		}
 		else {
 			p.throw_parse_error('Expected either ":=" or "=" but got ${var_kind_token.value}')
@@ -39,15 +39,21 @@ pub fn (mut p Parser) parse_variable(index int) nodes.NodeVar {
 		var.new_index += 1
 	}
 
-	expression := p.parse_expression(var_expression)
+	expression := p.parse_expression(var_expression) or {
+		p.throw_parse_error('Failed to parse expression')
+		exit(1)
+	}
 
 	if !expression.success {
 		p.throw_parse_error(expression.message)
 		exit(1)
 	}
 
+	// Define this variable as a scoped variable and not a function arg or a const var
+	var.var_kind = nodes.VarKindOptions.scope_var
 	var.var_type = expression.expression_type
 	var.value = expression.expression_value
+	var.is_var = expression.is_var
 	var.new_index += 1
 
 	return var

@@ -175,12 +175,12 @@ pub fn find_replacement_token_type(token_str_one string, token_str_two string) T
 // Checks if a token is a token type and also if the token value
 // is a valid type name
 pub fn check_if_token_is_type(token Token) bool {
-	result := match token.token_type.str() {
-		'${TokenType.type_int}' { true }
-		'${TokenType.type_float}' { true }
-		'${TokenType.type_bool}' { true }
-		'${TokenType.type_string}' { true }
-		'${TokenType.type_void}' { true }
+	result := match token.token_type {
+		.type_int { true }
+		.type_float { true }
+		.type_bool { true }
+		.type_string { true }
+		.type_void { true }
 		else { false }
 	}
 
@@ -201,11 +201,11 @@ pub fn check_if_token_is_type(token Token) bool {
 }
 
 pub fn convert_radon_to_c_type(token_type TokenType) string {
-	result := match '${token_type}' {
-		'${TokenType.type_int}' { 'int' }
-		'${TokenType.type_float}' { 'float' }
-		'${TokenType.type_bool}' { 'bool' }
-		'${TokenType.type_string}' { 'char*' }
+	result := match token_type {
+		.type_int { 'int' }
+		.type_float { 'float' }
+		.type_bool { 'bool' }
+		.type_string { 'char*' }
 		else { 'void' }
 	}
 	return result

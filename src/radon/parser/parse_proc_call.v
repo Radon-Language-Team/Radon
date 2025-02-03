@@ -23,6 +23,7 @@ pub fn (mut p Parser) parse_proc_call(index int) nodes.NodeProcCall {
 		exit(1)
 	}
 
+	// This consumes the open paren
 	proc_call.new_index++
 	// TODO: Perhaps do this differently. We are kind of doing the same thing twice
 	mut unsplit_arguments := []token.Token{}
@@ -39,10 +40,16 @@ pub fn (mut p Parser) parse_proc_call(index int) nodes.NodeProcCall {
 	proc_call.new_index++
 
 	// Remove all commas from the arguments
-	if unsplit_arguments.len > 1 {
+	// We distinguish between a single argument and multuple arguments
+	// We also check if there a no arguments, in which case, the array can stay empty
+	if unsplit_arguments.len > 1 && unsplit_arguments.len != 0 {
 		arguments = unsplit_arguments.filter(it.token_type != TokenType.comma)
-	} else {
-		arguments << p.parse_expression(unsplit_arguments).complete_token
+	} else if unsplit_arguments.len == 1 && unsplit_arguments.len != 0 {
+		parsed_single_expression := p.parse_expression(unsplit_arguments) or {
+			p.throw_parse_error('Failed to parse expression')
+			exit(1)
+		}
+		arguments << parsed_single_expression.complete_token
 	}
 
 	if arguments.len != proc_call.called_proc.params.len {
@@ -54,7 +61,7 @@ pub fn (mut p Parser) parse_proc_call(index int) nodes.NodeProcCall {
 	// We can continue to check if they all have the correct type
 	for i, arg in arguments {
 		arg_to_compare := proc_call.called_proc.params[i]
-		if arg.token_type != arg_to_compare.arg_type {
+		if arg.token_type != arg_to_compare.arg_type && arg.token_type != TokenType.var_name {
 			p.token_index = proc_call.new_index
 			p.throw_parse_error('Expected argument type for function "${proc_call.called_proc.name}" and argument "${arg_to_compare.arg_name}": ${proc_call.called_proc.params[i].arg_type} \nReceived: ${arg.token_type}')
 			exit(1)
