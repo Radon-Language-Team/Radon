@@ -24,7 +24,6 @@ pub fn preprocess(file_path string, std_path string) !string {
 fn (mut p Preprocessor) start_prep(file_path string) ! {
 	radon_path := os.dir(os.executable())
 	if p.std_path.len == 0 {
-
 		// Find the path of the standard library
 		p.std_path = os.join_path(('${radon_path}/../src/std/core.rad'))
 
