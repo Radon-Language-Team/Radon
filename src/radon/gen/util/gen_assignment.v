@@ -12,9 +12,9 @@ pub fn gen_assignment(node NodeVar) string {
 
 	// If the value is a function argument, we leave it as is
 	if node.is_var {
-    node_code += ' ${node.name} = ${node.value};\n'
-    return node_code
-  }
+		node_code += ' ${node.name} = ${node.value};\n'
+		return node_code
+	}
 
 	node_value := match node.var_type {
 		.type_string {
@@ -24,7 +24,7 @@ pub fn gen_assignment(node NodeVar) string {
 			'${node.value}'
 		}
 		else {
-		println('Error: Unknown type in gen_assignment ${node.var_type}')
+			println('Error: Unknown type in gen_assignment ${node.var_type}')
 			'${node.value}'
 		}
 	}

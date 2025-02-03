@@ -125,8 +125,7 @@ pub fn (mut p Parser) parse_expression(tokens []token.Token) ?ParsedExpression {
 			mut left_hand := tokens[i - 1].token_type
 			mut right_hand := tokens[i + 1].token_type
 
-			if left_hand == .type_string && right_hand == .type_string
-				&& last_type != .plus {
+			if left_hand == .type_string && right_hand == .type_string && last_type != .plus {
 				return ParsedExpression{
 					success:         false
 					message:         'Sign "${last_type}" is not defined/supported for strings. Only "+" is so far.'
