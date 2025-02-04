@@ -42,7 +42,7 @@ Radon does not do much more yet, but I am working on it and I am planning to add
 - [] Radon Documentation
 - [] Radon Website
 
-These might come off as very ambitious, but you gotta aim high, right? <br>
+These might come off as very ambitious...You are right! <br>
 
 ## Contributing
 Contributions are always welcome as this is kind of a huge project for me to work on alone. <br>
@@ -52,9 +52,10 @@ If you want to contribute, feel free to fork the repository and open a pull requ
 
 > [!NOTE]
 > This requires the `V` Compiler to be installed! <br>
-> Clone the repository and then build the radon binary using the `build.vsh` script by running `v run build.vsh`. <br>
-> `cd` into the `radon` directory and run the `radon` executable. <br>
-> You should now be able to run the Radon REPL.
+
+Clone the repository and then build the radon binary using the `build.vsh` script by running `v run build.vsh`. <br>
+`cd` into the `radon` directory and run the `radon` executable. <br>
+You should now be able to run the Radon REPL.
 
 ### Symlinking the Radon Binary
 
@@ -69,6 +70,6 @@ The Radon Compiler uses a C Compiler to compile the generated C code. <br>
 By default, the compiler uses `tcc` as it is very fast and lightweight. <br>
 If `tcc` is not installed, Radon will check for `gcc` and `clang` as well. <br>
 If none of these are installed, you can use the `-cc` flag to specify a different compiler. <br>
-For example, to use `msvc`, you can run `radon -cc cl`. <br>
+For example, to use `gcc`, you can run `radon run file.rad -cc gcc`. <br>
 
 In case you don't want the generated C code to be deleted after compilation, you can use the `-p` or `--preserve` flags. <br>

@@ -20,7 +20,7 @@ pub fn (mut p Parser) parse_proc(index int) !NodeProc {
 		bracket_count: 0
 	}
 
-	proc.new_index += 1
+	proc.new_index++
 
 	// Parse the proc name
 	// This should either be of token type proc_name or key_main
@@ -32,13 +32,13 @@ pub fn (mut p Parser) parse_proc(index int) !NodeProc {
 
 	proc.name = p.all_tokens[proc.new_index].value
 	p.current_proc_name = proc.name
-	proc.new_index += 1
+	proc.new_index++
 
 	if p.all_tokens[proc.new_index].token_type != token.TokenType.open_paren {
 		p.throw_parse_error('Expected open parenthesis but got ${p.all_tokens[proc.new_index].value}')
 		exit(1)
 	} else {
-		proc.new_index += 1
+		proc.new_index++
 		proc_args := p.parse_proc_args(p.all_tokens, proc.new_index, proc.name) or {
 			p.throw_parse_error('Failed to parse proc arguments')
 			exit(1)
@@ -53,22 +53,28 @@ pub fn (mut p Parser) parse_proc(index int) !NodeProc {
 		proc.new_index = proc_args.new_index
 	}
 
-	if p.all_tokens[proc.new_index].token_type != token.TokenType.function_return
-		|| token.check_if_token_is_type(p.all_tokens[proc.new_index + 1]) != true {
-		p.throw_parse_error('Expected function to have return type but got ${p.all_tokens[
-			proc.new_index + 1].token_type} with value "${p.all_tokens[proc.new_index + 1].value}"')
-		exit(1)
+	// If the current token is of type function_return (->), then we need to parse the return type
+	if p.all_tokens[proc.new_index].token_type == .function_return {
+		proc.new_index++
+		proc.return_type = p.all_tokens[proc.new_index].token_type
+
+		if !token.check_if_token_is_type(p.all_tokens[proc.new_index]) {
+			p.throw_parse_error('Expected function to have return type but got ${p.all_tokens[proc.new_index].token_type} with value "${p.all_tokens[proc.new_index].value}"')
+			exit(1)
+		}
+
+		proc.new_index++
+	} else {
+		// In the other case, the return type is void (default)
+		proc.return_type = .type_void
 	}
-	proc.new_index += 1
-	proc.return_type = p.all_tokens[proc.new_index].token_type
-	proc.new_index += 1
 
 	if p.all_tokens[proc.new_index].token_type != token.TokenType.open_brace {
 		p.throw_parse_error('Expected open brace but got ${p.all_tokens[proc.new_index].value}')
 		exit(1)
 	} else {
-		proc.bracket_count += 1
-		proc.new_index += 1
+		proc.bracket_count++
+		proc.new_index++
 	}
 
 	proc_body := p.parse_proc_inside(proc.new_index, proc.return_type, proc.bracket_count) or {
