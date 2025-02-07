@@ -22,6 +22,7 @@ pub fn (mut p Parser) function_table(proc nodes.NodeProc, proc_name string, oper
 	match operation {
 		.get {
 			proc_name_index := p.proc_names.index(proc_name)
+
 			if proc_name_index == -1 {
 				p.throw_parse_error('Expected function "${proc_name}" to exist but it does not')
 				exit(1)

@@ -81,6 +81,15 @@ fn (mut p Parser) parse_tokens() {
 		}
 	}
 
+	p.check_main()
+
+	// We also clear the function table at the end of parsing
+	// Will be helpful when we want to parse multiple files
+	p.function_table(NodeProc{}, 'main', ProcOperation.clear)
+	return
+}
+
+fn (mut p Parser) check_main() {
 	// We don't use the function table ".get" method here because we
 	// want to throw the error here, at the end of the parsing
 	if 'main' !in p.proc_names {
@@ -93,10 +102,16 @@ fn (mut p Parser) parse_tokens() {
 		exit(1)
 	}
 
-	// We also clear the function table at the end of parsing
-	// Will be helpful when we want to parse multiple files
-	p.function_table(NodeProc{}, 'main', ProcOperation.clear)
-	return
+	main_fn := p.function_table(NodeProc{}, 'main', .get)
+
+	if main_fn.function.return_type != .type_int {
+		if p.token_index >= p.all_tokens.len {
+			p.token_index--
+		}
+
+		p.throw_parse_error('Function "main" must return an integer')
+		exit(1)
+	}
 }
 
 fn (mut p Parser) throw_parse_error(err_msg string) {
