@@ -24,12 +24,23 @@ The language is still so early in development that it is not even close to being
 Some Radon Code that compiles today:
 
 ```radon
+proc logName(firstName string, lastName string) {
+    println('Hello:');
+    print(firstName);
+    println(lastName);
+}
+
+proc addNumbers(a int, b int) -> int {
+    return a + b;
+}
+
 proc main() -> int {
-  a := 5;
-  b := 10;
-  c := a + b;
-  d := c - 15;
-  return d;
+    logName('John', ' Doe');
+
+    numberOne := 5;
+    numberTwo := 10;
+
+    addNumbers(numberOne, numberTwo);
 }
 ```
 

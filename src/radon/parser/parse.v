@@ -109,7 +109,7 @@ fn (mut p Parser) check_main() {
 			p.token_index--
 		}
 
-		p.throw_parse_error('Function "main" must return an integer')
+		p.throw_parse_error('Function "main" must return an integer but got "${main_fn.function.return_type}"')
 		exit(1)
 	}
 }
