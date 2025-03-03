@@ -11,6 +11,9 @@ pub fn is_core_proc(node NodeProc) bool {
 		'println' {
 			return true
 		}
+		'printInt' {
+			return true
+		}
 		else {
 			return false
 		}
@@ -31,6 +34,9 @@ pub fn gen_core_proc(node NodeProc) string {
 		}
 		'println' {
 			node_code += '${return_type} ${proc_name}(${token.convert_radon_to_c_type(proc_args[0].arg_type)} x) \n{ \nprintf("%s\\n", x); \n}\n'
+		}
+		'printInt' {
+			node_code += '${return_type} ${proc_name}(${token.convert_radon_to_c_type(proc_args[0].arg_type)} x) \n{ \nprintf("%d\\n", x); \n}\n'
 		}
 		else {
 			// If the proc is not a core proc, generate an empty proc

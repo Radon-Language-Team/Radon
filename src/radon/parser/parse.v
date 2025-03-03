@@ -116,5 +116,5 @@ fn (mut p Parser) check_main() {
 
 fn (mut p Parser) throw_parse_error(err_msg string) {
 	err := term.red(err_msg)
-	println('${term.blue('radon_parser Error:')} \n\n${err} \nOn line: ${p.all_tokens[p.token_index].line_number - 2} \nIn file: ${p.file_name} \nFull path: ${p.file_path}')
+	println('${term.blue('radon_parser Error:')} \n\n${err} \nOn line: ${p.all_tokens[p.token_index].line_number - 3} \nIn file: ${p.file_name} \nFull path: ${p.file_path}')
 }

@@ -201,5 +201,5 @@ fn (mut l Lexer) peek_next_char() string {
 
 fn (mut l Lexer) throw_lex_error(err_msg string) {
 	err := term.red(err_msg)
-	println('${term.blue('radon_lexer Error:')} \n\n${err} \nOn line: ${l.line_count - 2} \nIn file: ${l.file_name} \nFull path: ${l.file_path}')
+	println('${term.blue('radon_lexer Error:')} \n\n${err} \nOn line: ${l.line_count - 3} \nIn file: ${l.file_name} \nFull path: ${l.file_path}')
 }

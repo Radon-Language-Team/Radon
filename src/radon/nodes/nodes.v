@@ -10,7 +10,6 @@ pub enum NodeType {
 	null // For cases where no node type is active
 }
 
-@[minify]
 pub struct Node {
 pub:
 	node_type NodeType

@@ -23,52 +23,6 @@ pub fn (mut p Parser) parse_expression(tokens []token.Token) ?ParsedExpression {
 	// math_operators := ['+', '-', '*', '/']
 	math_operators := [TokenType.plus, TokenType.minus, TokenType.star, TokenType.slash]
 
-	// For single token expressions such as "x" or "5"
-	// Important: A string is also considered a single token expression as the lexer
-	// will return a single token with the type TokenType.string and it's value
-	if tokens.len == 1 {
-		if tokens[0].token_type == .var_name {
-			// Check if the variable exists
-			var := p.variable_table(nodes.NodeVar{}, tokens[0].value, VarOperation.get) or {
-				exit(1)
-			}
-
-			if var.variable.var_kind == nodes.VarKindOptions.proc_var {
-				token_expr := tokens[0]
-				return ParsedExpression{
-					success:          true
-					expression_value: token_expr.value
-					expression_type:  var.variable.var_type
-					is_var:           true
-					complete_token:   token.Token{
-						value:      token_expr.value
-						token_type: token_expr.token_type
-					}
-				}
-			} else {
-				return ParsedExpression{
-					success:          true
-					expression_value: var.variable.value
-					expression_type:  var.variable.var_type
-					complete_token:   token.Token{
-						value:      var.variable.value
-						token_type: var.variable.var_type
-					}
-				}
-			}
-		} else {
-			return ParsedExpression{
-				success:          true
-				expression_value: tokens[0].value
-				expression_type:  tokens[0].token_type
-				complete_token:   token.Token{
-					value:      tokens[0].value
-					token_type: tokens[0].token_type
-				}
-			}
-		}
-	}
-
 	for i < tokens.len {
 		current_token := tokens[i]
 		current_value := current_token.value
@@ -181,6 +135,32 @@ pub fn (mut p Parser) parse_expression(tokens []token.Token) ?ParsedExpression {
 
 			i++
 			continue
+		} else if last_type == .proc_call {
+			proc_call := p.function_table(nodes.NodeProc{}, tokens[i].value, .get)
+
+			mut value := ''
+
+			// We just check the return type of the function
+			expected_type = proc_call.function.return_type
+			expression_type = expected_type
+
+			value += tokens[i].value
+
+			for tokens[i].token_type != .close_paren {
+				if i + 1 >= tokens.len {
+					return ParsedExpression{
+						success:         false
+						message:         'Expected ")" to close function call'
+						expression_type: token_return.token_type
+					}
+				}
+				i++
+				value += tokens[i].value
+			}
+
+			i++
+			expression_value += value
+			continue
 		} else {
 			return ParsedExpression{
 				success:         false
@@ -189,13 +169,57 @@ pub fn (mut p Parser) parse_expression(tokens []token.Token) ?ParsedExpression {
 			}
 		}
 	}
-	return ParsedExpression{
-		success:          true
-		expression_value: expression_value
-		expression_type:  expression_type
-		complete_token:   token.Token{
-			value:      expression_value
-			token_type: expression_type
+
+	// We treat single length expressions differently
+	if tokens.len == 1 {
+		if tokens[0].token_type == .var_name {
+			var := p.variable_table(nodes.NodeVar{}, tokens[0].value, VarOperation.get) or {
+				exit(1)
+			}
+
+			if var.variable.var_kind == nodes.VarKindOptions.proc_var {
+				token_expr := tokens[0]
+				return ParsedExpression{
+					success:          true
+					expression_value: token_expr.value
+					expression_type:  var.variable.var_type
+					is_var:           true
+					complete_token:   token.Token{
+						value:      token_expr.value
+						token_type: token_expr.token_type
+					}
+				}
+			} else {
+				return ParsedExpression{
+					success:          true
+					expression_value: var.variable.value
+					expression_type:  var.variable.var_type
+					complete_token:   token.Token{
+						value:      var.variable.value
+						token_type: var.variable.var_type
+					}
+				}
+			}
+		} else {
+			return ParsedExpression{
+				success:          true
+				expression_value: tokens[0].value
+				expression_type:  tokens[0].token_type
+				complete_token:   token.Token{
+					value:      tokens[0].value
+					token_type: tokens[0].token_type
+				}
+			}
+		}
+	} else {
+		return ParsedExpression{
+			success:          true
+			expression_value: expression_value
+			expression_type:  expression_type
+			complete_token:   token.Token{
+				value:      expression_value
+				token_type: expression_type
+			}
 		}
 	}
 }

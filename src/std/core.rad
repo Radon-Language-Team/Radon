@@ -1,2 +1,3 @@
 proc println(x string) -> void {}
 proc print(x string) -> void {}
+proc printInt(x int) -> void {}
