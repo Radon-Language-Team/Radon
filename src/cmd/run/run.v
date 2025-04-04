@@ -24,7 +24,11 @@ pub fn run() ! {
 		file_path: file_path
 		file_name: os.file_name(file_path)
 		index:     0
+		line_count: 1
+		column_count: 1
 	}
 
 	lexer.lex_file(mut app)!
+
+	println(app.all_tokens)
 }

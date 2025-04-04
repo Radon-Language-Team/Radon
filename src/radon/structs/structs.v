@@ -6,6 +6,7 @@ pub mut:
 	file_path    string
 	file_content string
 	line_count   int
+	column_count int
 	index        int
 	buffer       string
 	all_tokens   []Token
@@ -14,11 +15,15 @@ pub mut:
 }
 
 pub enum TokenType {
+	key_mixture // mixture
 	key_react   // react
+	key_element // element
+	key_isotope // isotope
 	key_if      // if
 	key_else    // else
 	key_emit    // emit
 	colon       // :
+	comma       // ,
 	open_brace  // {
 	close_brace // }
 	open_paren  // (
@@ -26,6 +31,7 @@ pub enum TokenType {
 
 	type_int    // int
 	type_string // string
+	type_void
 
 	plus  // +
 	minus // -
@@ -33,6 +39,9 @@ pub enum TokenType {
 	div   // /
 
 	variable // variable
+	literal  // literal
+
+	radon_null // Only used by the compiler for unmatched token
 }
 
 pub enum TokenCategory {
@@ -40,6 +49,16 @@ pub enum TokenCategory {
 	operator
 	literal
 	identifier
+	token_type
+	unknown
+}
+
+pub enum VarType {
+	type_string
+	type_int
+	type_void
+	type_float
+	type_bool
 }
 
 @[minify]
@@ -52,4 +71,5 @@ pub mut:
 	t_length   int
 	t_filename string
 	t_category TokenCategory
+	t_var_type VarType
 }
