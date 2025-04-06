@@ -24,7 +24,7 @@ pub fn lex_file(mut app structs.App) ![]structs.Token {
 
 		current_char := app.file_content[app.index].ascii_str()
 
-		if is_letter(current_char[0]) || is_number(current_char[0]) {
+		if is_letter(current_char[0]) {
 			app.buffer += current_char
 			app.column_count++
 
@@ -37,9 +37,11 @@ pub fn lex_file(mut app structs.App) ![]structs.Token {
 					app.column_count++
 				}
 			}
+			// app.index--
 
 			mut token_type := match_token_type(app.buffer.str())
 			mut token_category := match_token_category(token_type)
+			mut token_var_type := structs.VarType.type_unknown
 
 			// In case the previous token was a key_element or key_isotope
 			// we know that the current token is a variable
@@ -47,6 +49,7 @@ pub fn lex_file(mut app structs.App) ![]structs.Token {
 				&& token_type == .variable {
 				token_type = .variable
 				token_category = .identifier
+				token_var_type = structs.VarType.type_string // TODO: Actually find out what kind of variable this is
 			}
 
 			if token_type == .radon_null || token_category == .unknown {
@@ -63,13 +66,14 @@ pub fn lex_file(mut app structs.App) ![]structs.Token {
 				t_length:   app.buffer.str().len
 				t_filename: app.file_name
 				t_category: token_category
+				t_var_type: token_var_type
 			}
 			app.buffer = '' // Clear the buffer
 		} else if is_number(current_char[0]) {
 			app.buffer += current_char
 			app.column_count++
 
-			if app.index < app.file_content.len && is_number(app.file_content[app.index]) {
+			if app.index < app.file_content.len {
 				app.index++
 				for app.index < app.file_content.len && is_number(app.file_content[app.index]) {
 					tmp_char := app.file_content[app.index].ascii_str()
@@ -79,10 +83,10 @@ pub fn lex_file(mut app structs.App) ![]structs.Token {
 				}
 			}
 
-			mut token_type := match_token_type(app.buffer.str())
-			mut token_category := match_token_category(token_type)
+			token_type := match_token_type(app.buffer.str())
+			token_category := match_token_category(token_type)
 
-			if token_type == .radon_null || token_category == .unknown {
+			if token_type == .radon_null {
 				print_compile_error('Unknown token: `${app.buffer.str()}` >> `t_type: ${token_type}` and `t_category: ${token_category}`',
 					&app)
 				exit(1)
@@ -96,22 +100,40 @@ pub fn lex_file(mut app structs.App) ![]structs.Token {
 				t_length:   app.buffer.str().len
 				t_filename: app.file_name
 				t_category: token_category
+				t_var_type: .type_int // We only support normal ints for now anyway
+				// TODO: Add support for other types such as floats
 			}
 			app.buffer = ''
 		} else if is_space(current_char[0]) {
 			// We check for both unix and windows line endings
-			if current_char == '\n' || current_char == '\r\n' {
+			if current_char == '\n' {
 				app.line_count++
 				app.column_count = 1
 			} else {
-				println('Called with prev token: ${app.prev_token.t_value}')
 				app.column_count++
 			}
-			app.index++
-			continue
 		} else {
-			print_compile_error('Unknown token: `${current_char}`', &app)
-			exit(1)
+			// Special characters
+			token_type := match_token_type(current_char)
+
+			if token_type == .radon_null {
+				print_compile_error('Unkown token `${current_char}`', &app)
+				exit(1)
+			}
+
+			token_category := match_token_category(token_type)
+			app.all_tokens << structs.Token{
+				t_type:     token_type
+				t_value:    current_char
+				t_line:     app.line_count
+				t_column:   app.column_count
+				t_length:   current_char.len // Should be 1 in all cases, right?
+				t_filename: app.file_name
+				t_category: token_category
+				t_var_type: .type_unknown
+			}
+
+			app.column_count++
 		}
 
 		app.index++

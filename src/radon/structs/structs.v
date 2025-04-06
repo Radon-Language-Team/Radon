@@ -24,6 +24,10 @@ pub enum TokenType {
 	key_emit    // emit
 	colon       // :
 	comma       // ,
+	d_quote     // "
+	s_quote     // '
+	dot         // .
+	exclamation  //!
 	open_brace  // {
 	close_brace // }
 	open_paren  // (
@@ -33,10 +37,11 @@ pub enum TokenType {
 	type_string // string
 	type_void
 
-	plus  // +
-	minus // -
-	mult  // *
-	div   // /
+	plus   // +
+	minus  // -
+	mult   // *
+	div    // /
+	equals // =
 
 	variable // variable
 	literal  // literal
@@ -59,6 +64,7 @@ pub enum VarType {
 	type_void
 	type_float
 	type_bool
+	type_unknown
 }
 
 @[minify]

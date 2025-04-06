@@ -32,6 +32,12 @@ fn match_token_type(token string) TokenType {
 		',' {
 			return .comma
 		}
+		'.' {
+			return .dot
+		}
+		'!' {
+			return .exclamation
+		}
 		'{' {
 			return .open_brace
 		}
@@ -61,6 +67,15 @@ fn match_token_type(token string) TokenType {
 		}
 		'/' {
 			return .div
+		}
+		'=' {
+			return .equals
+		}
+		'"' {
+			return .d_quote
+		}
+		'\'' {
+			return .s_quote
 		}
 		else {
 			if is_letter(token[0]) {
