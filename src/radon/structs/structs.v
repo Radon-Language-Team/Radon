@@ -12,6 +12,8 @@ pub mut:
 	all_tokens   []Token
 	token        Token
 	prev_token   Token
+
+	display_json_tokens bool
 }
 
 pub enum TokenType {

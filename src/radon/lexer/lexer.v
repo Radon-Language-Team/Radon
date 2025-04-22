@@ -1,7 +1,7 @@
 module lexer
 
 import os
-import encoding.utf8 { is_letter, is_number, is_space }
+import encoding.utf8 { is_letter, is_number }
 import cmd.util { print_compile_error }
 import structs
 
@@ -37,7 +37,6 @@ pub fn lex_file(mut app structs.App) ![]structs.Token {
 					app.column_count++
 				}
 			}
-			// app.index--
 
 			mut token_type := match_token_type(app.buffer.str())
 			mut token_category := match_token_category(token_type)
@@ -52,9 +51,9 @@ pub fn lex_file(mut app structs.App) ![]structs.Token {
 				token_var_type = structs.VarType.type_string // TODO: Actually find out what kind of variable this is
 			}
 
-			if token_type == .radon_null || token_category == .unknown {
-				print_compile_error('Unknown token: `${app.buffer.str()}` >> `t_type: ${token_type}` and `t_category: ${token_category}`',
-					&app)
+			if token_type == .variable && token_category == .identifier
+				&& token_var_type == .type_unknown {
+				print_compile_error('Bruhhhhh', &app)
 				exit(1)
 			}
 
@@ -68,7 +67,7 @@ pub fn lex_file(mut app structs.App) ![]structs.Token {
 				t_category: token_category
 				t_var_type: token_var_type
 			}
-			app.buffer = '' // Clear the buffer
+			app.buffer = ''
 		} else if is_number(current_char[0]) {
 			app.buffer += current_char
 			app.column_count++
@@ -104,14 +103,11 @@ pub fn lex_file(mut app structs.App) ![]structs.Token {
 				// TODO: Add support for other types such as floats
 			}
 			app.buffer = ''
-		} else if is_space(current_char[0]) {
-			// We check for both unix and windows line endings
-			if current_char == '\n' {
-				app.line_count++
-				app.column_count = 1
-			} else {
-				app.column_count++
-			}
+		} else if current_char == '\n' || current_char == '\r\n' {
+			app.line_count++
+			app.column_count = 1
+		} else if current_char == ' ' {
+			app.column_count++
 		} else {
 			// Special characters
 			token_type := match_token_type(current_char)
