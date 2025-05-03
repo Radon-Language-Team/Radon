@@ -36,6 +36,10 @@ pub fn lex_file(mut app structs.App) ![]structs.Token {
 					app.index++
 					app.column_count++
 				}
+				// The index was already pointing at the newst non-letter token
+				// Because we now advance in the loop by one, we skip the token we were just pointing at
+				// So we go back by one
+				app.index--
 			}
 
 			mut token_type := match_token_type(app.buffer.str())

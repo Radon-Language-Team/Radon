@@ -74,7 +74,7 @@ fn match_token_type(token string) TokenType {
 		'"' {
 			return .d_quote
 		}
-		'\'' {
+		"'" {
 			return .s_quote
 		}
 		else {
