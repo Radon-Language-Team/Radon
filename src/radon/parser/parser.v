@@ -11,6 +11,9 @@ pub fn parse(mut app structs.App) ! {
 			.key_mixture {
 				parse_import(mut app)
 			}
+			.key_react {
+				parse_function(mut app)
+			}
 			else {
 				print_compile_error('Unkown top level token of type `${token.t_type}` and value `${token.t_value}` \nExpected either `mixture`, `react`, or `isotope`',
 					&app)
@@ -19,5 +22,6 @@ pub fn parse(mut app structs.App) ! {
 		}
 	}
 
-  println('Finished parsing all tokens')
+	println('Finished parsing all tokens')
+	println(app.ast)
 }

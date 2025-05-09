@@ -56,6 +56,9 @@ fn match_token_type(token string) TokenType {
 		'string' {
 			return .type_string
 		}
+		'void' {
+			return .type_void
+		}
 		'+' {
 			return .plus
 		}

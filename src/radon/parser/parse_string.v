@@ -4,7 +4,7 @@ import cmd.util { print_compile_error }
 import structs
 
 fn parse_string(mut app structs.App) structs.String {
-	mut token := app.all_tokens[app.index]
+	mut token := app.get_token()
 
 	if token.t_type != .d_quote && token.t_type != .s_quote {
 		print_compile_error('Expected ` " ` or ` \' ` but got ` ${token.t_value} `', &app)
@@ -13,20 +13,17 @@ fn parse_string(mut app structs.App) structs.String {
 
 	closing_string := token.t_type
 	app.index++
-	token = app.all_tokens[app.index]
+	token = app.get_token()
 	mut buffer := ''
 
-	for token.t_type != closing_string {
+	for app.get_token().t_type != closing_string {
 		if app.index >= app.all_tokens.len {
 			print_compile_error('String was not properly closed', &app)
 			exit(1)
 		}
-		token = app.all_tokens[app.index]
+		token = app.get_token()
 		buffer += token.t_value
-		// As long as we are parsing the string, continune to advance
-		if token.t_type != closing_string {
-			app.index++
-		}
+		app.index++
 	}
 
 	return structs.String{

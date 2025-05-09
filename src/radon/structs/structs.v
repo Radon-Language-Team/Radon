@@ -17,6 +17,13 @@ pub mut:
 	display_json_tokens bool
 }
 
+pub fn (mut a App) get_token() Token {
+	return a.all_tokens[a.index] or {
+		println('Compiler panic: token index `${a.index}` out of range')
+		exit(1)
+	}
+}
+
 pub enum TokenType {
 	key_mixture // mixture
 	key_react   // react
@@ -120,15 +127,17 @@ struct VarDecl {
 	value AstNode
 }
 
-struct Param {
-	name string
-	typ  string
+pub struct Param {
+pub mut:
+	name   string
+	p_type TokenType
 }
 
-struct FunctionDecl {
+pub struct FunctionDecl {
+pub mut:
 	name        string
 	params      []Param
-	return_type string
+	return_type TokenType
 	body        []AstNode
 }
 
