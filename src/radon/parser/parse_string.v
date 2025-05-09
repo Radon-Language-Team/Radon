@@ -23,11 +23,11 @@ fn parse_string(mut app structs.App) structs.String {
 		}
 		token = app.all_tokens[app.index]
 		buffer += token.t_value
-		app.index++
+		// As long as we are parsing the string, continune to advance
+		if token.t_type != closing_string {
+			app.index++
+		}
 	}
-
-	// Skip the closing string
-	app.index++
 
 	return structs.String{
 		value: buffer
