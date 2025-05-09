@@ -12,6 +12,7 @@ pub mut:
 	all_tokens   []Token
 	token        Token
 	prev_token   Token
+	ast          []AstNode
 
 	display_json_tokens bool
 }
@@ -29,7 +30,7 @@ pub enum TokenType {
 	d_quote     // "
 	s_quote     // '
 	dot         // .
-	exclamation  //!
+	exclamation //!
 	open_brace  // {
 	close_brace // }
 	open_paren  // (
@@ -69,7 +70,6 @@ pub enum VarType {
 	type_unknown
 }
 
-@[minify]
 pub struct Token {
 pub mut:
 	t_type     TokenType
@@ -80,4 +80,63 @@ pub mut:
 	t_filename string
 	t_category TokenCategory
 	t_var_type VarType
+}
+
+type AstNode = Literal
+	| Identifier
+	| BinaryOp
+	| Call
+	| VarDecl
+	| FunctionDecl
+	| ReturnStmt
+	| ImportStmt
+
+struct Literal {
+	value int
+}
+
+pub struct String {
+pub:
+	value string
+}
+
+struct Identifier {
+	name string
+}
+
+struct BinaryOp {
+	op    string
+	left  AstNode
+	right AstNode
+}
+
+struct Call {
+	callee string
+	args   []AstNode
+}
+
+struct VarDecl {
+	name  string
+	value AstNode
+}
+
+struct Param {
+	name string
+	typ  string
+}
+
+struct FunctionDecl {
+	name        string
+	params      []Param
+	return_type string
+	body        []AstNode
+}
+
+struct ReturnStmt {
+	value AstNode
+}
+
+pub struct ImportStmt {
+pub:
+	path string
 }

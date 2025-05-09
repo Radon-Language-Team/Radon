@@ -5,7 +5,7 @@ import encoding.utf8 { is_letter, is_number }
 import cmd.util { print_compile_error }
 import structs
 
-pub fn lex_file(mut app structs.App) ![]structs.Token {
+pub fn lex_file(mut app structs.App) ! {
 	mut lexed_tokens := []structs.Token{}
 
 	file_content := os.read_file(app.file_path)!
@@ -18,8 +18,8 @@ pub fn lex_file(mut app structs.App) ![]structs.Token {
 
 	// Go over each character in the file content
 	for app.index < app.file_content.len {
-		if app.all_tokens.len > 0 {
-			app.prev_token = app.all_tokens.last()
+		if lexed_tokens.len > 0 {
+			app.prev_token = lexed_tokens.last()
 		}
 
 		current_char := app.file_content[app.index].ascii_str()
@@ -61,7 +61,7 @@ pub fn lex_file(mut app structs.App) ![]structs.Token {
 				exit(1)
 			}
 
-			app.all_tokens << structs.Token{
+			lexed_tokens << structs.Token{
 				t_type:     token_type
 				t_value:    app.buffer.str()
 				t_line:     app.line_count
@@ -95,7 +95,7 @@ pub fn lex_file(mut app structs.App) ![]structs.Token {
 				exit(1)
 			}
 
-			app.all_tokens << structs.Token{
+			lexed_tokens << structs.Token{
 				t_type:     token_type
 				t_value:    app.buffer.str()
 				t_line:     app.line_count
@@ -122,7 +122,7 @@ pub fn lex_file(mut app structs.App) ![]structs.Token {
 			}
 
 			token_category := match_token_category(token_type)
-			app.all_tokens << structs.Token{
+			lexed_tokens << structs.Token{
 				t_type:     token_type
 				t_value:    current_char
 				t_line:     app.line_count
@@ -139,5 +139,5 @@ pub fn lex_file(mut app structs.App) ![]structs.Token {
 		app.index++
 	}
 
-	return lexed_tokens
+	app.all_tokens = lexed_tokens
 }
