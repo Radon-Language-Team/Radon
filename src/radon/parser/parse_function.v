@@ -3,14 +3,14 @@ module parser
 import cmd.util { print_compile_error }
 import structs
 
-fn parse_function(mut app structs.App) {
+fn parse_function(mut app structs.App) ! {
 	mut function_decl := structs.FunctionDecl{}
 
 	app.index++
 
 	mut token := app.get_token()
 	if token.t_type != .variable && token.t_category != .literal {
-		print_compile_error('Expected function name but got ` ${token.t_value} ` with type `${token.t_type}`',
+		print_compile_error('Expected function name, got ` ${token.t_value} ` with type `${token.t_type}`',
 			&app)
 		exit(1)
 	}
@@ -27,15 +27,43 @@ fn parse_function(mut app structs.App) {
 
 	app.index++
 
+	function_decl.body = parse_function_body(mut app)
+
 	println(function_decl)
-	println(app.get_token().t_value)
+	println(app.get_token())
+}
+
+fn parse_function_body(mut app structs.App) []structs.AstNode {
+	mut function_body := []structs.AstNode{}
+	for app.index < app.all_tokens.len {
+		token := app.all_tokens[app.index]
+
+		match token.t_type {
+			.key_element, .key_isotope {
+				parse_variable(mut app)
+			}
+			.close_brace {
+				if app.scope_id == 0 {
+					// We hit the closing brace of the function body
+					return function_body
+				}
+			}
+			else {
+				print_compile_error('Unkown token of type `${token.t_type}` and value `${token.t_value}`',
+					&app)
+				exit(1)
+			}
+		}
+	}
+
+	return function_body
 }
 
 fn parse_function_args(mut app structs.App) []structs.Param {
 	mut function_params := []structs.Param{}
 	mut token := app.get_token()
 	if token.t_type != .open_paren {
-		print_compile_error('Expected ` ( ` but got ` ${token.t_value} ` with type `${token.t_type}`',
+		print_compile_error('Expected ` ( `, got ` ${token.t_value} ` with type `${token.t_type}`',
 			&app)
 		exit(1)
 	}

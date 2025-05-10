@@ -7,7 +7,7 @@ fn parse_string(mut app structs.App) structs.String {
 	mut token := app.get_token()
 
 	if token.t_type != .d_quote && token.t_type != .s_quote {
-		print_compile_error('Expected ` " ` or ` \' ` but got ` ${token.t_value} `', &app)
+		print_compile_error('Expected ` " ` or ` \' `, got ` ${token.t_value} `', &app)
 		exit(1)
 	}
 

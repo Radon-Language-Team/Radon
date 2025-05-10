@@ -8,6 +8,7 @@ pub mut:
 	line_count   int
 	column_count int
 	index        int
+	scope_id     int
 	buffer       string
 	all_tokens   []Token
 	token        Token
@@ -89,7 +90,7 @@ pub mut:
 	t_var_type VarType
 }
 
-type AstNode = Literal
+pub type AstNode = Literal
 	| Identifier
 	| BinaryOp
 	| Call
@@ -122,9 +123,11 @@ struct Call {
 	args   []AstNode
 }
 
-struct VarDecl {
-	name  string
-	value AstNode
+pub struct VarDecl {
+pub mut:
+	name   string
+	value  AstNode
+	is_mut bool
 }
 
 pub struct Param {

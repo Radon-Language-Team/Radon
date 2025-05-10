@@ -12,7 +12,7 @@ pub fn parse(mut app structs.App) ! {
 				parse_import(mut app)
 			}
 			.key_react {
-				parse_function(mut app)
+				parse_function(mut app)!
 			}
 			else {
 				print_compile_error('Unkown top level token of type `${token.t_type}` and value `${token.t_value}` \nExpected either `mixture`, `react`, or `isotope`',
