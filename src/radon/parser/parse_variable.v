@@ -1,6 +1,7 @@
 module parser
 
 import cmd.util { print_compile_error }
+import parser_utils
 import structs
 
 fn parse_variable(mut app structs.App) structs.VarDecl {
@@ -33,6 +34,23 @@ fn parse_variable(mut app structs.App) structs.VarDecl {
 	}
 
 	app.index++
+
+	expression := parser_utils.get_expression(mut app)
+	parsed_expression := parser_utils.parse_expression(expression)
+
+	// TODO:
+	//   body: [structs.AstNode(structs.VarDecl{
+	//     name: 'foo'
+	//     value: structs.AstNode(structs.Expression{
+	//         value: '10 + 5 '
+	//         e_type: type_int
+	//     })
+	//     is_mut: false
+	//     variable_type: type_string
+	// })]
+	// We know the type of the expression, but we dont assign that to the whole var decl yet
+
+	variable_decl.value = parsed_expression
 
 	return variable_decl
 }

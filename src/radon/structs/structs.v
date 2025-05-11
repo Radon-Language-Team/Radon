@@ -21,6 +21,8 @@ pub mut:
 pub fn (mut a App) get_token() Token {
 	return a.all_tokens[a.index] or {
 		println('Compiler panic: token index `${a.index}` out of range')
+		print_backtrace()
+		unsafe { free(a) }
 		exit(1)
 	}
 }
@@ -95,6 +97,7 @@ pub type AstNode = Literal
 	| BinaryOp
 	| Call
 	| VarDecl
+	| Expression
 	| FunctionDecl
 	| ReturnStmt
 	| ImportStmt
@@ -128,6 +131,13 @@ pub mut:
 	name   string
 	value  AstNode
 	is_mut bool
+	variable_type VarType
+}
+
+pub struct Expression {
+pub mut:
+	value string
+	e_type VarType
 }
 
 pub struct Param {

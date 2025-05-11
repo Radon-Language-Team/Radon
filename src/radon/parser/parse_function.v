@@ -29,8 +29,13 @@ fn parse_function(mut app structs.App) ! {
 
 	function_decl.body = parse_function_body(mut app)
 
-	println(function_decl)
-	println(app.get_token())
+	app.ast << function_decl
+
+	token = app.get_token()
+	if token.t_type != .close_brace {
+		print_compile_error('Missing ` } ` for function `${function_decl.name}`', &app)
+		exit(1)
+	}
 }
 
 fn parse_function_body(mut app structs.App) []structs.AstNode {
@@ -40,7 +45,7 @@ fn parse_function_body(mut app structs.App) []structs.AstNode {
 
 		match token.t_type {
 			.key_element, .key_isotope {
-				parse_variable(mut app)
+				function_body << parse_variable(mut app)
 			}
 			.close_brace {
 				if app.scope_id == 0 {
