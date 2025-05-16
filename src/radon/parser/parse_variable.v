@@ -1,60 +1,45 @@
 module parser
 
-import token
-import nodes { VarAssignOptions }
+import cmd.util { print_compile_error }
+import parser_utils
+import structs
 
-pub fn (mut p Parser) parse_variable(index int) nodes.NodeVar {
-	mut var_expression := []token.Token{}
-	mut var := nodes.NodeVar{
-		new_index: index
-		name:      ''
-		value:     ''
-		scope_id:  0
-		var_type:  token.TokenType.radon_null
+fn parse_variable(mut app structs.App) structs.VarDecl {
+	mut variable_decl := structs.VarDecl{}
+	mut token := app.get_token()
+
+	// We can be sure we either have an `element` or an `isotope`
+	if token.t_type == .key_isotope {
+		variable_decl.is_mut = true
 	}
 
-	var.name = p.all_tokens[var.new_index].value
-	var.new_index += 1
+	app.index++
 
-	var_kind_token := p.all_tokens[var.new_index]
-	match var_kind_token.token_type {
-		.var_assign {
-			var.var_assign = VarAssignOptions.assign
-		}
-		.equal {
-			var.var_assign = VarAssignOptions.reassign
-		}
-		else {
-			p.throw_parse_error('Expected either ":=" or "=" but got ${var_kind_token.value}')
-			exit(1)
-		}
-	}
-
-	var.new_index += 1
-
-	for p.all_tokens[var.new_index].token_type != token.TokenType.semicolon
-		|| var.new_index >= p.all_tokens.len {
-		var.value += p.all_tokens[var.new_index].value
-		var_expression << p.all_tokens[var.new_index]
-		var.new_index += 1
-	}
-
-	expression := p.parse_expression(var_expression) or {
-		p.throw_parse_error('Failed to parse expression')
+	token = app.get_token()
+	if token.t_type != .variable {
+		print_compile_error('Expected variable name, got token of type ` ${token.t_type} ` and value ` ${token.t_value} `',
+			&app)
 		exit(1)
 	}
 
-	if !expression.success {
-		p.throw_parse_error(expression.message)
+	variable_decl.name = token.t_value
+
+	app.index++
+
+	token = app.get_token()
+	if token.t_type != .equals {
+		print_compile_error('Expected ` = `, got token of type ` ${token.t_type} ` and value ` ${token.t_value} `',
+			&app)
 		exit(1)
 	}
 
-	// Define this variable as a scoped variable and not a function arg or a const var
-	var.var_kind = nodes.VarKindOptions.scope_var
-	var.var_type = expression.expression_type
-	var.value = expression.expression_value
-	var.is_var = expression.is_var
-	var.new_index += 1
+	app.index++
 
-	return var
+	expression := parser_utils.get_expression(mut app)
+	parsed_expression := parser_utils.parse_expression(expression) as structs.Expression
+
+	variable_decl.variable_type = parsed_expression.e_type
+	variable_decl.value = parsed_expression
+
+	return variable_decl
 }

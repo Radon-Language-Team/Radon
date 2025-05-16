@@ -1,56 +1,31 @@
 module main
 
-import term
 import os
-import cmd.tools.run
-import cmd.tools.help
-import cmd.tools.update
-import cmd.tools.symlink
-import cmd.tools
+import term
+import cmd.util
+import cmd.run
 
 fn main() {
-	user_os := os.user_os()
-	if os.args.len > 1 {
-		match os.args[1] {
+	user_args := os.args
+	if user_args.len > 1 {
+		match user_args[1] {
 			'run' {
-				run.radon_run() or { println(term.red('radon_run Error: ${err}')) }
+				run.run() or {
+					util.print_error('${err}')
+					exit(1)
+				}
+				exit(0)
 			}
-			'update' {
-				update.update()
+			'help' {
+				println('Help menu...')
+				exit(0)
 			}
 			else {
-				println('Invalid command. Please run ${term.bg_blue('help')} for a list of commands \n\n')
+				util.print_error('Unknown command: ${term.bright_red(user_args[1])}')
+				exit(1)
 			}
 		}
-		return
 	}
 
-	tools.print_art()
-	println('Run ${term.bg_blue('link')} to symlink the Radon exectuable to your PATH. \nFor any other commands, run ${term.bg_blue('help')}. \n${term.bg_blue('exit')} to exit the REPL. \n\nUse ${term.bg_blue('radon run <file>')} to compile & run a radon file. \n\n')
-	command := os.input('')
-
-	match command {
-		'link' {
-			match user_os {
-				'linux' { symlink.link() }
-				'windows' { symlink.windows_symlink() }
-				else { println('OS not supported') }
-			}
-		}
-		'unlink' {
-			symlink.unlink()
-		}
-		'help' {
-			help.help()
-		}
-		'update' {
-			update.update()
-		}
-		'exit' {
-			return
-		}
-		else {
-			println('Invalid command. Please run ${term.bg_blue('help')} for a list of commands')
-		}
-	}
+	util.print_menu()
 }

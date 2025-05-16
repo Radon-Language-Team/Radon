@@ -1,205 +1,143 @@
 module lexer
 
-import term
-import token { Token, TokenType }
+import os
+import encoding.utf8 { is_letter, is_number }
+import cmd.util { print_compile_error }
+import structs
 
-@[minify]
-pub struct Lexer {
-pub mut:
-	file_name    string
-	file_path    string
-	file_content string
-	line_count   int
-	index        int
-	buffer       string
-	all_tokens   []Token
-	token        Token
-	prev_token   Token
-}
+pub fn lex_file(mut app structs.App) ! {
+	mut lexed_tokens := []structs.Token{}
 
-pub fn lex(file_name string, file_path string, full_content string) !Lexer {
-	mut lexer := Lexer{
-		file_name:    file_name
-		file_path:    file_path
-		file_content: full_content
-		line_count:   1
-		all_tokens:   []
-	}
+	file_content := os.read_file(app.file_path)!
+	app.file_content = file_content
 
-	if lexer.file_content.trim_space().len == 0 {
-		lexer.throw_lex_error('File is empty')
+	if app.file_content.trim_space().len == 0 {
+		print_compile_error('`${app.file_path}` is empty - Nothing to do', &app)
 		exit(1)
 	}
 
-	lexer.lex_file()
-
-	return lexer
-}
-
-fn (mut l Lexer) lex_file() {
-	for _ in l.file_content {
-		if l.index >= l.file_content.len {
-			break
+	// Go over each character in the file content
+	for app.index < app.file_content.len {
+		if lexed_tokens.len > 0 {
+			app.prev_token = lexed_tokens.last()
 		}
-		if l.token.is_alpha(l.file_content[l.index]) {
-			l.lex_alpha()
-		} else if l.token.is_int(l.file_content[l.index]) {
-			l.lex_int()
-		} else if l.token.is_white(l.file_content[l.index]) {
-			l.lex_white()
-		} else if l.token.is_special(l.file_content[l.index]) {
-			l.lex_special()
+
+		current_char := app.file_content[app.index].ascii_str()
+
+		if is_letter(current_char[0]) {
+			app.buffer += current_char
+			app.column_count++
+
+			if app.index < app.file_content.len && is_letter(app.file_content[app.index]) {
+				app.index++
+				for app.index < app.file_content.len && is_letter(app.file_content[app.index]) {
+					tmp_char := app.file_content[app.index].ascii_str()
+					app.buffer += tmp_char
+					app.index++
+					app.column_count++
+				}
+				// The index was already pointing at the newst non-letter token
+				// Because we now advance in the loop by one, we skip the token we were just pointing at
+				// So we go back by one
+				app.index--
+			}
+
+			mut token_type := match_token_type(app.buffer.str())
+			mut token_category := match_token_category(token_type)
+			mut token_var_type := structs.VarType.type_unknown
+
+			// In case the previous token was a key_element or key_isotope
+			// we know that the current token is a variable
+			if (app.prev_token.t_type == .key_element || app.prev_token.t_type == .key_isotope)
+				&& token_type == .variable {
+				token_type = .variable
+				token_category = .identifier
+				token_var_type = structs.VarType.type_string // TODO: Actually find out what kind of variable this is
+			}
+
+			if token_type == .variable && token_category == .identifier
+				&& token_var_type == .type_unknown {
+				print_compile_error('Bruhhhhh', &app)
+				exit(1)
+			}
+
+			lexed_tokens << structs.Token{
+				t_type:     token_type
+				t_value:    app.buffer.str()
+				t_line:     app.line_count
+				t_column:   app.column_count
+				t_length:   app.buffer.str().len
+				t_filename: app.file_name
+				t_category: token_category
+				t_var_type: token_var_type
+			}
+			app.buffer = ''
+		} else if is_number(current_char[0]) {
+			app.buffer += current_char
+			app.column_count++
+
+			if app.index < app.file_content.len {
+				app.index++
+				for app.index < app.file_content.len && is_number(app.file_content[app.index]) {
+					tmp_char := app.file_content[app.index].ascii_str()
+					app.buffer += tmp_char
+					app.index++
+					app.column_count++
+				}
+			}
+
+			token_type := match_token_type(app.buffer.str())
+			token_category := match_token_category(token_type)
+
+			if token_type == .radon_null {
+				print_compile_error('Unknown token: `${app.buffer.str()}` >> `t_type: ${token_type}` and `t_category: ${token_category}`',
+					&app)
+				exit(1)
+			}
+
+			lexed_tokens << structs.Token{
+				t_type:     token_type
+				t_value:    app.buffer.str()
+				t_line:     app.line_count
+				t_column:   app.column_count
+				t_length:   app.buffer.str().len
+				t_filename: app.file_name
+				t_category: token_category
+				t_var_type: .type_int // We only support normal ints for now anyway
+				// TODO: Add support for other types such as floats
+			}
+			app.buffer = ''
+		} else if current_char == '\n' || current_char == '\r\n' {
+			app.line_count++
+			app.column_count = 1
+		} else if current_char == ' ' {
+			app.column_count++
 		} else {
-			l.throw_lex_error('Invalid character: "${l.file_content[l.index].ascii_str()}"')
-			exit(1)
+			// Special characters
+			token_type := match_token_type(current_char)
+
+			if token_type == .radon_null {
+				print_compile_error('Unkown token `${current_char}`', &app)
+				exit(1)
+			}
+
+			token_category := match_token_category(token_type)
+			lexed_tokens << structs.Token{
+				t_type:     token_type
+				t_value:    current_char
+				t_line:     app.line_count
+				t_column:   app.column_count
+				t_length:   current_char.len // Should be 1 in all cases, right?
+				t_filename: app.file_name
+				t_category: token_category
+				t_var_type: .type_unknown
+			}
+
+			app.column_count++
 		}
-	}
-}
 
-fn (mut l Lexer) lex_alpha() {
-	l.buffer += l.file_content[l.index].ascii_str()
-	l.index += 1
-
-	for l.token.is_alpha(l.file_content[l.index]) {
-		l.buffer += l.file_content[l.index].ascii_str()
-		l.index += 1
-
-		if l.index >= l.file_content.len {
-			break
-		}
-	}
-	mut new_token := Token{
-		token_type:  token.find_token(l.buffer)
-		value:       l.buffer
-		line_number: l.line_count
+		app.index++
 	}
 
-	// radon_null represents an unknown token type
-	// We determine the token type based on the previous token
-	// [mut] -> [var_name]
-	// [proc] -> [proc_name]
-	// In case there is no previous token, we default to [var_name]
-	// [radon_null] -> [var_name]
-	if new_token.token_type == TokenType.radon_null {
-		match l.token.token_type {
-			.key_proc { new_token.token_type = TokenType.proc_name }
-			.key_mut { new_token.token_type = TokenType.var_name }
-			else { new_token.token_type = TokenType.var_name }
-		}
-	}
-
-	// In case we have a variable name that is followed by a '('
-	// we change the token type to a function call
-	// [var_name] -> ( -> [proc_call]
-	if new_token.token_type == TokenType.var_name {
-		if l.peek_next_char() == '(' {
-			new_token.token_type = TokenType.proc_call
-		}
-	}
-
-	l.token_manager(new_token)
-	l.buffer = ''
-}
-
-fn (mut l Lexer) lex_int() {
-	l.buffer += l.file_content[l.index].ascii_str()
-	l.index += 1
-
-	for l.token.is_int(l.file_content[l.index]) {
-		l.buffer += l.file_content[l.index].ascii_str()
-		l.index += 1
-
-		if l.index >= l.file_content.len {
-			break
-		}
-	}
-	new_token := Token{
-		token_type:  TokenType.type_int
-		value:       l.buffer
-		line_number: l.line_count
-	}
-	l.token_manager(new_token)
-	l.buffer = ''
-}
-
-fn (mut l Lexer) lex_special() {
-	// Special chars are only passed in as single characters
-
-	if l.file_content[l.index].ascii_str() == "'" || l.file_content[l.index].ascii_str() == '"' {
-		l.lex_string()
-		return
-	}
-
-	new_token := Token{
-		token_type:  token.find_token(l.file_content[l.index].ascii_str())
-		value:       l.file_content[l.index].ascii_str()
-		line_number: l.line_count
-	}
-	l.token_manager(new_token)
-	l.index += 1
-}
-
-fn (mut l Lexer) lex_string() {
-	string_type := l.file_content[l.index].ascii_str()
-	l.index += 1
-	l.buffer = ''
-
-	// As long as we don't hit the closing quote, keep adding to the buffer
-	for l.file_content[l.index].ascii_str() != string_type {
-		l.buffer += l.file_content[l.index].ascii_str()
-		l.index += 1
-
-		if l.index >= l.file_content.len {
-			l.throw_lex_error('String not closed')
-			exit(1)
-		}
-	}
-
-	new_token := Token{
-		token_type:  TokenType.type_string
-		value:       l.buffer
-		line_number: l.line_count
-	}
-	l.token_manager(new_token)
-	l.buffer = ''
-	l.index += 1
-}
-
-fn (mut l Lexer) lex_white() {
-	if l.file_content[l.index].ascii_str() == '\n' {
-		l.line_count += 1
-	} else if l.file_content[l.index].ascii_str() == '\r\n' {
-		// Windows line ending
-		l.index += 1
-	}
-	l.index += 1
-}
-
-fn (mut l Lexer) token_manager(new_token Token) {
-	if new_token.token_type == TokenType.radon_null {
-		l.throw_lex_error('Invalid token type')
-		exit(1)
-	}
-	l.prev_token = l.token
-	l.token = new_token
-	l.all_tokens << new_token
-}
-
-fn (mut l Lexer) peek_next_char() string {
-	if l.index + 1 >= l.file_content.len {
-		return ''
-	}
-	for c in l.file_content[l.index].ascii_str() {
-		// Skip whitespaces
-		if l.token.is_white(c) {
-			continue
-		}
-		return c.ascii_str()
-	}
-	return ''
-}
-
-fn (mut l Lexer) throw_lex_error(err_msg string) {
-	err := term.red(err_msg)
-	println('${term.blue('radon_lexer Error:')} \n\n${err} \nOn line: ${l.line_count} \nIn file: ${l.file_name} \nFull path: ${l.file_path}')
+	app.all_tokens = lexed_tokens
 }

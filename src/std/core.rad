@@ -1,2 +1,0 @@
-proc println(x string) -> void {}
-proc print(x string) -> void {}
