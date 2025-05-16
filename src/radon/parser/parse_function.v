@@ -3,7 +3,7 @@ module parser
 import cmd.util { print_compile_error }
 import structs
 
-fn parse_function(mut app structs.App) ! {
+fn parse_function(mut app structs.App) !structs.FunctionDecl {
 	mut function_decl := structs.FunctionDecl{}
 
 	app.index++
@@ -27,18 +27,20 @@ fn parse_function(mut app structs.App) ! {
 
 	app.index++
 
-	function_decl.body = parse_function_body(mut app)
-
-	app.ast << function_decl
+	function_decl.body = parse_function_body(mut app, function_decl)
 
 	token = app.get_token()
 	if token.t_type != .close_brace {
 		print_compile_error('Missing ` } ` for function `${function_decl.name}`', &app)
 		exit(1)
 	}
+
+	app.index++
+
+	return function_decl
 }
 
-fn parse_function_body(mut app structs.App) []structs.AstNode {
+fn parse_function_body(mut app structs.App, function structs.FunctionDecl) []structs.AstNode {
 	mut function_body := []structs.AstNode{}
 	for app.index < app.all_tokens.len {
 		token := app.all_tokens[app.index]
@@ -46,6 +48,19 @@ fn parse_function_body(mut app structs.App) []structs.AstNode {
 		match token.t_type {
 			.key_element, .key_isotope {
 				function_body << parse_variable(mut app)
+			}
+			.key_emit {
+				emit_stmt := parse_emit(mut app)
+				emit_type := structs.var_type_to_token_type(emit_stmt.emit_type)
+				function_return_type := function.return_type
+
+				if emit_type != function_return_type {
+					print_compile_error('Function `${function.name}` expects `${function_return_type}` as return type but returns `${emit_type}`',
+						&app)
+					exit(1)
+				}
+
+				function_body << emit_stmt
 			}
 			.close_brace {
 				if app.scope_id == 0 {

@@ -92,11 +92,26 @@ pub mut:
 	t_var_type VarType
 }
 
+pub fn var_type_to_token_type(var_type VarType) TokenType {
+	return match var_type {
+		.type_string {
+			.type_string
+		}
+		.type_int {
+			.type_int
+		}
+		else {
+			.radon_null
+		}
+	}
+}
+
 pub type AstNode = Literal
 	| Identifier
 	| BinaryOp
 	| Call
 	| VarDecl
+	| EmitStmt
 	| Expression
 	| FunctionDecl
 	| ReturnStmt
@@ -128,15 +143,15 @@ struct Call {
 
 pub struct VarDecl {
 pub mut:
-	name   string
-	value  AstNode
-	is_mut bool
+	name          string
+	value         AstNode
+	is_mut        bool
 	variable_type VarType
 }
 
 pub struct Expression {
 pub mut:
-	value string
+	value  string
 	e_type VarType
 }
 
@@ -161,4 +176,10 @@ struct ReturnStmt {
 pub struct ImportStmt {
 pub:
 	path string
+}
+
+pub struct EmitStmt {
+pub:
+	emit AstNode
+	emit_type VarType
 }

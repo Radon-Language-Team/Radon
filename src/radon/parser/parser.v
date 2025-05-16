@@ -9,10 +9,10 @@ pub fn parse(mut app structs.App) ! {
 
 		match token.t_type {
 			.key_mixture {
-				parse_import(mut app)
+				app.ast << parse_import(mut app)
 			}
 			.key_react {
-				parse_function(mut app)!
+				app.ast << parse_function(mut app)!
 			}
 			else {
 				// println(app.ast)
