@@ -13,7 +13,10 @@ pub mut:
 	all_tokens   []Token
 	token        Token
 	prev_token   Token
-	ast          []AstNode
+
+	ast []AstNode
+
+	gen_coode string
 
 	display_json_tokens bool
 }
@@ -106,6 +109,41 @@ pub fn var_type_to_token_type(var_type VarType) TokenType {
 	}
 }
 
+//TODO: What is this... They both do the same stuff
+pub fn radon_type_to_c_type(radon_type TokenType) string {
+	return match radon_type {
+		.type_string {
+			'char*'
+		}
+		.type_int {
+			'int'
+		}
+		.type_void {
+			'void'
+		}
+		else {
+			''
+		}
+	}
+}
+
+pub fn radon_var_type_to_c_type(radon_type VarType) string {
+	return match radon_type {
+		.type_string {
+			'char*'
+		}
+		.type_int {
+			'int'
+		}
+		.type_void {
+			'void'
+		}
+		else {
+			''
+		}
+	}
+}
+
 pub type AstNode = Literal
 	| Identifier
 	| BinaryOp
@@ -180,6 +218,6 @@ pub:
 
 pub struct EmitStmt {
 pub:
-	emit AstNode
+	emit      AstNode
 	emit_type VarType
 }

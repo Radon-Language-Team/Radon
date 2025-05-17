@@ -6,6 +6,7 @@ import util
 import radon.structs { App }
 import radon.lexer
 import radon.parser
+import radon.gen
 
 pub fn run() ! {
 	// Check if the user provided a file path
@@ -37,6 +38,7 @@ pub fn run() ! {
 	lexer.lex_file(mut app)!
 	app.index = 0
 	parser.parse(mut app)!
+	gen.generate(mut app)
 
 	if app.display_json_tokens {
 		json_tokens := json.encode_pretty(app.all_tokens)

@@ -22,7 +22,4 @@ pub fn parse(mut app structs.App) ! {
 			}
 		}
 	}
-
-	println('Finished parsing all tokens')
-	println(app.ast)
 }
