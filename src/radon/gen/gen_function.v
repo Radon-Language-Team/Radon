@@ -35,6 +35,7 @@ fn gen_function(function_decl structs.FunctionDecl) string {
 		}
 	}
 
+	function_code += '// Generated from react ${function_name}\n'
 	function_code += '${function_type} ${function_name}(${function_params}) { \n\n${function_body_code}\n}'
 
 	println(function_code)
