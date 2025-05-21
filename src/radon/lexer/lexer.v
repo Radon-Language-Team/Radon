@@ -1,7 +1,7 @@
 module lexer
 
 import os
-import encoding.utf8 { is_letter, is_number }
+import encoding.utf8 { is_letter, is_number, is_space }
 import cmd.util { print_compile_error }
 import structs
 
@@ -57,7 +57,7 @@ pub fn lex_file(mut app structs.App) ! {
 
 			if token_type == .variable && token_category == .identifier
 				&& token_var_type == .type_unknown {
-				print_compile_error('Bruhhhhh', &app)
+				print_compile_error('Found an unkown token of type ${token_type}', &app)
 				exit(1)
 			}
 
@@ -107,11 +107,13 @@ pub fn lex_file(mut app structs.App) ! {
 				// TODO: Add support for other types such as floats
 			}
 			app.buffer = ''
-		} else if current_char == '\n' || current_char == '\r\n' {
+		} else if is_space(current_char[0]) {
+			if current_char == '\n' || current_char == '\r\n' {
 			app.line_count++
 			app.column_count = 1
-		} else if current_char == ' ' {
+			} else if current_char == ' ' {
 			app.column_count++
+			}
 		} else {
 			// Special characters
 			token_type := match_token_type(current_char)
