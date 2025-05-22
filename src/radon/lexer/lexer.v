@@ -84,6 +84,7 @@ pub fn lex_file(mut app structs.App) ! {
 					app.index++
 					app.column_count++
 				}
+				app.index--
 			}
 
 			token_type := match_token_type(app.buffer.str())
@@ -109,10 +110,10 @@ pub fn lex_file(mut app structs.App) ! {
 			app.buffer = ''
 		} else if is_space(current_char[0]) {
 			if current_char == '\n' || current_char == '\r\n' {
-			app.line_count++
-			app.column_count = 1
-			} else if current_char == ' ' {
-			app.column_count++
+				app.line_count++
+				app.column_count = 1
+			} else {
+				app.column_count++
 			}
 		} else {
 			// Special characters
