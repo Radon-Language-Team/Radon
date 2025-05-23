@@ -129,7 +129,10 @@ pub fn run() ! {
 
 	if !ctx.preserve_files {
 		os.rm(gen_file_path)!
-		os.rm(gen_file_exec)!
+		
+		if os.user_os() != 'windows' {
+			os.rm(gen_file_exec)!
+		}
 		println('\nDone!')
 	} else {
 		println('\n${term.gray('Preserving files:')} ${term.yellow(ctx.preserve_files.str())}')
