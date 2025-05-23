@@ -16,9 +16,7 @@ pub mut:
 
 	ast []AstNode
 
-	gen_coode string
-
-	display_json_tokens bool
+	gen_code string
 }
 
 pub fn (mut a App) get_token() Token {
