@@ -9,7 +9,7 @@ fn parse_function(mut app structs.App) !structs.FunctionDecl {
 	app.index++
 
 	mut token := app.get_token()
-	if token.t_type != .variable && token.t_category != .literal {
+	if token.t_type != .function_decl && token.t_category != .literal {
 		print_compile_error('Expected function name, got ` ${token.t_value} ` with type `${token.t_type}`',
 			&app)
 		exit(1)
@@ -61,6 +61,9 @@ fn parse_function_body(mut app structs.App, function structs.FunctionDecl) []str
 				}
 
 				function_body << emit_stmt
+			}
+			.function_call {
+				app.ast << parse_func_call(mut app)
 			}
 			.close_brace {
 				if app.scope_id == 0 {

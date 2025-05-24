@@ -43,6 +43,18 @@ pub fn lex_file(mut app structs.App) ! {
 			}
 
 			mut token_type := match_token_type(app.buffer.str())
+
+			if lexed_tokens.len != 0 && app.index + 1 < app.file_content.len {
+				if lexed_tokens.last().t_type == .key_react
+					&& app.file_content[app.index + 1].ascii_str() == '(' {
+					// For Function Decls -> react foo()
+					token_type = .function_decl
+				} else if app.file_content[app.index + 1].ascii_str() == '(' {
+					// For Function Calls -> foo()
+					token_type = .function_call
+				}
+			}
+
 			mut token_category := match_token_category(token_type)
 			mut token_var_type := structs.VarType.type_unknown
 

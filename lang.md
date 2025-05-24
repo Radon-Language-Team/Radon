@@ -1,105 +1,107 @@
-# The Radon Programming Language
-## This is a concept and not yet implemented
+# 🌟 Radon Language Planned Features
 
-### Entry Point
-```Radon
-proc main() {
-  // Code here
+A living list of features planned for the Radon programming language. Use this roadmap to track upcoming work and share ideas.
+
+---
+
+## 🚀 Next Up
+
+### 1. Function Calls  
+- Call Radon functions with arguments  
+- Enforce arity and type checks  
+
+```radon
+react greet(string name):void {
+  println(name)
+}
+
+react main():int {
+  greet("Marwin")
+  emit 0
 }
 ```
 
-### Variables
-```Radon
-// Immutable Variable
-foo := 'Hello';
+---
 
-// Mutable Variables
-mut foo := 'Hello';
+### 2. String Type  
+- Parse string literals  
+- Map Radon `string` → C `char*`  
+- Support in expressions and `println`  
 
-// Variables with custom Types
-foo: CustomType := customVariable;
-
-// Reassigning a mutable variable
-foo = 'New Value';
+```radon
+element msg = "Hello, World!"
+println(msg)
 ```
 
-### Functions
-```Radon
-proc foo(arg1 Int, arg2 Int) -> Int {
-  return arg1 + arg2;
+---
+
+### 3. Built-in I/O: `println`  
+- Define in `core.rad` as an intrinsic  
+- Transpile to C `printf("%s\n", ...)`  
+
+```radon
+react main():int {
+  println("Hi there!")
+  emit 0
 }
-
-foo(1, 2);
 ```
 
-### Control Flow
-```Radon
-match condition {
-  true => {
-    // Code here
+---
+
+### 4. Optional Arguments  
+- Syntax: `int ?x` or `int ?x = default`  
+- Inject default values in generated C  
+
+```radon
+react foo(int ?n = 42):int {
+  emit n
+}
+```
+
+---
+
+### 5. Sum-Type Arguments (Union Types)  
+- Syntax: `int|float x`  
+- Generate tagged unions in C  
+
+```radon
+react foo(int|float number):int {
+  emit number
+}
+```
+
+---
+
+### 6. Expanded Operators & Expressions  
+- Arithmetic: `+`, `-`, `*`, `/`, `%`  
+- Comparison: `==`, `!=`, `<`, `>`, `<=`, `>=`  
+- Correct precedence & associativity  
+
+---
+
+### 7. Control Flow  
+- **If statements**  
+
+  ```radon
+  react main():int {
+    element x = 10
+    if x > 5 {
+      emit 1
+    } else {
+      emit 0
+    }
   }
-  false => {
-    // Code here
-  }
-}
+  ```
 
-loop {
-  // Infinite loop
-  if condition {
-    break
-  }
-}
+- **Loops** (`while`, `for`)  
+- `break` / `continue`
 
-mut i := 0;
-for i in 0..10 {
-  i++
-}
-```
+---
 
-### Types
-```Radon
-// Integer
-foo: Int := 1;
+## 📅 Future Ideas
 
-// Float
-foo: Float := 1.0;
-
-// Boolean
-foo: Bool := true;
-
-// String
-foo: String := 'Hello';
-
-// Custom Type
-record CustomType {
-  x: Int
-  y: String
-  z: Float
-};
-
-// Initialize custom type
-foo: CustomType := {x: 1, y: 'Hello', z: 1.0};
-```
-
-### Comments
-```Radon
-// Single Line Comment
-
-/*
-  Multi
-  Line
-  Comment
-*/
-```
-
-### Full Example
-```Radon
-import 'std'
-
-proc main() {
-  name: String := std.input('Enter your name: ');
-
-  // Print does not require an import as it is a built-in function
-  print('Hello, ' + name);
-}
-```
+- Full type system (user-defined types, generics)  
+- Standard library in Radon (`core.rad`)  
+- Documentation site & tutorials  
+- AST visualization and `--debug-ast` flag  
+- REPL improvements (syntax highlighting, history)

@@ -10,8 +10,15 @@ pub fn generate(mut app structs.App) {
 			structs.FunctionDecl {
 				app.gen_code += gen_function(node)
 			}
+			structs.ImportStmt {
+				app.gen_code += gen_import(node)
+			}
+			structs.Call {
+				app.gen_code += gen_call(node)
+			}
 			else {
-				print_compile_error('Unkown node of type `${node.type_name()}', &app)
+				print_compile_error('Unkown node of type `${node.type_name()}`', &app)
+				exit(1)
 			}
 		}
 	}
