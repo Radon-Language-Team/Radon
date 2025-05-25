@@ -39,7 +39,6 @@ pub enum TokenType {
 	key_emit    // emit
 	colon       // :
 	comma       // ,
-	d_quote     // "
 	s_quote     // '
 	dot         // .
 	exclamation //!

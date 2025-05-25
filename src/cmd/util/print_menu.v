@@ -43,10 +43,12 @@ pub fn print_error(error string) {
 pub fn print_compile_error(error string, app &App) {
 	println('${term.bright_blue('Radon Error >> ')}${term.red(error)} \n')
 
-	println('Error in file `${app.file_name}` (${app.file_path})')
-	println('Stopped in line `${app.line_count}` and column `${app.column_count}`')
+	if app != App{} {
+		println('Error in file `${app.file_name}` (${app.file_path})')
+		println('Stopped in line `${app.line_count}` and column `${app.column_count}`')
 
-	if app.prev_token != Token{} {
-		println('Previous token: `${app.prev_token.t_value}` of type `${app.prev_token.t_type}`')
+		if app.prev_token != Token{} {
+			println('Previous token: `${app.prev_token.t_value}` of type `${app.prev_token.t_type}`')
+		}
 	}
 }

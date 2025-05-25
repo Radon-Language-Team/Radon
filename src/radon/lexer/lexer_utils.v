@@ -74,9 +74,6 @@ fn match_token_type(token string) TokenType {
 		'=' {
 			return .equals
 		}
-		'"' {
-			return .d_quote
-		}
 		"'" {
 			return .s_quote
 		}
