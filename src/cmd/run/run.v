@@ -80,6 +80,7 @@ pub fn run() ! {
 	}
 
 	lexer.lex_file(mut app)!
+	lexer.refine_tokens(mut app)
 
 	if ctx.display_json_tokens {
 		json_tokens := json.encode_pretty(app.all_tokens)
