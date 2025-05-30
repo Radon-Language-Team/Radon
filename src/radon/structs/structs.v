@@ -22,7 +22,7 @@ pub mut:
 
 pub fn (mut a App) get_token() Token {
 	return a.all_tokens[a.index] or {
-		println('Compiler panic: token index `${a.index}` out of range')
+		println('Compiler panic: token index `${a.index}` out of range -> Token array length: ${a.all_tokens.len}')
 		print_backtrace()
 		unsafe { free(a) }
 		exit(1)
