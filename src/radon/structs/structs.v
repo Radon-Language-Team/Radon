@@ -18,6 +18,8 @@ pub mut:
 	ast []AstNode
 
 	gen_code string
+
+	done_lexing bool
 }
 
 pub fn (mut a App) get_token() Token {

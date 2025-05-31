@@ -1,7 +1,7 @@
 module util
 
 import term
-import radon.structs { App, Token }
+import radon.structs { App }
 
 pub fn print_menu() {
 	term_colums, term_rows := term.get_terminal_size()
@@ -43,11 +43,14 @@ pub fn print_error(error string) {
 pub fn print_compile_error(error string, app &App) {
 	println('${term.bright_blue('Radon Error >> ')}${term.red(error)} \n')
 
-	if app != App{} {
-		println('Error in file `${app.file_name}` (${app.file_path})')
-		println('Stopped in line `${app.line_count}` and column `${app.column_count}`')
+	println('Error in file `${app.file_name}` (${app.file_path})')
 
-		if app.prev_token != Token{} {
+	if app.index - 1 >= 0 {
+		if app.done_lexing {
+			println('Stopped in line `${app.all_tokens[app.index].t_line}` and column `${app.all_tokens[app.index].t_column}`')
+			println('Previous token type: `${app.all_tokens[app.index - 1].t_type}` with value: `${app.all_tokens[app.index - 1].t_value}`')
+		} else {
+			println('Stopped in line `${app.line_count}` and column `${app.column_count}`')
 			println('Previous token: `${app.prev_token.t_value}` of type `${app.prev_token.t_type}`')
 		}
 	}

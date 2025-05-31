@@ -87,6 +87,7 @@ pub fn run() ! {
 	}
 
 	app.index = 0
+	app.done_lexing = true
 	parser.parse(mut app)!
 	gen.generate(mut app)
 

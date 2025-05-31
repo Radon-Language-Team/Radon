@@ -1,6 +1,7 @@
 module parser
 
 import cmd.util { print_compile_error }
+import parser_utils
 import structs
 
 pub fn parse(mut app structs.App) ! {
@@ -24,4 +25,6 @@ pub fn parse(mut app structs.App) ! {
 			}
 		}
 	}
+
+	parser_utils.get_function('main', &app)
 }
