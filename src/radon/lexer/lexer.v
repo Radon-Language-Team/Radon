@@ -137,20 +137,50 @@ pub fn lex_file(mut app structs.App) ! {
 			}
 
 			token_category := match_token_category(token_type)
-			lexed_tokens << structs.Token{
-				t_type:     token_type
-				t_value:    current_char
-				t_line:     app.line_count
-				t_column:   app.column_count
-				t_length:   current_char.len // Should be 1 in all cases, right?
-				t_filename: app.file_name
-				t_category: token_category
-				t_var_type: .type_unknown
-			}
+			if token_type != .s_quote {
+				lexed_tokens << structs.Token{
+					t_type:     token_type
+					t_value:    current_char
+					t_line:     app.line_count
+					t_column:   app.column_count
+					t_length:   current_char.len // Should be 1 in all cases, right?
+					t_filename: app.file_name
+					t_category: token_category
+					t_var_type: .type_unknown
+				}
 
-			app.column_count++
+				app.column_count++
+			} else {
+				// Got a `'`  and thus is starting a string
+				app.index++
+				mut string_buffer := ''
+
+				for app.file_content[app.index].ascii_str() != "'" {
+					if app.index + 1 >= app.file_content.len {
+						print_compile_error('String was not properly closed', &app)
+						exit(1)
+					}
+
+					current_value := app.file_content[app.index].ascii_str()
+					string_buffer += current_value
+					app.index++
+					app.column_count++
+				}
+
+				lexed_tokens << structs.Token{
+					t_type:     .type_string
+					t_value:    string_buffer
+					t_line:     app.line_count
+					t_column:   app.column_count
+					t_length:   string_buffer.len
+					t_filename: app.file_name
+					t_category: .literal
+					t_var_type: .type_string
+				}
+			}
 		}
 
+		app.column_count++
 		app.index++
 	}
 

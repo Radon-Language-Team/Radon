@@ -48,7 +48,11 @@ fn gen_var_decl(var_decl structs.VarDecl) string {
 
 	var_decl_value := var_decl.value as structs.Expression
 
-	var_decl_code += '${var_decl_value.value.trim_space()}; \n'
+	if var_decl_value.e_type == .type_string {
+		var_decl_code += '"${var_decl_value.value.trim_space()}"; \n'
+	} else {
+		var_decl_code += '${var_decl_value.value.trim_space()}; \n'
+	}
 
 	return var_decl_code
 }

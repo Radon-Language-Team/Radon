@@ -27,11 +27,9 @@ pub fn parse_expression(expression []structs.Token) structs.AstNode {
 			value:  string_expression
 			e_type: .type_int
 		}
-	} else if expression[0].t_type == .s_quote {
-		simple_string := is_simple_string(expression)
-
+	} else if expression[0].t_type == .type_string {
 		return structs.Expression{
-			value:  simple_string.value
+			value:  expression[0].t_value
 			e_type: .type_string
 		}
 	} else {
@@ -56,13 +54,4 @@ fn is_simple_expr(expr string) bool {
 	mut re := regex.regex_opt(r'^[0-9+\-*/(). \t]+$') or { panic('Invalid regex') }
 	start, end := re.find(expr)
 	return start == 0 && end == expr.len
-}
-
-fn is_simple_string(expr []structs.Token) structs.String {
-	if expr.len == 1 {
-		return structs.String{}
-	}
-	string_expr := parse_string_token_array(expr)
-
-	return string_expr
 }
