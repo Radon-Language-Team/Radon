@@ -134,8 +134,8 @@ pub fn run() ! {
 		if os.user_os() != 'windows' {
 			os.rm(gen_file_exec)!
 		}
-		println('\nDone!')
+		println('Done!')
 	} else {
-		println('\n${term.gray('Preserving files:')} ${term.yellow(ctx.preserve_files.str())}')
+		println('${term.gray('Preserving files:')} ${term.yellow(ctx.preserve_files.str())}')
 	}
 }

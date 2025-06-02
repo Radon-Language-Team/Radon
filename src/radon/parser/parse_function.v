@@ -63,7 +63,7 @@ fn parse_function_body(mut app structs.App, function structs.FunctionDecl) []str
 				function_body << emit_stmt
 			}
 			.function_call {
-				app.ast << parse_func_call(mut app)
+				function_body << parse_func_call(mut app)
 			}
 			.close_brace {
 				if app.scope_id == 0 {

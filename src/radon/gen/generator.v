@@ -1,10 +1,9 @@
 module gen
 
 import structs
-import cmd.util { print_compile_error }
+import cmd.util { print_error }
 
 pub fn generate(mut app structs.App) {
-	app.gen_code += '#include <stdio.h> \n'
 	for node in app.ast {
 		match node {
 			structs.FunctionDecl {
@@ -13,11 +12,8 @@ pub fn generate(mut app structs.App) {
 			structs.ImportStmt {
 				app.gen_code += gen_import(node)
 			}
-			structs.Call {
-				app.gen_code += gen_call(node)
-			}
 			else {
-				print_compile_error('Unkown node of type `${node.type_name()}`', &app)
+				print_error('Unkown node of type `${node.type_name()}`')
 				exit(1)
 			}
 		}
