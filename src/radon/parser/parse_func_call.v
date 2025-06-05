@@ -15,6 +15,14 @@ fn parse_func_call(mut app structs.App) structs.Call {
 	app.index++
 	callee_function := parser_utils.get_function(callee_name, &app)
 
+	if callee_function.is_core {
+		if 'core' !in app.imports {
+			print_compile_error('Function `${callee_name}` needs to be imported. Use ` mixture \'core\' ` to import all core functions',
+				&app)
+			exit(1)
+		}
+	}
+
 	mut buffer := []structs.Token{}
 
 	for app.get_token().t_type != .close_paren {

@@ -12,6 +12,7 @@ pub mut:
 	buffer        string
 	all_tokens    []Token
 	all_functions []FunctionDecl
+	imports       []string
 	token         Token
 	prev_token    Token
 
@@ -209,6 +210,7 @@ pub mut:
 	params      []Param
 	return_type TokenType
 	body        []AstNode
+	is_core     bool
 }
 
 struct ReturnStmt {

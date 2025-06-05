@@ -19,5 +19,6 @@ fn parse_import(mut app structs.App) structs.ImportStmt {
 	}
 
 	app.index++
+	app.imports << import_string.t_value
 	return import_stmt
 }
