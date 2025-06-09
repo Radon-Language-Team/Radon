@@ -2,19 +2,21 @@ module structs
 
 pub struct App {
 pub mut:
-	file_name     string
-	file_path     string
-	file_content  string
-	line_count    int
-	column_count  int
-	index         int
-	scope_id      int
-	buffer        string
-	all_tokens    []Token
-	all_functions []FunctionDecl
-	imports       []string
-	token         Token
-	prev_token    Token
+	file_name                string
+	file_path                string
+	file_content             string
+	line_count               int
+	column_count             int
+	index                    int
+	scope_id                 int
+	buffer                   string
+	all_tokens               []Token
+	current_parsing_function string
+	all_functions            []FunctionDecl
+	all_variables            []VarDecl
+	imports                  []string
+	token                    Token
+	prev_token               Token
 
 	ast []AstNode
 
@@ -187,6 +189,7 @@ pub mut:
 pub struct VarDecl {
 pub mut:
 	name          string
+	function_name string
 	value         AstNode
 	is_mut        bool
 	variable_type VarType
@@ -194,8 +197,9 @@ pub mut:
 
 pub struct Expression {
 pub mut:
-	value  string
-	e_type VarType
+	value       string
+	e_type      VarType
+	is_variable bool
 }
 
 pub struct Param {

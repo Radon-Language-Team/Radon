@@ -6,7 +6,12 @@ import gen_utils
 fn gen_function(function_decl structs.FunctionDecl) string {
 	mut function_code := ''
 
-	function_type := structs.radon_type_to_c_type(function_decl.return_type)
+	mut function_type := structs.radon_type_to_c_type(function_decl.return_type)
+
+	if function_decl.name == 'main' && function_decl.return_type == .type_void {
+		function_type = 'int'
+	}
+
 	function_name := function_decl.name
 	mut function_params := ''
 	mut i := 0
@@ -52,7 +57,11 @@ fn gen_var_decl(var_decl structs.VarDecl) string {
 
 	var_decl_value := var_decl.value as structs.Expression
 
-	if var_decl_value.e_type == .type_string {
+	if var_decl_value.e_type == .type_string && !var_decl_value.is_variable {
+		// In case it's a variable, we don't want to put quotes around it
+		// element foo = 'Hello'
+		// foo -> "foo" > No
+		// foo -> foo > Yes
 		var_decl_code += gen_utils.gen_string(var_decl_value) + '; \n'
 	} else {
 		var_decl_code += '${var_decl_value.value.trim_space()}; \n'
@@ -78,7 +87,7 @@ fn gen_call(node structs.Call) string {
 	for arg in node.args {
 		argument := arg as structs.Expression
 
-		if argument.e_type == .type_string {
+		if argument.e_type == .type_string && !argument.is_variable {
 			call_args += gen_utils.gen_string(argument)
 		} else {
 			call_args += argument.value

@@ -14,6 +14,7 @@ mut:
 	display_json_tokens bool
 	use_diff_compiler   bool
 	preserve_files      bool
+	verbose             bool
 
 	args        []string
 	c_compilers []string
@@ -25,6 +26,7 @@ fn new_context() Context {
 		display_json_tokens: '--json-tokens' in os.args
 		use_diff_compiler:   '-cc' in os.args
 		preserve_files:      '-p' in os.args
+		verbose:             '-v' in os.args
 
 		args:        os.args.clone()
 		c_compilers: ['tcc', 'gcc', 'clang', 'cc']
@@ -49,7 +51,9 @@ pub fn run() ! {
 			return
 		}
 		ctx.c_compiler = ctx.args[ctx.args.index('-cc') + 1]
-		println('${term.gray('Using manual C Compiler:')} ${term.yellow(ctx.c_compiler)}')
+		if ctx.verbose {
+			println('${term.gray('Using manual C Compiler:')} ${term.yellow(ctx.c_compiler)}')
+		}
 	}
 
 	if ctx.c_compiler == '' {
@@ -114,7 +118,9 @@ pub fn run() ! {
 		compile_code = os.system(compiler_command)
 	}
 
-	println('${term.gray('Final compiler command:')} ${term.yellow(compiler_command)}')
+	if ctx.verbose {
+		println('${term.gray('Final compiler command:')} ${term.yellow(compiler_command)}')
+	}
 
 	if compile_code != 0 {
 		println(term.red('Got non zero exit code after compiling generated C file!'))
@@ -134,8 +140,9 @@ pub fn run() ! {
 		if os.user_os() != 'windows' {
 			os.rm(gen_file_exec)!
 		}
-		println('Done!')
 	} else {
-		println('${term.gray('Preserving files:')} ${term.yellow(ctx.preserve_files.str())}')
+		if ctx.verbose {
+			println('${term.gray('Preserving files:')} ${term.yellow(ctx.preserve_files.str())}')
+		}
 	}
 }

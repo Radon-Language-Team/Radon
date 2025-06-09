@@ -27,6 +27,7 @@ fn parse_function(mut app structs.App) !structs.FunctionDecl {
 
 	app.index++
 
+	app.current_parsing_function = function_decl.name
 	function_decl.body = parse_function_body(mut app, function_decl)
 
 	token = app.get_token()

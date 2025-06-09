@@ -68,7 +68,7 @@ fn parse_func_call(mut app structs.App) structs.Call {
 			}
 		}
 		callee_arg := callee_function.params[i]
-		arg_expression := parser_utils.parse_expression([arg]) as structs.Expression
+		arg_expression := parser_utils.parse_expression([arg], app) as structs.Expression
 		arg_type := structs.var_type_to_token_type(arg_expression.e_type)
 
 		if arg_type != callee_arg.p_type {
