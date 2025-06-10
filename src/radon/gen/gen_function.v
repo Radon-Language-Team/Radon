@@ -52,8 +52,13 @@ fn gen_function(function_decl structs.FunctionDecl) string {
 fn gen_var_decl(var_decl structs.VarDecl) string {
 	mut var_decl_code := ''
 
-	var_decl_code += structs.radon_var_type_to_c_type(var_decl.variable_type)
-	var_decl_code += ' ${var_decl.name} = '
+	if !var_decl.is_redi {
+		// In case of a redefinition, we don't need the type
+		var_decl_code += structs.radon_var_type_to_c_type(var_decl.variable_type)
+		var_decl_code += ' ${var_decl.name} = '
+	} else {
+		var_decl_code += '${var_decl.name} = '
+	}
 
 	var_decl_value := var_decl.value as structs.Expression
 

@@ -206,6 +206,7 @@ pub mut:
 	function_name string
 	value         AstNode
 	is_mut        bool
+	is_redi       bool
 	variable_type VarType
 }
 

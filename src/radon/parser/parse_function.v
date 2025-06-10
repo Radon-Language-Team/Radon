@@ -55,7 +55,8 @@ fn parse_function_body(mut app structs.App, function structs.FunctionDecl) []str
 
 		match token.t_type {
 			.key_element, .key_isotope {
-				function_body << parse_variable(mut app)
+				variable := parse_variable(mut app)
+				function_body << variable
 			}
 			.key_emit {
 				emit_stmt := parse_emit(mut app)
@@ -72,6 +73,10 @@ fn parse_function_body(mut app structs.App, function structs.FunctionDecl) []str
 			}
 			.function_call {
 				function_body << parse_func_call(mut app)
+			}
+			.variable {
+				variable := parse_variable(mut app)
+				function_body << variable
 			}
 			.close_brace {
 				if app.scope_id == 0 {
