@@ -1,6 +1,7 @@
 module parser
 
 import cmd.util { print_compile_error }
+import parser_utils
 import structs
 
 fn parse_function(mut app structs.App) !structs.FunctionDecl {
@@ -9,7 +10,7 @@ fn parse_function(mut app structs.App) !structs.FunctionDecl {
 	app.index++
 
 	mut token := app.get_token()
-	if token.t_type != .variable && token.t_category != .literal {
+	if token.t_type != .function_decl && token.t_category != .literal {
 		print_compile_error('Expected function name, got ` ${token.t_value} ` with type `${token.t_type}`',
 			&app)
 		exit(1)
@@ -17,8 +18,15 @@ fn parse_function(mut app structs.App) !structs.FunctionDecl {
 
 	function_decl.name = token.t_value
 
+	function_look_up := parser_utils.get_function(&app, token.t_value)
+	if function_look_up != structs.FunctionDecl{} {
+		print_compile_error('Function `${token.t_value}` has already been created', &app)
+		exit(1)
+	}
+
 	app.index++
 
+	app.current_parsing_function = function_decl.name
 	function_decl.params = parse_function_args(mut app)
 
 	app.index++
@@ -61,6 +69,9 @@ fn parse_function_body(mut app structs.App, function structs.FunctionDecl) []str
 				}
 
 				function_body << emit_stmt
+			}
+			.function_call {
+				function_body << parse_func_call(mut app)
 			}
 			.close_brace {
 				if app.scope_id == 0 {
@@ -133,6 +144,20 @@ fn parse_function_args(mut app structs.App) []structs.Param {
 				name:   tok_name.t_value
 				p_type: tok_type.t_type
 			}
+
+			function_param := structs.VarDecl{
+				name:          tok_name.t_value
+				function_name: app.current_parsing_function
+				value:         structs.Expression{
+					value:       tok_name.t_value
+					e_type:      structs.token_type_to_var_type(tok_type.t_type)
+					is_variable: true
+				}
+				is_mut:        false
+				variable_type: structs.token_type_to_var_type(tok_type.t_type)
+			}
+
+			app.all_variables << function_param
 
 			// Skip comma if any
 			if i + 2 < args_buffer.len && args_buffer[i + 2].t_type == .comma {

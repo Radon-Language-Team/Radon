@@ -1,7 +1,7 @@
 module lexer
 
 import os
-import encoding.utf8 { is_letter, is_number }
+import encoding.utf8 { is_letter, is_number, is_space }
 import cmd.util { print_compile_error }
 import structs
 
@@ -43,6 +43,18 @@ pub fn lex_file(mut app structs.App) ! {
 			}
 
 			mut token_type := match_token_type(app.buffer.str())
+
+			if lexed_tokens.len != 0 && app.index + 1 < app.file_content.len {
+				if lexed_tokens.last().t_type == .key_react
+					&& app.file_content[app.index + 1].ascii_str() == '(' {
+					// For Function Decls -> react foo()
+					token_type = .function_decl
+				} else if app.file_content[app.index + 1].ascii_str() == '(' {
+					// For Function Calls -> foo()
+					token_type = .function_call
+				}
+			}
+
 			mut token_category := match_token_category(token_type)
 			mut token_var_type := structs.VarType.type_unknown
 
@@ -57,7 +69,7 @@ pub fn lex_file(mut app structs.App) ! {
 
 			if token_type == .variable && token_category == .identifier
 				&& token_var_type == .type_unknown {
-				print_compile_error('Bruhhhhh', &app)
+				print_compile_error('Found an unkown token of type ${token_type}', &app)
 				exit(1)
 			}
 
@@ -84,6 +96,7 @@ pub fn lex_file(mut app structs.App) ! {
 					app.index++
 					app.column_count++
 				}
+				app.index--
 			}
 
 			token_type := match_token_type(app.buffer.str())
@@ -107,11 +120,13 @@ pub fn lex_file(mut app structs.App) ! {
 				// TODO: Add support for other types such as floats
 			}
 			app.buffer = ''
-		} else if current_char == '\n' || current_char == '\r\n' {
-			app.line_count++
-			app.column_count = 1
-		} else if current_char == ' ' {
-			app.column_count++
+		} else if is_space(current_char[0]) {
+			if current_char == '\n' || current_char == '\r\n' {
+				app.line_count++
+				app.column_count = 1
+			} else {
+				app.column_count++
+			}
 		} else {
 			// Special characters
 			token_type := match_token_type(current_char)
@@ -122,20 +137,50 @@ pub fn lex_file(mut app structs.App) ! {
 			}
 
 			token_category := match_token_category(token_type)
-			lexed_tokens << structs.Token{
-				t_type:     token_type
-				t_value:    current_char
-				t_line:     app.line_count
-				t_column:   app.column_count
-				t_length:   current_char.len // Should be 1 in all cases, right?
-				t_filename: app.file_name
-				t_category: token_category
-				t_var_type: .type_unknown
-			}
+			if token_type != .s_quote {
+				lexed_tokens << structs.Token{
+					t_type:     token_type
+					t_value:    current_char
+					t_line:     app.line_count
+					t_column:   app.column_count
+					t_length:   current_char.len // Should be 1 in all cases, right?
+					t_filename: app.file_name
+					t_category: token_category
+					t_var_type: .type_unknown
+				}
 
-			app.column_count++
+				app.column_count++
+			} else {
+				// Got a `'`  and thus is starting a string
+				app.index++
+				mut string_buffer := ''
+
+				for app.file_content[app.index].ascii_str() != "'" {
+					if app.index + 1 >= app.file_content.len {
+						print_compile_error('String was not properly closed', &app)
+						exit(1)
+					}
+
+					current_value := app.file_content[app.index].ascii_str()
+					string_buffer += current_value
+					app.index++
+					app.column_count++
+				}
+
+				lexed_tokens << structs.Token{
+					t_type:     .type_string
+					t_value:    string_buffer
+					t_line:     app.line_count
+					t_column:   app.column_count
+					t_length:   string_buffer.len
+					t_filename: app.file_name
+					t_category: .literal
+					t_var_type: .type_string
+				}
+			}
 		}
 
+		app.column_count++
 		app.index++
 	}
 

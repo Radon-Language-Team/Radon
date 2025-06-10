@@ -2,25 +2,32 @@ module structs
 
 pub struct App {
 pub mut:
-	file_name    string
-	file_path    string
-	file_content string
-	line_count   int
-	column_count int
-	index        int
-	scope_id     int
-	buffer       string
-	all_tokens   []Token
-	token        Token
-	prev_token   Token
-	ast          []AstNode
+	file_name                string
+	file_path                string
+	file_content             string
+	line_count               int
+	column_count             int
+	index                    int
+	scope_id                 int
+	buffer                   string
+	all_tokens               []Token
+	current_parsing_function string
+	all_functions            []FunctionDecl
+	all_variables            []VarDecl
+	imports                  []string
+	token                    Token
+	prev_token               Token
 
-	display_json_tokens bool
+	ast []AstNode
+
+	gen_code string
+
+	done_lexing bool
 }
 
 pub fn (mut a App) get_token() Token {
 	return a.all_tokens[a.index] or {
-		println('Compiler panic: token index `${a.index}` out of range')
+		println('Compiler panic: token index `${a.index}` out of range -> Token array length: ${a.all_tokens.len}')
 		print_backtrace()
 		unsafe { free(a) }
 		exit(1)
@@ -37,7 +44,6 @@ pub enum TokenType {
 	key_emit    // emit
 	colon       // :
 	comma       // ,
-	d_quote     // "
 	s_quote     // '
 	dot         // .
 	exclamation //!
@@ -58,6 +64,9 @@ pub enum TokenType {
 
 	variable // variable
 	literal  // literal
+
+	function_decl // For Function decls -> react foo()
+	function_call // For Function calls -> foo()
 
 	radon_null // Only used by the compiler for unmatched token
 }
@@ -106,6 +115,55 @@ pub fn var_type_to_token_type(var_type VarType) TokenType {
 	}
 }
 
+pub fn token_type_to_var_type(token_type TokenType) VarType {
+	return match token_type {
+		.type_string {
+			.type_string
+		}
+		.type_int {
+			.type_int
+		}
+		else {
+			.type_unknown
+		}
+	}
+}
+
+// TODO: What is this... They both do the same stuff
+pub fn radon_type_to_c_type(radon_type TokenType) string {
+	return match radon_type {
+		.type_string {
+			'char*'
+		}
+		.type_int {
+			'int'
+		}
+		.type_void {
+			'void'
+		}
+		else {
+			''
+		}
+	}
+}
+
+pub fn radon_var_type_to_c_type(radon_type VarType) string {
+	return match radon_type {
+		.type_string {
+			'char*'
+		}
+		.type_int {
+			'int'
+		}
+		.type_void {
+			'void'
+		}
+		else {
+			''
+		}
+	}
+}
+
 pub type AstNode = Literal
 	| Identifier
 	| BinaryOp
@@ -136,7 +194,8 @@ struct BinaryOp {
 	right AstNode
 }
 
-struct Call {
+pub struct Call {
+pub mut:
 	callee string
 	args   []AstNode
 }
@@ -144,6 +203,7 @@ struct Call {
 pub struct VarDecl {
 pub mut:
 	name          string
+	function_name string
 	value         AstNode
 	is_mut        bool
 	variable_type VarType
@@ -151,8 +211,9 @@ pub mut:
 
 pub struct Expression {
 pub mut:
-	value  string
-	e_type VarType
+	value       string
+	e_type      VarType
+	is_variable bool
 }
 
 pub struct Param {
@@ -167,6 +228,7 @@ pub mut:
 	params      []Param
 	return_type TokenType
 	body        []AstNode
+	is_core     bool
 }
 
 struct ReturnStmt {
@@ -180,6 +242,6 @@ pub:
 
 pub struct EmitStmt {
 pub:
-	emit AstNode
+	emit      AstNode
 	emit_type VarType
 }

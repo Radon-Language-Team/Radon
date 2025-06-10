@@ -16,17 +16,16 @@
 
 ## 🧬 What is Radon?
 
-**Radon** is a statically typed, compiled programming language developed from scratch as a personal project. It’s a learning platform, a technical challenge, and a creative experiment all rolled into one.
+**Radon** is a statically typed, compiled programming language developed from scratch as a personal project.
 
-Unlike many modern languages that focus on developer ergonomics and flexibility, Radon is designed around **clarity, structure, and compiler-first design choices**. It’s not trying to be the next Python or JavaScript — and that’s intentional.
+Unlike many modern languages that focus on developer ergonomics and flexibility, Radon is designed around **clarity, structure, and compiler-first design choices**.
 
 Instead, Radon is inspired by:
 - The **type safety and minimalism** of the V programming language
 - The **rigor and performance orientation** of C
 - A desire to **understand compilers deeply** — from tokenization to code generation
-- The **joy of creating something truly from scratch**
 
-> ⚠️ Radon is not production-ready. It’s a work-in-progress hobby project with a long road ahead — but it already compiles simple programs!
+> ⚠️ Radon is in it's early development stage
 
 ---
 
@@ -48,29 +47,23 @@ Radon is built with the following principles in mind:
 Here’s what Radon looks like in its current state:
 
 ```
-mixture "core.rad"
+mixture 'core'
 
-react main(string name, int age) :int {
-  element foo = 10 + 5
+react greet(string name) :void {
+  println(name)
+}
 
-  emit 10
+react main() :int {
+  element foo = 'Marwin'
+  element fooTwo = foo
+
+  println(foo)
+  println(fooTwo)
+
+  greet(foo)
+  emit 0
 }
 ```
-
-This snippet imports the core standard library, declares a `main` function with parameters, creates an integer variable (`element foo`), and emits a return value.  
-
----
-
-## 🧠 Why I Built It
-
-I created Radon not because the world *needs* another language, but because **I needed to build one.**
-
-- I wanted to challenge myself with building a full toolchain: tokenizer, parser, type checker, and C code generator
-- I wanted to explore my own ideas about how programming could feel: strict where necessary, flexible where it matters
-- And I wanted a creative outlet — something I could shape and grow in my own time
-
-Radon is a sandbox for experimentation and a playground for learning. If it becomes useful or interesting to others, that’s just a bonus.
-
 ---
 
 ## 🛣 Roadmap
@@ -148,14 +141,4 @@ You can specify the compiler manually:
 radon run file.rad -cc gcc
 ```
 
-Want to inspect the generated C code? Just preserve the output:
-
-```bash
-radon run file.rad --preserve
-# or
-radon run file.rad -p
-```
-
----
-
-Thanks for reading, and welcome to the Radon project 💙  
+💙
