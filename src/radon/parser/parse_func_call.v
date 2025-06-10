@@ -13,7 +13,12 @@ fn parse_func_call(mut app structs.App) structs.Call {
 	app.index++
 	// We already know the next toke is `(` since we are parsing a function call right now
 	app.index++
-	callee_function := parser_utils.get_function(callee_name, &app)
+	callee_function := parser_utils.get_function(&app, callee_name)
+
+	if callee_function == structs.FunctionDecl{} {
+		print_compile_error('Unknown function `${callee_name}`', &app)
+		exit(1)
+	}
 
 	if callee_function.is_core {
 		if 'core' !in app.imports {

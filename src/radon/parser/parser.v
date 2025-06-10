@@ -1,6 +1,7 @@
 module parser
 
-import cmd.util { print_compile_error }
+import term
+import cmd.util { print_compile_error, print_error }
 import parser_utils
 import structs
 
@@ -26,5 +27,10 @@ pub fn parse(mut app structs.App) ! {
 		}
 	}
 
-	parser_utils.get_function('main', &app)
+	main_function := parser_utils.get_function(&app, 'main')
+	if main_function == structs.FunctionDecl{} {
+		print_error('Unkown function `main`')
+		println(term.yellow('A `main` function is required as the entry point of your program'))
+		exit(1)
+	}
 }

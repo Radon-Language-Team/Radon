@@ -42,6 +42,15 @@ fn parse_variable(mut app structs.App) structs.VarDecl {
 	variable_decl.variable_type = parsed_expression.e_type
 	variable_decl.value = parsed_expression
 
+	variable_look_up := parser_utils.get_variable(app, variable_decl.name)
+
+	if variable_look_up != structs.VarDecl{} {
+		// This variable has already been created
+		print_compile_error('Variable `${variable_decl.name}` has already been created',
+			&app)
+		exit(1)
+	}
+
 	app.all_variables << variable_decl
 	return variable_decl
 }

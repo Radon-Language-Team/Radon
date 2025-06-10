@@ -1,12 +1,10 @@
 module parser_utils
 
-import term
 import structs
-import cmd.util { print_error }
 
 const core_functions = ['println']
 
-pub fn get_function(name string, app &structs.App) structs.FunctionDecl {
+pub fn get_function(app &structs.App, name string) structs.FunctionDecl {
 	function := app.all_functions.filter(it.name == name)
 
 	if function.len == 0 {
@@ -25,19 +23,10 @@ pub fn get_function(name string, app &structs.App) structs.FunctionDecl {
 					is_core:     true
 				}
 			} else {
-				return structs.FunctionDecl{
-					name:        name
-					params:      []structs.Param{}
-					return_type: .radon_null
-					body:        []structs.AstNode{}
-				}
+				return structs.FunctionDecl{}
 			}
 		}
-		print_error('Unkown function `${name}`')
-		if name == 'main' {
-			println(term.yellow('A `main` function is required as the entry point of your program'))
-		}
-		exit(1)
+		return structs.FunctionDecl{}
 	} else {
 		return function[0]
 	}

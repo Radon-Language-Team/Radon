@@ -115,6 +115,20 @@ pub fn var_type_to_token_type(var_type VarType) TokenType {
 	}
 }
 
+pub fn token_type_to_var_type(token_type TokenType) VarType {
+	return match token_type {
+		.type_string {
+			.type_string
+		}
+		.type_int {
+			.type_int
+		}
+		else {
+			.type_unknown
+		}
+	}
+}
+
 // TODO: What is this... They both do the same stuff
 pub fn radon_type_to_c_type(radon_type TokenType) string {
 	return match radon_type {

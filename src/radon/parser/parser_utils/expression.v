@@ -35,6 +35,13 @@ pub fn parse_expression(expression []structs.Token, app structs.App) structs.Ast
 		}
 	} else if expression[0].t_type == .variable {
 		variable := get_variable(app, expression[0].t_value)
+
+		if variable == structs.VarDecl{} {
+			print_compile_error('Variable `${expression[0].t_value}` is not defined',
+				&app)
+			exit(1)
+		}
+
 		return structs.Expression{
 			value:       expression[0].t_value
 			e_type:      variable.variable_type
@@ -69,9 +76,8 @@ pub fn get_variable(app structs.App, variable_name string) structs.VarDecl {
 		&& it.function_name == app.current_parsing_function)
 
 	if variable.len == 0 {
-		print_compile_error('Variable `${variable_name}` is not defined', &app)
-		exit(1)
+		return structs.VarDecl{}
+	} else {
+		return variable[0]
 	}
-
-	return variable[0]
 }
