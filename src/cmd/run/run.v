@@ -29,7 +29,7 @@ fn new_context() Context {
 		verbose:             '-v' in os.args
 
 		args:        os.args.clone()
-		c_compilers: ['tcc', 'gcc', 'clang', 'cc']
+		c_compilers: ['tcc', 'gcc', 'clang']
 	}
 }
 
