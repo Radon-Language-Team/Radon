@@ -18,9 +18,13 @@ pub fn parse(mut app structs.App) ! {
 				app.ast << function_decl
 				app.all_functions << function_decl
 			}
+			.key_element {
+				variable := parse_variable(mut app)
+				println(variable)
+			}
 			else {
 				// println(app.ast)
-				print_compile_error('Unkown top level token of type `${token.t_type}` and value `${token.t_value}` \nExpected either `mixture`, `react`, or `element`',
+				print_compile_error('Unkown top level token of type `${token.t_type}` and value `${token.t_value}` \nExpected either `mixture`, `react`, or `elem`',
 					&app)
 				exit(1)
 			}

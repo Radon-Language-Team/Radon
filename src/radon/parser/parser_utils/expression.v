@@ -72,12 +72,16 @@ fn is_simple_expr(expr string) bool {
 }
 
 pub fn get_variable(app structs.App, variable_name string) structs.VarDecl {
-	variable := app.all_variables.filter(it.name == variable_name
-		&& it.function_name == app.current_parsing_function)
+	variables := app.all_variables.filter(it.name == variable_name)
 
-	if variable.len == 0 {
+	if variables.len == 0 {
 		return structs.VarDecl{}
 	} else {
-		return variable[0]
+		for variable in variables {
+			if variable.function_name == '' {
+				return variable
+			}
+		}
+		return variables[0]
 	}
 }

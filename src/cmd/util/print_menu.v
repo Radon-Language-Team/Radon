@@ -54,4 +54,8 @@ pub fn print_compile_error(error string, app &App) {
 			println('Previous token: `${app.prev_token.t_value}` of type `${app.prev_token.t_type}`')
 		}
 	}
+
+	unsafe {
+		free(app)
+	}
 }

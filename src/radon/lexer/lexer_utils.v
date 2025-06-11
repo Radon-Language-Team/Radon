@@ -11,10 +11,10 @@ fn match_token_type(token string) TokenType {
 		'react' {
 			return .key_react
 		}
-		'element' {
+		'elem' {
 			return .key_element
 		}
-		'isotope' {
+		'iso' {
 			return .key_isotope
 		}
 		'if' {
