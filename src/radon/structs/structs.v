@@ -207,6 +207,7 @@ pub mut:
 	value         AstNode
 	is_mut        bool
 	is_redi       bool
+	is_top_const	bool
 	variable_type VarType
 }
 

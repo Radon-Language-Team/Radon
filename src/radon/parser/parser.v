@@ -20,7 +20,8 @@ pub fn parse(mut app structs.App) ! {
 			}
 			.key_element {
 				variable := parse_variable(mut app)
-				println(variable)
+				app.all_variables << variable
+				app.ast << variable
 			}
 			else {
 				// println(app.ast)

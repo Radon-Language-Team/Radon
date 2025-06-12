@@ -79,6 +79,7 @@ pub fn get_variable(app structs.App, variable_name string) structs.VarDecl {
 	} else {
 		for variable in variables {
 			if variable.function_name == '' {
+				// Top level const's have no function name, are being defined earlier and therefor should be returned first
 				return variable
 			}
 		}

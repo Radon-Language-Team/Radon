@@ -52,12 +52,16 @@ fn gen_function(function_decl structs.FunctionDecl) string {
 fn gen_var_decl(var_decl structs.VarDecl) string {
 	mut var_decl_code := ''
 
-	if !var_decl.is_redi {
-		// In case of a redefinition, we don't need the type
-		var_decl_code += structs.radon_var_type_to_c_type(var_decl.variable_type)
-		var_decl_code += ' ${var_decl.name} = '
+	if var_decl.is_top_const {
+		var_decl_code += '#define ${var_decl.name} '
 	} else {
-		var_decl_code += '${var_decl.name} = '
+		if !var_decl.is_redi {
+			// In case of a redefinition, we don't need the type
+			var_decl_code += structs.radon_var_type_to_c_type(var_decl.variable_type)
+			var_decl_code += ' ${var_decl.name} = '
+		} else {
+			var_decl_code += '${var_decl.name} = '
+		}
 	}
 
 	var_decl_value := var_decl.value as structs.Expression
@@ -67,11 +71,16 @@ fn gen_var_decl(var_decl structs.VarDecl) string {
 		// element foo = 'Hello'
 		// foo -> "foo" > No
 		// foo -> foo > Yes
-		var_decl_code += gen_utils.gen_string(var_decl_value) + '; \n'
+		var_decl_code += gen_utils.gen_string(var_decl_value)
 	} else {
-		var_decl_code += '${var_decl_value.value.trim_space()}; \n'
+		var_decl_code += '${var_decl_value.value.trim_space()}'
 	}
 
+	if var_decl.is_top_const {
+		return var_decl_code
+	} else {
+		var_decl_code += '; \n'
+	}
 	return var_decl_code
 }
 

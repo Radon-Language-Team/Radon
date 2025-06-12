@@ -46,6 +46,10 @@ fn parse_variable(mut app structs.App) structs.VarDecl {
 	variable_decl.variable_type = parsed_expression.e_type
 	variable_decl.value = parsed_expression
 
+	if variable_decl.function_name == '' {
+		variable_decl.is_top_const = true
+	}
+
 	variable_look_up := parser_utils.get_variable(app, variable_decl.name)
 
 	if variable_look_up != structs.VarDecl{} {

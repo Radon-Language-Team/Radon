@@ -54,8 +54,8 @@ react greet(string name) :void {
 }
 
 react main() :int {
-  element foo = 'Marwin'
-  element fooTwo = foo
+  elem foo = 'Marwin'
+  iso fooTwo = foo
 
   println(foo)
   println(fooTwo)
