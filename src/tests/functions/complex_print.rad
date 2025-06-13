@@ -1,0 +1,12 @@
+mixture 'core'
+
+react stringEmit(string a) :string {
+ emit a
+}
+
+react main() :int {
+  iso name = 'Success!'
+  iso nameTwo = stringEmit(name)
+
+  println(nameTwo)
+}

@@ -1,0 +1,5 @@
+mixture 'core'
+
+react main() {
+  println('Success!')
+}
