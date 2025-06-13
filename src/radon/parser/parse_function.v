@@ -72,7 +72,7 @@ fn parse_function_body(mut app structs.App, function structs.FunctionDecl) []str
 				function_body << emit_stmt
 			}
 			.function_call {
-				function_body << parse_func_call(mut app)
+				function_body << parser_utils.parse_func_call(mut app)
 			}
 			.variable {
 				variable := parse_variable(mut app)

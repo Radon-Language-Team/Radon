@@ -66,20 +66,35 @@ fn gen_var_decl(var_decl structs.VarDecl) string {
 
 	var_decl_value := var_decl.value as structs.Expression
 
-	if var_decl_value.e_type == .type_string && !var_decl_value.is_variable {
+	if var_decl_value.e_type == .type_string && !var_decl_value.is_variable
+		&& !var_decl_value.is_function {
 		// In case it's a variable, we don't want to put quotes around it
 		// element foo = 'Hello'
 		// foo -> "foo" > No
 		// foo -> foo > Yes
 		var_decl_code += gen_utils.gen_string(var_decl_value)
+	} else if var_decl_value.is_function {
+		type_name_of_expression := var_decl_value.advanced_expression.type_name()
+		match type_name_of_expression {
+			'radon.structs.Call' {
+				var_decl_as_call := var_decl_value.advanced_expression as structs.Call
+				var_decl_code += gen_call(var_decl_as_call)
+			}
+			else {
+				println('That kind of expression can not yet be generated :)')
+				exit(1)
+			}
+		}
 	} else {
 		var_decl_code += '${var_decl_value.value.trim_space()}'
 	}
 
 	if var_decl.is_top_const {
-		return var_decl_code
+		return '${var_decl_code} \n'
 	} else {
-		var_decl_code += '; \n'
+		if var_decl_value.is_function == false {
+			var_decl_code += '; \n'
+		}
 	}
 	return var_decl_code
 }
@@ -87,7 +102,7 @@ fn gen_var_decl(var_decl structs.VarDecl) string {
 fn gen_emit_stmt(emit_stmt structs.EmitStmt) string {
 	emit_stmt_value := emit_stmt.emit as structs.Expression
 
-	if emit_stmt_value.e_type == .type_string {
+	if emit_stmt_value.e_type == .type_string && !emit_stmt_value.is_variable {
 		return 'return ${gen_utils.gen_string(emit_stmt_value)}; \n'
 	}
 

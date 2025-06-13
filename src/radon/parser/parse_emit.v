@@ -7,7 +7,7 @@ fn parse_emit(mut app structs.App) structs.EmitStmt {
 	app.index++
 
 	expression := parser_utils.get_expression(mut app)
-	parsed_expression := parser_utils.parse_expression(expression, app) as structs.Expression
+	parsed_expression := parser_utils.parse_expression(expression, mut app) as structs.Expression
 
 	emit_stmt := structs.EmitStmt{
 		emit:      parsed_expression

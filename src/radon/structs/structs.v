@@ -207,15 +207,17 @@ pub mut:
 	value         AstNode
 	is_mut        bool
 	is_redi       bool
-	is_top_const	bool
+	is_top_const  bool
 	variable_type VarType
 }
 
 pub struct Expression {
 pub mut:
-	value       string
-	e_type      VarType
-	is_variable bool
+	value               string
+	e_type              VarType
+	is_variable         bool
+	is_function         bool
+	advanced_expression AstNode
 }
 
 pub struct Param {

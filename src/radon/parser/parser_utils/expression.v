@@ -18,7 +18,7 @@ pub fn get_expression(mut app structs.App) []structs.Token {
 	return expression
 }
 
-pub fn parse_expression(expression []structs.Token, app structs.App) structs.AstNode {
+pub fn parse_expression(expression []structs.Token, mut app structs.App) structs.AstNode {
 	// If the expression is a simple expression (just numbers and operators), we can just return the whole thing
 	string_expression := token_array_to_string(expression)
 	is_simple_int := is_simple_expr(string_expression)
@@ -47,9 +47,30 @@ pub fn parse_expression(expression []structs.Token, app structs.App) structs.Ast
 			e_type:      variable.variable_type
 			is_variable: true
 		}
-	} else {
-		println('Support for these kind of these expressions is not yet built in :)')
-		exit(1)
+	} else if expression[0].t_type == .function_call {
+		// function_call := parse_func_call(mut app)
+		// println(function_call)
+		starting_token := expression[0]
+
+		mut token_pos := -1
+		for i, tok in app.all_tokens {
+			if tok.t_type == starting_token.t_type && tok.t_value == starting_token.t_value {
+				token_pos = i
+				break
+			}
+		}
+		app.index = token_pos
+		// We are parsing the function call, so our index sits at the right position
+		function_call := parse_func_call(mut app)
+
+		function := get_function(&app, starting_token.t_value)
+
+		return structs.Expression{
+			value:               ''
+			e_type:              structs.token_type_to_var_type(function.return_type)
+			is_function:         true
+			advanced_expression: function_call
+		}
 	}
 
 	return structs.AstNode{}

@@ -40,7 +40,7 @@ fn parse_variable(mut app structs.App) structs.VarDecl {
 	app.index++
 
 	expression := parser_utils.get_expression(mut app)
-	parsed_expression := parser_utils.parse_expression(expression, app) as structs.Expression
+	parsed_expression := parser_utils.parse_expression(expression, mut app) as structs.Expression
 
 	variable_decl.function_name = app.current_parsing_function
 	variable_decl.variable_type = parsed_expression.e_type
@@ -92,7 +92,7 @@ fn parse_redefinition_var(mut app structs.App) structs.VarDecl {
 	app.index++
 
 	expression := parser_utils.get_expression(mut app)
-	parsed_expression := parser_utils.parse_expression(expression, app) as structs.Expression
+	parsed_expression := parser_utils.parse_expression(expression, mut app) as structs.Expression
 
 	variable_decl.name = var_name
 	variable_decl.function_name = app.current_parsing_function
