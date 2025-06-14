@@ -4,9 +4,13 @@ import structs
 
 const core_import_string = '#include <stdio.h>
 
-void println(char* x) 
+void println_str(char* x) 
 { 
 	printf("%s\\n", x);
+}
+void println_int(int x)
+{
+  printf("%d\\n", x);
 }
 '
 

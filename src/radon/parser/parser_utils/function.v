@@ -105,13 +105,27 @@ pub fn parse_func_call(mut app structs.App) structs.Call {
 		arg_expression := parse_expression([arg], mut app) as structs.Expression
 		arg_type := structs.var_type_to_token_type(arg_expression.e_type)
 
-		if arg_type != callee_arg.p_type {
+		if arg_type != callee_arg.p_type && callee_name != 'println' {
 			print_compile_error('Argument type mismatch in function `${callee_function.name}`: Parameter `${callee_arg.name}` expects `${callee_arg.p_type}`, but got `${arg_type}`',
 				&app)
 			exit(1)
 		}
 
 		call.args << arg_expression
+	}
+
+	if callee_name == 'println' {
+		println_argument := call.args[0] as structs.Expression
+
+		if println_argument.e_type == .type_string {
+			call.callee = 'println_str'
+		} else if println_argument.e_type == .type_int {
+			call.callee = 'println_int'
+		} else {
+			print_compile_error('Function `println` does not support an argument of type `${println_argument.e_type}` yet',
+				&app)
+			exit(1)
+		}
 	}
 
 	app.index++ // Consume the remaining `)`
