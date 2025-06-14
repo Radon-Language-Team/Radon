@@ -3,29 +3,46 @@ module parser_utils
 import structs
 import cmd.util { print_compile_error }
 
-const core_functions = ['println']
+const core_functions = ['println', 'read']
+
+fn get_core_function(name string) structs.FunctionDecl {
+	if name == 'println' {
+		return structs.FunctionDecl{
+			name:        name
+			params:      [
+				structs.Param{
+					name:   'x'
+					p_type: .type_string
+				},
+			]
+			return_type: .type_void
+			body:        []structs.AstNode{}
+			is_core:     true
+		}
+	} else if name == 'read' {
+		return structs.FunctionDecl{
+			name:        name
+			params:      [
+				structs.Param{
+					name:   'message'
+					p_type: .type_string
+				},
+			]
+			return_type: .type_string
+			body:        []structs.AstNode{}
+			is_core:     true
+		}
+	} else {
+		return structs.FunctionDecl{}
+	}
+}
 
 pub fn get_function(app &structs.App, name string) structs.FunctionDecl {
 	function := app.all_functions.filter(it.name == name)
 
 	if function.len == 0 {
 		if name in core_functions {
-			if name == 'println' {
-				return structs.FunctionDecl{
-					name:        name
-					params:      [
-						structs.Param{
-							name:   'x'
-							p_type: .type_string
-						},
-					]
-					return_type: .type_void
-					body:        []structs.AstNode{}
-					is_core:     true
-				}
-			} else {
-				return structs.FunctionDecl{}
-			}
+			return get_core_function(name)
 		}
 		return structs.FunctionDecl{}
 	} else {

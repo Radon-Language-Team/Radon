@@ -1,1 +1,2 @@
 react println(string x) :void {}
+react read(string message) :string {}

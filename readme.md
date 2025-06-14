@@ -49,20 +49,12 @@ Here’s what Radon looks like in its current state:
 ```
 mixture 'core'
 
-react greet(string name) :void {
+react main() :int {
+  iso name = read('What is your name?')
+
   println(name)
 }
 
-react main() :int {
-  elem foo = 'Marwin'
-  iso fooTwo = foo
-
-  println(foo)
-  println(fooTwo)
-
-  greet(foo)
-  emit 0
-}
 ```
 ---
 
