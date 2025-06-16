@@ -52,9 +52,15 @@ pub fn parse_expression(expression []structs.Token, mut app structs.App) structs
 		// println(function_call)
 		starting_token := expression[0]
 
+		// We get the line and the column of the expression, so we know which expression to later jump back to
+		// If, for example, we use the same function twice, without line/column the compiler will get stuck on the first usage of that function
+		starting_token_line := starting_token.t_line
+		starting_token_column := starting_token.t_column
+
 		mut token_pos := -1
 		for i, tok in app.all_tokens {
-			if tok.t_type == starting_token.t_type && tok.t_value == starting_token.t_value {
+			if tok.t_type == starting_token.t_type && tok.t_value == starting_token.t_value
+				&& tok.t_line == starting_token_line && tok.t_column == starting_token_column {
 				token_pos = i
 				break
 			}
@@ -64,6 +70,12 @@ pub fn parse_expression(expression []structs.Token, mut app structs.App) structs
 		function_call := parse_func_call(mut app)
 
 		function := get_function(&app, starting_token.t_value)
+
+		if function.return_type == .type_void {
+			print_compile_error('Function `${starting_token.t_value}` does not return anything',
+				&app)
+			exit(1)
+		}
 
 		return structs.Expression{
 			value:               ''
@@ -76,7 +88,7 @@ pub fn parse_expression(expression []structs.Token, mut app structs.App) structs
 	return structs.AstNode{}
 }
 
-fn token_array_to_string(tokens []structs.Token) string {
+pub fn token_array_to_string(tokens []structs.Token) string {
 	mut token_string := ''
 
 	for token in tokens {

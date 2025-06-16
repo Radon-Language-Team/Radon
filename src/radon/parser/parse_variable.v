@@ -90,7 +90,7 @@ fn parse_redefinition_var(mut app structs.App) structs.VarDecl {
 	}
 
 	app.index++
-
+	
 	expression := parser_utils.get_expression(mut app)
 	parsed_expression := parser_utils.parse_expression(expression, mut app) as structs.Expression
 
