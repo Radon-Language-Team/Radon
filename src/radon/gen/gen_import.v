@@ -17,20 +17,12 @@ void println_int(int x)
 
 char *read(char *message) 
 {
-  char *buffer = malloc(1024);
-  if (!buffer) return NULL;
-
-  printf("%s ", message);
+  char buffer[1024];
+    printf("%s ", message);
   if (fgets(buffer, 1024, stdin) == NULL) 
-  {
+    {
     buffer[0] = \'\\0\';
-    return buffer;
   }
-
-  size_t len = strlen(buffer);
-  if (len > 0 && buffer[len - 1] == \'\\n\')
-    buffer[len - 1] = \'\\0\';
-
   return buffer;
 }
 '
