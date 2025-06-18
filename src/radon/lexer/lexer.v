@@ -52,6 +52,14 @@ pub fn lex_file(mut app structs.App) ! {
 				} else if app.file_content[app.index + 1].ascii_str() == '(' {
 					// For Function Calls -> foo()
 					token_type = .function_call
+
+					if app.prev_token.t_type == .at {
+						function_name := app.buffer.str()
+
+						// In case of a '@' function, pop @ of the tokens, and add it to the function name
+						lexed_tokens.pop()
+						app.buffer = '@${function_name}'
+					}
 				}
 			}
 

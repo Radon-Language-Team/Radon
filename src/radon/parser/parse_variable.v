@@ -59,6 +59,27 @@ fn parse_variable(mut app structs.App) structs.VarDecl {
 		exit(1)
 	}
 
+	if parsed_expression.is_function {
+		advanced_expression := parsed_expression.advanced_expression
+		match advanced_expression.type_name() {
+			'radon.structs.Call' {
+				expression_as_call := advanced_expression as structs.Call
+				if expression_as_call.callee.contains('@') {
+					if variable_decl.is_top_const {
+						print_compile_error('Can not use function `${expression_as_call.callee}` on top-level expression',
+							&app)
+						exit(1)
+					}
+
+					app.all_allocations << variable_decl.name
+				}
+			}
+			else {
+				none
+			}
+		}
+	}
+
 	app.all_variables << variable_decl
 	return variable_decl
 }
@@ -90,7 +111,7 @@ fn parse_redefinition_var(mut app structs.App) structs.VarDecl {
 	}
 
 	app.index++
-	
+
 	expression := parser_utils.get_expression(mut app)
 	parsed_expression := parser_utils.parse_expression(expression, mut app) as structs.Expression
 

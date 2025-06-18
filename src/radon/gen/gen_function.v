@@ -37,6 +37,9 @@ fn gen_function(function_decl structs.FunctionDecl) string {
 			structs.Call {
 				function_body_code += gen_call(node)
 			}
+			structs.DecayStmt {
+				function_body_code += gen_decay(node)
+			}
 			else {
 				println('Those kind of nodes are not supported in function bodies for now :)')
 				exit(1)
@@ -110,7 +113,12 @@ fn gen_emit_stmt(emit_stmt structs.EmitStmt) string {
 }
 
 fn gen_call(node structs.Call) string {
-	callee_name := node.callee
+	mut callee_name := node.callee
+
+	if callee_name.contains('@') {
+		callee_name = callee_name.replace('@', '')
+	}
+
 	mut call_args := ''
 
 	for arg in node.args {
@@ -126,7 +134,10 @@ fn gen_call(node structs.Call) string {
 			call_args += ','
 		}
 	}
-
 	function_call := '${callee_name}(${call_args}); \n'
 	return function_call
+}
+
+fn gen_decay(node structs.DecayStmt) string {
+	return 'free(${node.name}); \n'
 }

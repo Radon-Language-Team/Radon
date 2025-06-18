@@ -72,15 +72,19 @@ fn parse_function_body(mut app structs.App, function structs.FunctionDecl) []str
 				function_body << emit_stmt
 			}
 			.function_call {
-				function_body << parser_utils.parse_func_call(mut app)
+				function_body << parser_utils.parse_func_call(mut app, false)
 			}
 			.variable {
 				variable := parse_variable(mut app)
 				function_body << variable
 			}
+			.key_decay {
+				function_body << parser_utils.parse_decay(mut app)
+			}
 			.close_brace {
 				if app.scope_id == 0 {
 					// We hit the closing brace of the function body
+					check_if_decay(app, function_body)
 					return function_body
 				}
 			}
@@ -91,7 +95,6 @@ fn parse_function_body(mut app structs.App, function structs.FunctionDecl) []str
 			}
 		}
 	}
-
 	return function_body
 }
 
@@ -202,5 +205,24 @@ fn parse_function_return_type(mut app structs.App) structs.TokenType {
 			exit(1)
 		}
 		return .type_void
+	}
+}
+
+fn check_if_decay(app structs.App, function_body []structs.AstNode) {
+	mut decayed_vars := map[string]bool{}
+	for node in function_body {
+		if node.type_name() == 'radon.structs.DecayStmt' {
+			decay_stmt := node as structs.DecayStmt
+			decayed_vars[decay_stmt.name] = true
+		}
+	}
+
+	for alloc in app.all_allocations {
+		if !decayed_vars[alloc] {
+			print_compile_error('`${alloc}` allocates memory but is never freed \n> Add `decay ${alloc}` after you are done using the variable',
+				&app)
+			println('\nNote: This requirement will go away once Radon supports automatic memory management')
+			exit(1)
+		}
 	}
 }

@@ -14,6 +14,7 @@ pub mut:
 	current_parsing_function string
 	all_functions            []FunctionDecl
 	all_variables            []VarDecl
+	all_allocations          []string
 	imports                  []string
 	token                    Token
 	prev_token               Token
@@ -39,6 +40,7 @@ pub enum TokenType {
 	key_react   // react
 	key_element // element
 	key_isotope // isotope
+	key_decay   // decay
 	key_if      // if
 	key_else    // else
 	key_emit    // emit
@@ -47,6 +49,7 @@ pub enum TokenType {
 	s_quote     // '
 	dot         // .
 	exclamation //!
+	at          // @
 	open_brace  // {
 	close_brace // }
 	open_paren  // (
@@ -168,6 +171,7 @@ pub type AstNode = Literal
 	| Identifier
 	| BinaryOp
 	| Call
+	| DecayStmt
 	| VarDecl
 	| EmitStmt
 	| Expression
@@ -233,6 +237,7 @@ pub mut:
 	return_type TokenType
 	body        []AstNode
 	is_core     bool
+	does_malloc bool
 }
 
 struct ReturnStmt {
@@ -248,4 +253,9 @@ pub struct EmitStmt {
 pub:
 	emit      AstNode
 	emit_type VarType
+}
+
+pub struct DecayStmt {
+pub mut:
+	name string
 }

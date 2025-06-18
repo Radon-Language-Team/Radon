@@ -67,7 +67,7 @@ pub fn parse_expression(expression []structs.Token, mut app structs.App) structs
 		}
 		app.index = token_pos
 		// We are parsing the function call, so our index sits at the right position
-		function_call := parse_func_call(mut app)
+		function_call := parse_func_call(mut app, true)
 
 		function := get_function(&app, starting_token.t_value)
 

@@ -17,17 +17,6 @@ void println_int(int x)
 
 char *read(char *message) 
 {
-  static char buffer[1024];
-	printf("%s ", message);
-  if (fgets(buffer, 1024, stdin) == NULL) 
-	{
-    buffer[0] = \'\\0\';
-  }
-  return buffer;
-}
-
-char *special_read(char *message) 
-{
   char *buffer = malloc(1024);
   if (!buffer) return NULL;
 
