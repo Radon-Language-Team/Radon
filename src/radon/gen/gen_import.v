@@ -25,6 +25,17 @@ char *read(char *message)
   }
   return buffer;
 }
+
+char *clone(char *original) {
+  if (original == NULL) return NULL;
+
+  size_t len = strlen(original);
+  char *copy = malloc(len + 1);
+  if (!copy) return NULL;
+
+	strcpy(copy, original);
+  return copy;
+}
 '
 
 fn gen_import(node structs.ImportStmt) string {

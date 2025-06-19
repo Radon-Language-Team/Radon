@@ -105,7 +105,7 @@ fn parse_redefinition_var(mut app structs.App) structs.VarDecl {
 	app.index++
 	token = app.get_token()
 	if token.t_type != .equals {
-		print_compile_error('Expected ` = `, got token of type ` ${token.t_type} ` and value ` ${token.t_value} `',
+		print_compile_error('Expected `=`, got token of type `${token.t_type}` and value `${token.t_value}`',
 			&app)
 		exit(1)
 	}
@@ -114,6 +114,12 @@ fn parse_redefinition_var(mut app structs.App) structs.VarDecl {
 
 	expression := parser_utils.get_expression(mut app)
 	parsed_expression := parser_utils.parse_expression(expression, mut app) as structs.Expression
+
+	if parsed_expression.e_type != possible_variable.variable_type {
+		print_compile_error('Can not assign `${parsed_expression.e_type}` to variable `${var_name}` (${possible_variable.variable_type})',
+			&app)
+		exit(1)
+	}
 
 	variable_decl.name = var_name
 	variable_decl.function_name = app.current_parsing_function
