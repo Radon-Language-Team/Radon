@@ -136,7 +136,7 @@ fn parse_function_args(mut app structs.App) []structs.Param {
 			}
 
 			// TODO: Make this a function or something
-			if tok_type.t_type !in [.type_int, .type_string] {
+			if tok_type.t_type !in [.type_int, .type_string, .type_bool] {
 				print_compile_error('Expected a type before the parameter name, got ` ${tok_type.t_value} `',
 					&app)
 				exit(1)

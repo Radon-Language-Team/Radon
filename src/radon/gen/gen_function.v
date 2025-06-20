@@ -153,7 +153,7 @@ fn gen_call(node structs.Call) string {
 
 		if argument.e_type == .type_string && !argument.is_variable {
 			call_args += gen_utils.gen_string(argument)
-		} else if argument.e_type == .type_bool {
+		} else if argument.e_type == .type_bool && !argument.is_variable {
 			call_args += match argument.value {
 				'true' {
 					1
