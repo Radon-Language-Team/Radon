@@ -110,7 +110,7 @@ pub fn parse_func_call(mut app structs.App, inside_variable bool) structs.Call {
 				exit(1)
 			}
 		} else {
-			if buffer[i].t_type !in [.literal, .variable, .type_string] {
+			if buffer[i].t_type !in [.literal, .variable, .type_string, .key_true, .key_false] {
 				print_compile_error('Invalid value in argument list: `${buffer[i].t_value}`',
 					&app)
 				exit(1)

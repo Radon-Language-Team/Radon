@@ -153,6 +153,19 @@ fn gen_call(node structs.Call) string {
 
 		if argument.e_type == .type_string && !argument.is_variable {
 			call_args += gen_utils.gen_string(argument)
+		} else if argument.e_type == .type_bool {
+			call_args += match argument.value {
+				'true' {
+					1
+				}
+				'false' {
+					0
+				}
+				else {
+					println('Unknown bool value > Defaulting to 0')
+					0
+				}
+			}.str()
 		} else {
 			call_args += argument.value
 		}
