@@ -88,6 +88,19 @@ fn gen_var_decl(var_decl structs.VarDecl) string {
 				exit(1)
 			}
 		}
+	} else if var_decl_value.e_type == .type_bool {
+		var_decl_code += match var_decl_value.value {
+			'true' {
+				1
+			}
+			'false' {
+				0
+			}
+			else {
+				println('Unknown bool value > Defaulting to 0')
+				0
+			}
+		}.str()
 	} else {
 		var_decl_code += '${var_decl_value.value.trim_space()}'
 	}
@@ -107,6 +120,20 @@ fn gen_emit_stmt(emit_stmt structs.EmitStmt) string {
 
 	if emit_stmt_value.e_type == .type_string && !emit_stmt_value.is_variable {
 		return 'return ${gen_utils.gen_string(emit_stmt_value)}; \n'
+	} else if emit_stmt_value.e_type == .type_bool {
+		bool_return := match emit_stmt_value.value {
+			'true' {
+				1
+			}
+			'false' {
+				0
+			}
+			else {
+				println('Unknown bool value > Defaulting to 0')
+				0
+			}
+		}.str()
+		return 'return ${bool_return}; \n'
 	}
 
 	return 'return ${emit_stmt_value.value.trim_space()}; \n'

@@ -184,9 +184,10 @@ fn parse_function_return_type(mut app structs.App) structs.TokenType {
 
 		return_type := app.get_token()
 
+		println(return_type)
 		// TODO: Same as above, turn this into a function
-		if return_type.t_type !in [.type_string, .type_int, .type_void] {
-			print_compile_error('Expected a function return type, got ` ${return_type.t_value} `',
+		if return_type.t_type !in [.type_string, .type_int, .type_void, .type_bool] {
+			print_compile_error('Expected a function return type, got `${return_type.t_value}`',
 				&app)
 			exit(1)
 		}

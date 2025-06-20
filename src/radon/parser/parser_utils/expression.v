@@ -28,6 +28,11 @@ pub fn parse_expression(expression []structs.Token, mut app structs.App) structs
 			value:  string_expression
 			e_type: .type_int
 		}
+	} else if expression[0].t_type == .key_true || expression[0].t_type == .key_false {
+		return structs.Expression{
+			value:  expression[0].t_value
+			e_type: .type_bool
+		}
 	} else if expression[0].t_type == .type_string {
 		return structs.Expression{
 			value:  expression[0].t_value
@@ -105,6 +110,11 @@ fn is_simple_expr(expr string) bool {
 }
 
 pub fn get_variable(app structs.App, variable_name string) structs.VarDecl {
+	if variable_name in app.decays {
+		print_compile_error('Variable `${variable_name}` has already been freed once',
+			&app)
+		exit(1)
+	}
 	variables := app.all_variables.filter(it.name == variable_name)
 
 	if variables.len == 0 {

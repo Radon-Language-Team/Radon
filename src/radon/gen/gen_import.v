@@ -14,6 +14,10 @@ void println_int(int x)
 {
   printf("%d\\n", x);
 }
+void println_bool(int x)
+{
+	printf("%s\\n", x ? "true" : "false");
+} 
 
 char *read(char *message) 
 {

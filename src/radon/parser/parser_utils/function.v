@@ -153,6 +153,8 @@ pub fn parse_func_call(mut app structs.App, inside_variable bool) structs.Call {
 			call.callee = 'println_str'
 		} else if println_argument.e_type == .type_int {
 			call.callee = 'println_int'
+		} else if println_argument.e_type == .type_bool {
+			call.callee = 'println_bool'
 		} else {
 			print_compile_error('Function `println` does not support an argument of type `${println_argument.e_type}` yet',
 				&app)
@@ -211,5 +213,6 @@ pub fn parse_decay(mut app structs.App) structs.DecayStmt {
 	}
 
 	decay.name = parsed_expression.value
+	app.decays << parsed_expression.value
 	return decay
 }

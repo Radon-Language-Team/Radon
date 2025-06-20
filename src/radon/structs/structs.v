@@ -15,6 +15,7 @@ pub mut:
 	all_functions            []FunctionDecl
 	all_variables            []VarDecl
 	all_allocations          []string
+	decays                   []string
 	imports                  []string
 	token                    Token
 	prev_token               Token
@@ -44,6 +45,8 @@ pub enum TokenType {
 	key_if      // if
 	key_else    // else
 	key_emit    // emit
+	key_true    // true
+	key_false   // false
 	colon       // :
 	comma       // ,
 	s_quote     // '
@@ -57,7 +60,8 @@ pub enum TokenType {
 
 	type_int    // int
 	type_string // string
-	type_void
+	type_void   // void
+	type_bool   // bool
 
 	plus   // +
 	minus  // -
@@ -112,6 +116,9 @@ pub fn var_type_to_token_type(var_type VarType) TokenType {
 		.type_int {
 			.type_int
 		}
+		.type_bool {
+			.type_bool
+		}
 		else {
 			.radon_null
 		}
@@ -125,6 +132,9 @@ pub fn token_type_to_var_type(token_type TokenType) VarType {
 		}
 		.type_int {
 			.type_int
+		}
+		.type_bool {
+			.type_bool
 		}
 		else {
 			.type_unknown
@@ -144,6 +154,9 @@ pub fn radon_type_to_c_type(radon_type TokenType) string {
 		.type_void {
 			'void'
 		}
+		.type_bool {
+			'int'
+		}
 		else {
 			''
 		}
@@ -160,6 +173,9 @@ pub fn radon_var_type_to_c_type(radon_type VarType) string {
 		}
 		.type_void {
 			'void'
+		}
+		.type_bool {
+			'int'
 		}
 		else {
 			''
