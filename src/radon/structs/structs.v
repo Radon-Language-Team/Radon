@@ -194,6 +194,7 @@ pub type AstNode = Literal
 	| FunctionDecl
 	| ReturnStmt
 	| ImportStmt
+	| IfStmt
 
 struct Literal {
 	value int
@@ -274,4 +275,11 @@ pub:
 pub struct DecayStmt {
 pub mut:
 	name string
+}
+
+pub struct IfStmt {
+pub:
+	condition   AstNode
+	then_branch []AstNode
+	else_branch ?[]AstNode
 }

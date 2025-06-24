@@ -71,6 +71,11 @@ fn parse_function_body(mut app structs.App, function structs.FunctionDecl) []str
 
 				function_body << emit_stmt
 			}
+			.key_if {
+				if_stmt := parse_if(mut app)
+				println(if_stmt)
+				function_body << if_stmt
+			}
 			.function_call {
 				function_body << parser_utils.parse_func_call(mut app, false)
 			}

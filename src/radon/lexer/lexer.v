@@ -151,7 +151,7 @@ pub fn lex_file(mut app structs.App) ! {
 					t_value:    current_char
 					t_line:     app.line_count
 					t_column:   app.column_count
-					t_length:   current_char.len // Should be 1 in all cases, right?
+					t_length:   current_char.len
 					t_filename: app.file_name
 					t_category: token_category
 					t_var_type: .type_unknown
