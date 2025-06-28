@@ -1,6 +1,6 @@
 module parser
 
-import cmd.util { print_compile_error }
+import cmd.util { print_compile_error, radon_assert }
 import parser_utils
 import structs
 
@@ -19,10 +19,9 @@ fn parse_function(mut app structs.App) !structs.FunctionDecl {
 	function_decl.name = token.t_value
 
 	function_look_up := parser_utils.get_function(&app, token.t_value)
-	if function_look_up != structs.FunctionDecl{} {
-		print_compile_error('Function `${token.t_value}` has already been created', &app)
-		exit(1)
-	}
+
+	radon_assert(function_look_up != structs.FunctionDecl{}, 'Function `${token.t_value}` has already been created',
+		&app)
 
 	app.index++
 
@@ -35,7 +34,7 @@ fn parse_function(mut app structs.App) !structs.FunctionDecl {
 
 	app.index++
 
-	function_decl.body = parse_function_body(mut app, function_decl)
+	function_decl.body = parse_function_body(mut app, function_decl, false)
 
 	token = app.get_token()
 	if token.t_type != .close_brace {
@@ -48,7 +47,7 @@ fn parse_function(mut app structs.App) !structs.FunctionDecl {
 	return function_decl
 }
 
-fn parse_function_body(mut app structs.App, function structs.FunctionDecl) []structs.AstNode {
+fn parse_function_body(mut app structs.App, function structs.FunctionDecl, inside_if bool) []structs.AstNode {
 	mut function_body := []structs.AstNode{}
 	for app.index < app.all_tokens.len {
 		token := app.all_tokens[app.index]
@@ -72,8 +71,7 @@ fn parse_function_body(mut app structs.App, function structs.FunctionDecl) []str
 				function_body << emit_stmt
 			}
 			.key_if {
-				if_stmt := parse_if(mut app)
-				println(if_stmt)
+				if_stmt := parse_if(mut app, function)
 				function_body << if_stmt
 			}
 			.function_call {
@@ -87,7 +85,7 @@ fn parse_function_body(mut app structs.App, function structs.FunctionDecl) []str
 				function_body << parser_utils.parse_decay(mut app)
 			}
 			.close_brace {
-				if app.scope_id == 0 {
+				if app.scope_id == 0 || inside_if {
 					// We hit the closing brace of the function body
 					check_if_decay(app, function_body)
 					return function_body

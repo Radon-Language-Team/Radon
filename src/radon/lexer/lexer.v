@@ -2,7 +2,7 @@ module lexer
 
 import os
 import encoding.utf8 { is_letter, is_number, is_space }
-import cmd.util { print_compile_error }
+import cmd.util { radon_assert }
 import structs
 
 pub fn lex_file(mut app structs.App) ! {
@@ -11,10 +11,8 @@ pub fn lex_file(mut app structs.App) ! {
 	file_content := os.read_file(app.file_path)!
 	app.file_content = file_content
 
-	if app.file_content.trim_space().len == 0 {
-		print_compile_error('`${app.file_path}` is empty - Nothing to do', &app)
-		exit(1)
-	}
+	radon_assert(app.file_content.trim_space().len == 0, '`${app.file_path}` is empty - Nothing to do',
+		&app)
 
 	// Go over each character in the file content
 	for app.index < app.file_content.len {
@@ -75,11 +73,9 @@ pub fn lex_file(mut app structs.App) ! {
 				token_var_type = structs.VarType.type_string // TODO: Actually find out what kind of variable this is
 			}
 
-			if token_type == .variable && token_category == .identifier
-				&& token_var_type == .type_unknown {
-				print_compile_error('Found an unkown token of type ${token_type}', &app)
-				exit(1)
-			}
+			radon_assert(token_type == .variable && token_category == .identifier
+				&& token_var_type == .type_unknown, 'Found an unkown token of type ${token_type}',
+				&app)
 
 			lexed_tokens << structs.Token{
 				t_type:     token_type
@@ -110,11 +106,8 @@ pub fn lex_file(mut app structs.App) ! {
 			token_type := match_token_type(app.buffer.str())
 			token_category := match_token_category(token_type)
 
-			if token_type == .radon_null {
-				print_compile_error('Unknown token: `${app.buffer.str()}` >> `t_type: ${token_type}` and `t_category: ${token_category}`',
-					&app)
-				exit(1)
-			}
+			radon_assert(token_type == .radon_null, 'Unknown token: `${app.buffer.str()}` >> `t_type: ${token_type}` and `t_category: ${token_category}`',
+				&app)
 
 			lexed_tokens << structs.Token{
 				t_type:     token_type
@@ -139,10 +132,8 @@ pub fn lex_file(mut app structs.App) ! {
 			// Special characters
 			token_type := match_token_type(current_char)
 
-			if token_type == .radon_null {
-				print_compile_error('Unkown token `${current_char}`', &app)
-				exit(1)
-			}
+			radon_assert(token_type == .radon_null, 'Unkown token `${current_char}`',
+				&app)
 
 			token_category := match_token_category(token_type)
 			if token_type != .s_quote {
@@ -164,10 +155,8 @@ pub fn lex_file(mut app structs.App) ! {
 				mut string_buffer := ''
 
 				for app.file_content[app.index].ascii_str() != "'" {
-					if app.index + 1 >= app.file_content.len {
-						print_compile_error('String was not properly closed', &app)
-						exit(1)
-					}
+					radon_assert(app.index + 1 >= app.file_content.len, 'String was not properly closed',
+						&app)
 
 					current_value := app.file_content[app.index].ascii_str()
 					string_buffer += current_value

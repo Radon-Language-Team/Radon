@@ -1,18 +1,16 @@
 module parser
 
 import structs
-import cmd.util { print_compile_error }
+import cmd.util { radon_assert }
 import parser_utils
 
-fn parse_if(mut app structs.App) structs.IfStmt {
+fn parse_if(mut app structs.App, function structs.FunctionDecl) structs.IfStmt {
 	app.index++
 	mut if_expression_buffer := []structs.Token{}
 
 	for app.get_token().t_type != .open_brace {
-		if app.index + 1 >= app.all_tokens.len {
-			print_compile_error('If-statement is not properly opened', &app)
-			exit(1)
-		}
+		radon_assert(app.index + 1 >= app.all_tokens.len, 'If-statement is not properly opened',
+			&app)
 
 		if_expression_buffer << app.get_token()
 		app.index++
@@ -21,24 +19,33 @@ fn parse_if(mut app structs.App) structs.IfStmt {
 	if_expression := parser_utils.parse_expression(if_expression_buffer, mut app) as structs.Expression
 
 	// For now, we just support simple bool expressions in an IfStmt -> So it's length is always one
-	if if_expression.e_type != .type_bool {
-		print_compile_error('Non-bool type used as if-statement', &app)
-		exit(1)
-	}
+	radon_assert(if_expression.e_type != .type_bool, 'Non-bool type used as if-statement',
+		&app)
 
 	// Consume the `{`
 	app.index++
+	app.scope_id++
+	then_branch := parse_function_body(mut app, function, true)
 
-	then_branch := parser_utils.parse_scoped(mut app)
 	mut else_branch := []structs.AstNode{}
 
 	// Consume the closing `}` of the then branch
 	app.index++
+	app.scope_id--
 
 	if app.get_token().t_type == .key_else {
-		else_branch << parser_utils.parse_scoped(mut app)
+		app.scope_id++
+		// consume the `else`
+		app.index++
+
+		radon_assert(app.get_token().t_type != .open_brace, 'Expected `{` but got `${app.get_token().t_value}`',
+			&app)
+		app.index++
+
+		else_branch << parse_function_body(mut app, function, true)
 		// Consume the closing `}` of the else branch
 		app.index++
+		app.scope_id--
 	}
 
 	if_stmt := structs.IfStmt{

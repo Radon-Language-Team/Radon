@@ -1,5 +1,6 @@
 module structs
 
+@[heap]
 pub struct App {
 pub mut:
 	file_name                string

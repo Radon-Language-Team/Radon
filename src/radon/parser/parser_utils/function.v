@@ -216,7 +216,3 @@ pub fn parse_decay(mut app structs.App) structs.DecayStmt {
 	app.decays << parsed_expression.value
 	return decay
 }
-
-pub fn parse_scoped(mut app structs.App) []structs.AstNode {
-	return []structs.AstNode{}
-}

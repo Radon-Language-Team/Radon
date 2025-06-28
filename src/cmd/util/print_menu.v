@@ -36,6 +36,19 @@ pub fn print_menu() {
 	}
 }
 
+pub fn radon_assert(assertion bool, message string, possible_app ?&App) {
+	if assertion {
+		app := possible_app or { exit(1) }
+
+		if app != App{} {
+			print_compile_error(message, app)
+		} else {
+			print_error(message)
+		}
+		exit(1)
+	}
+}
+
 pub fn print_error(error string) {
 	println('${term.bright_blue('Radon Error >> ')}${term.red(error)}')
 }

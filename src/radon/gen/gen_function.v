@@ -40,6 +40,9 @@ fn gen_function(function_decl structs.FunctionDecl) string {
 			structs.DecayStmt {
 				function_body_code += gen_decay(node)
 			}
+			structs.IfStmt {
+				function_body_code += gen_if(node)
+			}
 			else {
 				println('Those kind of nodes are not supported in function bodies for now :)')
 				exit(1)
@@ -50,6 +53,30 @@ fn gen_function(function_decl structs.FunctionDecl) string {
 	function_code += '// Generated from react ${function_name}\n'
 	function_code += '${function_type} ${function_name}(${function_params}) { \n${function_body_code}} \n'
 	return function_code
+}
+
+fn gen_function_body_scope(node structs.AstNode) string {
+	match node {
+		structs.VarDecl {
+			return gen_var_decl(node)
+		}
+		structs.EmitStmt {
+			return gen_emit_stmt(node)
+		}
+		structs.Call {
+			return gen_call(node)
+		}
+		structs.DecayStmt {
+			return gen_decay(node)
+		}
+		structs.IfStmt {
+			return gen_if(node)
+		}
+		else {
+			println('Those kind of nodes are not supported in function bodies for now :)')
+			exit(1)
+		}
+	}
 }
 
 fn gen_var_decl(var_decl structs.VarDecl) string {
@@ -180,4 +207,33 @@ fn gen_call(node structs.Call) string {
 
 fn gen_decay(node structs.DecayStmt) string {
 	return 'free(${node.name}); \n'
+}
+
+fn gen_if(node structs.IfStmt) string {
+	mut if_stmt_code := ''
+
+	// Only plain bools for now
+	if_con_node := node.condition as structs.Expression
+	if_con_code := if_con_node.value
+
+	mut if_then_code := ''
+	for ast_node in node.then_branch {
+		if_then_code += '${gen_function_body_scope(ast_node)}'
+	}
+
+	mut if_else_code := ''
+	for ast_node in node.else_branch {
+		if_else_code += '${gen_function_body_scope(ast_node)}'
+	}
+
+	if_stmt_code += 'if (${if_con_code}) 
+	{
+	${if_then_code}  }\n'
+
+	if if_else_code != '' {
+		if_stmt_code += 'else 
+	{
+	${if_else_code}  }\n'
+	}
+	return if_stmt_code
 }
