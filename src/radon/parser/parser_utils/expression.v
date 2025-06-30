@@ -2,7 +2,7 @@ module parser_utils
 
 import regex
 import structs
-import cmd.util { print_compile_error }
+import cmd.util { print_compile_error, radon_assert }
 
 pub fn get_expression(mut app structs.App) []structs.Token {
 	starting_line := app.get_token().t_line
@@ -34,6 +34,40 @@ pub fn parse_expression(expression []structs.Token, mut app structs.App) structs
 			e_type: .type_bool
 		}
 	} else if expression[0].t_type == .type_string {
+		mut string_value := expression[0].t_value
+
+		// This just checks if the variable mentioned in the string exists in the first place > The actual replacement takes place while generating the string
+		if string_value.contains('#(') {
+			for i, c in string_value {
+				ascii_char := c.ascii_str()
+				if ascii_char == '#' {
+					mut buffer := ''
+					mut buffer_index := 0
+					buffer_index = i
+					buffer_index++
+
+					radon_assert(string_value[buffer_index].ascii_str() != '(', 'Expected `(` after `#` in string but got `${string_value[buffer_index].ascii_str()}`',
+						&app)
+
+					buffer_index++
+
+					for string_value[buffer_index].ascii_str() != ')' {
+						radon_assert(buffer_index + 1 >= string_value.len, '`#(` never closed inside string',
+							&app)
+
+						// No out of bounds check because the lexer would have already errored if the string grew out of bounds
+						buffer += string_value[buffer_index].ascii_str()
+						buffer_index++
+					}
+
+					// Only works with plain variables for now
+					variable := get_variable(app, buffer.str())
+					radon_assert(variable == structs.VarDecl{}, 'Variable `${buffer.str()}` is not defined',
+						&app)
+				}
+			}
+		}
+
 		return structs.Expression{
 			value:  expression[0].t_value
 			e_type: .type_string

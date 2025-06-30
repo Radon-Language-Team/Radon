@@ -6,6 +6,7 @@ import cmd.util { print_error }
 pub fn gen_string(node structs.AstNode) string {
 	if node.type_name() == 'radon.structs.Expression' {
 		expression := node as structs.Expression
+		println(expression.value)
 		return '"${expression.value}"'
 	}
 

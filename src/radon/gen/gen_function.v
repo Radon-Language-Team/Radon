@@ -214,7 +214,24 @@ fn gen_if(node structs.IfStmt) string {
 
 	// Only plain bools for now
 	if_con_node := node.condition as structs.Expression
-	if_con_code := if_con_node.value
+	mut if_con_code := ''
+
+	if if_con_node.value in ['false', 'true'] {
+		if_con_code = match if_con_node.value {
+			'true' {
+				'1'
+			}
+			'false' {
+				'0'
+			}
+			else {
+				println('Unknown bool value > Defaulting to 0')
+				'0'
+			}
+		}
+	} else {
+		if_con_code = if_con_node.value
+	}
 
 	mut if_then_code := ''
 	for ast_node in node.then_branch {
