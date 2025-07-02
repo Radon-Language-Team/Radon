@@ -5,18 +5,31 @@ import structs
 const core_import_string = '#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 
-void println_str(char *x) 
+void println_str(char *x, ...) 
 { 
-	printf("%s\\n", x);
+	va_list args;
+	va_start(args, x);
+	vprintf(x, args);
+	printf("\\n");
+	va_end(args);
 }
-void println_int(int x)
+void println_int(int x, ...)
 {
-  printf("%d\\n", x);
+  va_list args;
+	va_start(args, x);
+	vprintf(x, args);
+	printf("\\n"); // Append newline like println
+	va_end(args);
 }
-void println_bool(int x)
+void println_bool(int x, ...)
 {
-	printf("%s\\n", x ? "true" : "false");
+	va_list args;
+	va_start(args, x);
+	vprintf(x, args);
+	printf("\\n"); // Append newline like println
+	va_end(args);
 } 
 
 char *read(char *message) 

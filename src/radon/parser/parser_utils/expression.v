@@ -35,15 +35,18 @@ pub fn parse_expression(expression []structs.Token, mut app structs.App) structs
 		}
 	} else if expression[0].t_type == .type_string {
 		mut string_value := expression[0].t_value
-
+		mut string_inter := false
+		mut string_objects := []structs.StringObject{}
 		// This just checks if the variable mentioned in the string exists in the first place > The actual replacement takes place while generating the string
 		if string_value.contains('#(') {
 			for i, c in string_value {
+				mut string_object := structs.StringObject{}
 				ascii_char := c.ascii_str()
 				if ascii_char == '#' {
 					mut buffer := ''
 					mut buffer_index := 0
 					buffer_index = i
+					string_object.replacement_pos.start = i
 					buffer_index++
 
 					radon_assert(string_value[buffer_index].ascii_str() != '(', 'Expected `(` after `#` in string but got `${string_value[buffer_index].ascii_str()}`',
@@ -59,18 +62,25 @@ pub fn parse_expression(expression []structs.Token, mut app structs.App) structs
 						buffer += string_value[buffer_index].ascii_str()
 						buffer_index++
 					}
+					string_object.replacement_pos.end = buffer_index
 
 					// Only works with plain variables for now
 					variable := get_variable(app, buffer.str())
 					radon_assert(variable == structs.VarDecl{}, 'Variable `${buffer.str()}` is not defined',
 						&app)
+					string_object.replacement = variable
+					string_object.replacement_type = structs.var_type_to_token_type(variable.variable_type)
+					string_inter = true
+					string_objects << string_object
 				}
 			}
 		}
 
 		return structs.Expression{
-			value:  expression[0].t_value
-			e_type: .type_string
+			value:         expression[0].t_value
+			e_type:        .type_string
+			string_inter:  string_inter
+			string_object: string_objects
 		}
 	} else if expression[0].t_type == .variable {
 		variable := get_variable(app, expression[0].t_value)
