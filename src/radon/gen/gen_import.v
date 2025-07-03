@@ -15,21 +15,13 @@ void println_str(char *x, ...)
 	printf("\\n");
 	va_end(args);
 }
-void println_int(int x, ...)
+void println_int(int x)
 {
-  va_list args;
-	va_start(args, x);
-	vprintf(x, args);
-	printf("\\n"); // Append newline like println
-	va_end(args);
+  printf("%d\\n", x);
 }
-void println_bool(int x, ...)
+void println_bool(int x)
 {
-	va_list args;
-	va_start(args, x);
-	vprintf(x, args);
-	printf("\\n"); // Append newline like println
-	va_end(args);
+	printf("%s\\n", x ? "true" : "false");
 } 
 
 char *read(char *message) 
