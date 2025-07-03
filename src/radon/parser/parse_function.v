@@ -1,6 +1,6 @@
 module parser
 
-import cmd.util { print_compile_error }
+import cmd.util { print_compile_error, radon_assert }
 import parser_utils
 import structs
 
@@ -19,10 +19,9 @@ fn parse_function(mut app structs.App) !structs.FunctionDecl {
 	function_decl.name = token.t_value
 
 	function_look_up := parser_utils.get_function(&app, token.t_value)
-	if function_look_up != structs.FunctionDecl{} {
-		print_compile_error('Function `${token.t_value}` has already been created', &app)
-		exit(1)
-	}
+
+	radon_assert(function_look_up != structs.FunctionDecl{}, 'Function `${token.t_value}` has already been created',
+		&app)
 
 	app.index++
 
@@ -35,7 +34,7 @@ fn parse_function(mut app structs.App) !structs.FunctionDecl {
 
 	app.index++
 
-	function_decl.body = parse_function_body(mut app, function_decl)
+	function_decl.body = parse_function_body(mut app, function_decl, false)
 
 	token = app.get_token()
 	if token.t_type != .close_brace {
@@ -48,14 +47,15 @@ fn parse_function(mut app structs.App) !structs.FunctionDecl {
 	return function_decl
 }
 
-fn parse_function_body(mut app structs.App, function structs.FunctionDecl) []structs.AstNode {
+fn parse_function_body(mut app structs.App, function structs.FunctionDecl, inside_if bool) []structs.AstNode {
 	mut function_body := []structs.AstNode{}
 	for app.index < app.all_tokens.len {
 		token := app.all_tokens[app.index]
 
 		match token.t_type {
 			.key_element, .key_isotope {
-				function_body << parse_variable(mut app)
+				variable := parse_variable(mut app)
+				function_body << variable
 			}
 			.key_emit {
 				emit_stmt := parse_emit(mut app)
@@ -70,12 +70,24 @@ fn parse_function_body(mut app structs.App, function structs.FunctionDecl) []str
 
 				function_body << emit_stmt
 			}
+			.key_if {
+				if_stmt := parse_if(mut app, function)
+				function_body << if_stmt
+			}
 			.function_call {
-				function_body << parse_func_call(mut app)
+				function_body << parser_utils.parse_func_call(mut app, false)
+			}
+			.variable {
+				variable := parse_variable(mut app)
+				function_body << variable
+			}
+			.key_decay {
+				function_body << parser_utils.parse_decay(mut app)
 			}
 			.close_brace {
-				if app.scope_id == 0 {
+				if app.scope_id == 0 || inside_if {
 					// We hit the closing brace of the function body
+					check_if_decay(app, function_body)
 					return function_body
 				}
 			}
@@ -86,7 +98,6 @@ fn parse_function_body(mut app structs.App, function structs.FunctionDecl) []str
 			}
 		}
 	}
-
 	return function_body
 }
 
@@ -128,7 +139,7 @@ fn parse_function_args(mut app structs.App) []structs.Param {
 			}
 
 			// TODO: Make this a function or something
-			if tok_type.t_type !in [.type_int, .type_string] {
+			if tok_type.t_type !in [.type_int, .type_string, .type_bool] {
 				print_compile_error('Expected a type before the parameter name, got ` ${tok_type.t_value} `',
 					&app)
 				exit(1)
@@ -177,8 +188,8 @@ fn parse_function_return_type(mut app structs.App) structs.TokenType {
 		return_type := app.get_token()
 
 		// TODO: Same as above, turn this into a function
-		if return_type.t_type !in [.type_string, .type_int, .type_void] {
-			print_compile_error('Expected a function return type, got ` ${return_type.t_value} `',
+		if return_type.t_type !in [.type_string, .type_int, .type_void, .type_bool] {
+			print_compile_error('Expected a function return type, got `${return_type.t_value}`',
 				&app)
 			exit(1)
 		}
@@ -197,5 +208,24 @@ fn parse_function_return_type(mut app structs.App) structs.TokenType {
 			exit(1)
 		}
 		return .type_void
+	}
+}
+
+fn check_if_decay(app structs.App, function_body []structs.AstNode) {
+	mut decayed_vars := map[string]bool{}
+	for node in function_body {
+		if node.type_name() == 'radon.structs.DecayStmt' {
+			decay_stmt := node as structs.DecayStmt
+			decayed_vars[decay_stmt.name] = true
+		}
+	}
+
+	for alloc in app.all_allocations {
+		if !decayed_vars[alloc] {
+			print_compile_error('`${alloc}` allocates memory but is never freed \n> Add `decay ${alloc}` after you are done using the variable',
+				&app)
+			println('\nNote: This requirement will go away once Radon supports automatic memory management')
+			exit(1)
+		}
 	}
 }

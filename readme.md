@@ -49,20 +49,24 @@ Here’s what Radon looks like in its current state:
 ```
 mixture 'core'
 
-react greet(string name) :void {
-  println(name)
+react testFunction(int Age, string Name) :void {
+  println('Hello #(Name) with age #(Age)!')
 }
 
-react main() :int {
-  element foo = 'Marwin'
-  element fooTwo = foo
+react main() : int {
+  elem greet = true
+  iso name = ''
 
-  println(foo)
-  println(fooTwo)
+  if greet {
+    elem request = read('What is your name?')
+    name = request
+  } else {
+    name = 'Bob'
+  }
 
-  greet(foo)
-  emit 0
+  testFunction(21, name)
 }
+
 ```
 ---
 

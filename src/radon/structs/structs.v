@@ -1,5 +1,6 @@
 module structs
 
+@[heap]
 pub struct App {
 pub mut:
 	file_name                string
@@ -14,6 +15,8 @@ pub mut:
 	current_parsing_function string
 	all_functions            []FunctionDecl
 	all_variables            []VarDecl
+	all_allocations          []string
+	decays                   []string
 	imports                  []string
 	token                    Token
 	prev_token               Token
@@ -39,14 +42,18 @@ pub enum TokenType {
 	key_react   // react
 	key_element // element
 	key_isotope // isotope
+	key_decay   // decay
 	key_if      // if
 	key_else    // else
 	key_emit    // emit
+	key_true    // true
+	key_false   // false
 	colon       // :
 	comma       // ,
 	s_quote     // '
 	dot         // .
 	exclamation //!
+	at          // @
 	open_brace  // {
 	close_brace // }
 	open_paren  // (
@@ -54,7 +61,8 @@ pub enum TokenType {
 
 	type_int    // int
 	type_string // string
-	type_void
+	type_void   // void
+	type_bool   // bool
 
 	plus   // +
 	minus  // -
@@ -109,6 +117,9 @@ pub fn var_type_to_token_type(var_type VarType) TokenType {
 		.type_int {
 			.type_int
 		}
+		.type_bool {
+			.type_bool
+		}
 		else {
 			.radon_null
 		}
@@ -122,6 +133,9 @@ pub fn token_type_to_var_type(token_type TokenType) VarType {
 		}
 		.type_int {
 			.type_int
+		}
+		.type_bool {
+			.type_bool
 		}
 		else {
 			.type_unknown
@@ -141,6 +155,9 @@ pub fn radon_type_to_c_type(radon_type TokenType) string {
 		.type_void {
 			'void'
 		}
+		.type_bool {
+			'int'
+		}
 		else {
 			''
 		}
@@ -158,6 +175,9 @@ pub fn radon_var_type_to_c_type(radon_type VarType) string {
 		.type_void {
 			'void'
 		}
+		.type_bool {
+			'int'
+		}
 		else {
 			''
 		}
@@ -168,12 +188,14 @@ pub type AstNode = Literal
 	| Identifier
 	| BinaryOp
 	| Call
+	| DecayStmt
 	| VarDecl
 	| EmitStmt
 	| Expression
 	| FunctionDecl
 	| ReturnStmt
 	| ImportStmt
+	| IfStmt
 
 struct Literal {
 	value int
@@ -206,14 +228,33 @@ pub mut:
 	function_name string
 	value         AstNode
 	is_mut        bool
+	is_redi       bool
+	is_top_const  bool
 	variable_type VarType
+}
+
+pub struct ReplacementPos {
+pub mut:
+	start int
+	end   int
+}
+
+pub struct StringObject {
+pub mut:
+	replacement       AstNode
+	replacement_pos   ReplacementPos // {5, 10}, {15, 23}...
+	replacement_type TokenType
 }
 
 pub struct Expression {
 pub mut:
-	value       string
-	e_type      VarType
-	is_variable bool
+	value               string
+	e_type              VarType
+	is_variable         bool
+	is_function         bool
+	string_inter        bool // The string contains `#(...)` > The parsing is done in the expression file but the actual replacement happens during gen
+	string_object       []StringObject
+	advanced_expression AstNode
 }
 
 pub struct Param {
@@ -229,6 +270,7 @@ pub mut:
 	return_type TokenType
 	body        []AstNode
 	is_core     bool
+	does_malloc bool
 }
 
 struct ReturnStmt {
@@ -244,4 +286,16 @@ pub struct EmitStmt {
 pub:
 	emit      AstNode
 	emit_type VarType
+}
+
+pub struct DecayStmt {
+pub mut:
+	name string
+}
+
+pub struct IfStmt {
+pub:
+	condition   AstNode
+	then_branch []AstNode
+	else_branch ?[]AstNode
 }

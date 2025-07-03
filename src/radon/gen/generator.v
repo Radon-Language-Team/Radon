@@ -12,6 +12,9 @@ pub fn generate(mut app structs.App) {
 			structs.ImportStmt {
 				app.gen_code += gen_import(node)
 			}
+			structs.VarDecl {
+				app.gen_code += gen_var_decl(node)
+			}
 			else {
 				print_error('Unkown node of type `${node.type_name()}`')
 				exit(1)

@@ -11,17 +11,26 @@ fn match_token_type(token string) TokenType {
 		'react' {
 			return .key_react
 		}
-		'element' {
+		'elem' {
 			return .key_element
 		}
-		'isotope' {
+		'iso' {
 			return .key_isotope
+		}
+		'decay' {
+			return .key_decay
 		}
 		'if' {
 			return .key_if
 		}
 		'else' {
 			return .key_else
+		}
+		'true' {
+			return .key_true
+		}
+		'false' {
+			return .key_false
 		}
 		'emit' {
 			return .key_emit
@@ -59,6 +68,9 @@ fn match_token_type(token string) TokenType {
 		'void' {
 			return .type_void
 		}
+		'bool' {
+			return .type_bool
+		}
 		'+' {
 			return .plus
 		}
@@ -77,6 +89,9 @@ fn match_token_type(token string) TokenType {
 		"'" {
 			return .s_quote
 		}
+		'@' {
+			return .at
+		}
 		else {
 			if is_letter(token[0]) {
 				return .variable
@@ -91,7 +106,8 @@ fn match_token_type(token string) TokenType {
 
 fn match_token_category(token_type TokenType) structs.TokenCategory {
 	match token_type {
-		.key_mixture, .key_react, .key_if, .key_else, .key_emit, .key_element, .key_isotope {
+		.key_mixture, .key_react, .key_if, .key_else, .key_emit, .key_element, .key_isotope,
+		.key_decay, .key_true, .key_false {
 			return .keyword
 		}
 		.plus, .minus, .mult, .div {
@@ -100,7 +116,7 @@ fn match_token_category(token_type TokenType) structs.TokenCategory {
 		.variable, .literal {
 			return .literal
 		}
-		.type_int, .type_string, .type_void {
+		.type_int, .type_string, .type_void, .type_bool {
 			return .token_type
 		}
 		else {

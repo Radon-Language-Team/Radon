@@ -36,22 +36,43 @@ pub fn print_menu() {
 	}
 }
 
+pub fn radon_assert(assertion bool, message string, possible_app ?&App) {
+	if assertion {
+		app := possible_app or { exit(1) }
+
+		if app != App{} {
+			print_compile_error(message, app)
+		} else {
+			print_error(message)
+		}
+		exit(1)
+	}
+}
+
 pub fn print_error(error string) {
 	println('${term.bright_blue('Radon Error >> ')}${term.red(error)}')
 }
 
 pub fn print_compile_error(error string, app &App) {
-	println('${term.bright_blue('Radon Error >> ')}${term.red(error)} \n')
+	mut line_string := ''
 
-	println('Error in file `${app.file_name}` (${app.file_path})')
+	if app.done_lexing {
+		line_string = '${app.file_name}:${app.all_tokens[app.index].t_line}:${app.all_tokens[app.index].t_column}'
+	} else {
+		line_string = '${app.file_name}:${app.line_count}:${app.column_count}'
+	}
+
+	println('${term.bright_blue('${line_string}: Radon Error >> ')}${term.red(error)}')
 
 	if app.index - 1 >= 0 {
 		if app.done_lexing {
-			println('Stopped in line `${app.all_tokens[app.index].t_line}` and column `${app.all_tokens[app.index].t_column}`')
 			println('Previous token type: `${app.all_tokens[app.index - 1].t_type}` with value: `${app.all_tokens[app.index - 1].t_value}`')
 		} else {
-			println('Stopped in line `${app.line_count}` and column `${app.column_count}`')
 			println('Previous token: `${app.prev_token.t_value}` of type `${app.prev_token.t_type}`')
 		}
+	}
+
+	unsafe {
+		free(app)
 	}
 }
