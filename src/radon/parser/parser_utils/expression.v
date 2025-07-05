@@ -38,24 +38,24 @@ pub fn parse_expression(expression []structs.Token, mut app structs.App) structs
 		mut string_inter := false
 		mut string_objects := []structs.StringObject{}
 		// This just checks if the variable mentioned in the string exists in the first place > The actual replacement takes place while generating the string
-		if string_value.contains('#(') {
+		if string_value.contains('\${') {
 			for i, c in string_value {
 				mut string_object := structs.StringObject{}
 				ascii_char := c.ascii_str()
-				if ascii_char == '#' {
+				if ascii_char == '$' {
 					mut buffer := ''
 					mut buffer_index := 0
 					buffer_index = i
 					string_object.replacement_pos.start = i
 					buffer_index++
 
-					radon_assert(string_value[buffer_index].ascii_str() != '(', 'Expected `(` after `#` in string but got `${string_value[buffer_index].ascii_str()}`',
+					radon_assert(string_value[buffer_index].ascii_str() != '{', 'Expected `{` after `$` in string but got `${string_value[buffer_index].ascii_str()}`',
 						&app)
 
 					buffer_index++
 
-					for string_value[buffer_index].ascii_str() != ')' {
-						radon_assert(buffer_index + 1 >= string_value.len, '`#(` never closed inside string',
+					for string_value[buffer_index].ascii_str() != '}' {
+						radon_assert(buffer_index + 1 >= string_value.len, '`\${` never closed inside string',
 							&app)
 
 						// No out of bounds check because the lexer would have already errored if the string grew out of bounds
