@@ -212,25 +212,13 @@ fn gen_decay(node structs.DecayStmt) string {
 fn gen_if(node structs.IfStmt) string {
 	mut if_stmt_code := ''
 
-	// Only plain bools for now
-	if_con_node := node.condition as structs.Expression
 	mut if_con_code := ''
 
-	if if_con_node.value in ['false', 'true'] {
-		if_con_code = match if_con_node.value {
-			'true' {
-				'1'
-			}
-			'false' {
-				'0'
-			}
-			else {
-				println('Unknown bool value > Defaulting to 0')
-				'0'
-			}
-		}
+	if node.is_simple {
+		if_con_expr := node.condition.con_simple as structs.Expression
+		if_con_code = gen_utils.gen_single_bool_expr(if_con_expr)
 	} else {
-		if_con_code = if_con_node.value
+		if_con_code = gen_utils.gen_bool_expr(node.condition)
 	}
 
 	mut if_then_code := ''

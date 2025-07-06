@@ -64,11 +64,13 @@ pub enum TokenType {
 	type_void   // void
 	type_bool   // bool
 
-	plus   // +
-	minus  // -
-	mult   // *
-	div    // /
-	equals // =
+	plus    // +
+	minus   // -
+	mult    // *
+	div     // /
+	equals  // =
+	greater // >
+	smaller // <
 
 	variable // variable
 	literal  // literal
@@ -241,8 +243,8 @@ pub mut:
 
 pub struct StringObject {
 pub mut:
-	replacement       AstNode
-	replacement_pos   ReplacementPos // {5, 10}, {15, 23}...
+	replacement      AstNode
+	replacement_pos  ReplacementPos // {5, 10}, {15, 23}...
 	replacement_type TokenType
 }
 
@@ -293,9 +295,21 @@ pub mut:
 	name string
 }
 
+pub struct BoolCondition {
+pub mut:
+	con_lhs AstNode
+	con_op  string
+	con_rhs AstNode
+
+	// For simple expressions, e.g length one
+	is_simple   bool
+	con_simple AstNode
+}
+
 pub struct IfStmt {
 pub:
-	condition   AstNode
+	is_simple   bool
+	condition   BoolCondition
 	then_branch []AstNode
 	else_branch ?[]AstNode
 }

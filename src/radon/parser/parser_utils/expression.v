@@ -153,10 +153,10 @@ fn is_simple_expr(expr string) bool {
 	return start == 0 && end == expr.len
 }
 
-pub fn get_variable(app structs.App, variable_name string) structs.VarDecl {
+pub fn get_variable(app &structs.App, variable_name string) structs.VarDecl {
 	if variable_name in app.decays {
 		print_compile_error('Variable `${variable_name}` has already been freed once',
-			&app)
+			app)
 		exit(1)
 	}
 	variables := app.all_variables.filter(it.name == variable_name)
@@ -172,4 +172,62 @@ pub fn get_variable(app structs.App, variable_name string) structs.VarDecl {
 		}
 		return variables[0]
 	}
+}
+
+/*
+* This function parses simple boolean expressions such as:
+* > Expressions of length 1 -> true, [variable], false
+* > Simple expressions such as [value] > / >= / < / <= / == [value_two]
+* Anything else is still to complicated to parse correctly
+*/
+pub fn parse_simple_boolean_expr(expression []structs.Token, mut app structs.App) structs.BoolCondition {
+	operators := ['<', '>', '<=', '>=', '==']
+	mut final_expr := structs.BoolCondition{}
+	mut i := 0
+
+	if expression.len == 0 {
+		print_compile_error('Empty expression', &app)
+		exit(1)
+	}
+
+	if expression.len == 1 {
+		final_expr.is_simple = true
+		final_expr.con_simple = parse_expression(expression, mut app) as structs.Expression
+		return final_expr
+	}
+
+	if expression.len >= 3 && expression.len <= 4 {
+		lhs := expression[i]
+		i++
+		mut operator := []structs.Token{}
+		mut operator_str := ''
+		operator << expression[i]
+		operator_str += expression[i].t_value
+		if i + 2 < expression.len {
+			i++
+			operator << expression[i]
+			operator_str += expression[i].t_value
+		}
+		i++
+		rhs := expression[i]
+
+		radon_assert(operator_str !in operators, 'Operator `${operator_str}` not available in a boolean expression',
+			&app)
+
+		lhs_expr := parse_expression([lhs], mut app) as structs.Expression
+		rhs_expr := parse_expression([rhs], mut app) as structs.Expression
+
+		radon_assert(lhs_expr.e_type != rhs_expr.e_type, 'Can not compare `${rhs_expr.e_type}` (right expression) with `${lhs_expr.e_type}`',
+			&app)
+
+		final_expr.con_lhs = lhs_expr
+		final_expr.con_rhs = rhs_expr
+		final_expr.con_op = operator_str
+	} else {
+		print_compile_error('Boolean expression is too complex (Being worked on...)',
+			&app)
+		exit(1)
+	}
+
+	return final_expr
 }

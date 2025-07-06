@@ -212,6 +212,10 @@ fn parse_function_return_type(mut app structs.App) structs.TokenType {
 }
 
 fn check_if_decay(app structs.App, function_body []structs.AstNode) {
+	if app.all_allocations.len == 0 {
+		return
+	}
+
 	mut decayed_vars := map[string]bool{}
 	for node in function_body {
 		if node.type_name() == 'radon.structs.DecayStmt' {

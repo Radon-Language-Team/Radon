@@ -16,11 +16,14 @@ fn parse_if(mut app structs.App, function structs.FunctionDecl) structs.IfStmt {
 		app.index++
 	}
 
-	if_expression := parser_utils.parse_expression(if_expression_buffer, mut app) as structs.Expression
+	if_expression := parser_utils.parse_simple_boolean_expr(if_expression_buffer, mut
+		app) as structs.BoolCondition
 
-	// For now, we just support simple bool expressions in an IfStmt -> So it's length is always one
-	radon_assert(if_expression.e_type != .type_bool, 'Non-bool type used as if-statement',
-		&app)
+	if if_expression.is_simple {
+		expression := if_expression.con_simple as structs.Expression
+		radon_assert(expression.e_type != .type_bool, 'Non-bool type used as if-statement',
+			&app)
+	}
 
 	// Consume the `{`
 	app.index++
