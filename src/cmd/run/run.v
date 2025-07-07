@@ -118,11 +118,6 @@ pub fn run() ! {
 
 	gen_file.close()
 
-	// No need to compile the C Code > We are done
-	if ctx.no_run {
-		return
-	}
-
 	mut compile_code := 0
 	mut compiler_command := ''
 
@@ -142,6 +137,14 @@ pub fn run() ! {
 		println(term.red('Got non zero exit code after compiling generated C file!'))
 		println(term.bright_blue('If this is a mistake in the generated code, please open an issue on GitHub!'))
 	} else {
+		// No need to run the C Code > We are done
+		if ctx.no_run {
+			if !ctx.preserve_files {
+				os.rm(gen_file_path)!
+			}
+			return
+		}
+
 		user_os := os.user_os()
 		if user_os == 'linux' {
 			os.system('./${gen_file_exec}')
