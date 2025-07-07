@@ -15,6 +15,7 @@ mut:
 	use_diff_compiler   bool
 	preserve_files      bool
 	verbose             bool
+	no_run              bool
 
 	args        []string
 	c_compilers []string
@@ -27,6 +28,7 @@ fn new_context() Context {
 		use_diff_compiler:   '-cc' in os.args
 		preserve_files:      '-p' in os.args
 		verbose:             '-v' in os.args
+		no_run:              '-no-run' in os.args
 
 		args:        os.args.clone()
 		c_compilers: ['tcc', 'gcc', 'clang']
@@ -83,6 +85,14 @@ pub fn run() ! {
 		column_count: 1
 	}
 
+	defer {
+		// Just to make sure both the app and the ctx are really freed after compiling
+		unsafe {
+			free(&ctx)
+			free(&app)
+		}
+	}
+
 	lexer.lex_file(mut app)!
 
 	if ctx.display_json_tokens {
@@ -107,6 +117,12 @@ pub fn run() ! {
 	os.write_file(gen_file_path, app.gen_code)!
 
 	gen_file.close()
+
+	// No need to compile the C Code > We are done
+	if ctx.no_run {
+		return
+	}
+
 	mut compile_code := 0
 	mut compiler_command := ''
 
