@@ -28,6 +28,18 @@ pub mut:
 	done_lexing bool
 }
 
+pub fn clean_up(app &App) {
+	$if windows {
+		unsafe {
+			app.free()
+		}
+	} $else $if linux {
+		unsafe {
+			free(app)
+		}
+	}
+}
+
 pub fn (mut a App) get_token() Token {
 	return a.all_tokens[a.index] or {
 		println('Compiler panic: token index `${a.index}` out of range -> Token array length: ${a.all_tokens.len}')
@@ -302,7 +314,7 @@ pub mut:
 	con_rhs AstNode
 
 	// For simple expressions, e.g length one
-	is_simple   bool
+	is_simple  bool
 	con_simple AstNode
 }
 

@@ -87,9 +87,18 @@ pub fn run() ! {
 
 	defer {
 		// Just to make sure both the app and the ctx are really freed after compiling
-		unsafe {
-			free(&ctx)
-			free(&app)
+		$if windows {
+			unsafe {
+				println('[INFO]: Free for Windows')
+				ctx.free()
+				app.free()
+			}
+		} $else $if linux {
+			unsafe {
+				println('[INFO]: Free for Linux')
+				free(&ctx)
+				free(&app)
+			}
 		}
 	}
 
