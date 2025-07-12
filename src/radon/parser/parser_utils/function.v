@@ -3,7 +3,7 @@ module parser_utils
 import structs
 import cmd.util { print_compile_error }
 
-const core_functions = ['println', 'read', '@clone']
+const core_functions = ['println', '@read', '@clone']
 
 fn get_core_function(name string) structs.FunctionDecl {
 	if name == 'println' {
@@ -19,7 +19,7 @@ fn get_core_function(name string) structs.FunctionDecl {
 			body:        []structs.AstNode{}
 			is_core:     true
 		}
-	} else if name == 'read' {
+	} else if name == '@read' {
 		return structs.FunctionDecl{
 			name:        name
 			params:      [
@@ -31,7 +31,7 @@ fn get_core_function(name string) structs.FunctionDecl {
 			return_type: .type_string
 			body:        []structs.AstNode{}
 			is_core:     true
-			does_malloc: false
+			does_malloc: true
 		}
 	} else if name == '@clone' {
 		return structs.FunctionDecl{

@@ -3,7 +3,7 @@ module gen
 import structs
 import gen_utils
 
-fn gen_function(function_decl structs.FunctionDecl) string {
+fn gen_function(function_decl structs.FunctionDecl, app &structs.App) string {
 	mut function_code := ''
 
 	mut function_type := structs.radon_type_to_c_type(function_decl.return_type)
@@ -48,6 +48,11 @@ fn gen_function(function_decl structs.FunctionDecl) string {
 				exit(1)
 			}
 		}
+	}
+
+	if app.auto_decay {
+		added_decays := gen_utils.insert_decays(app)
+		function_body_code += added_decays
 	}
 
 	function_code += '// Generated from react ${function_name}\n'

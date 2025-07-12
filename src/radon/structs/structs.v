@@ -26,6 +26,7 @@ pub mut:
 	gen_code string
 
 	done_lexing bool
+	auto_decay  bool
 }
 
 pub fn clean_up(app &App) {

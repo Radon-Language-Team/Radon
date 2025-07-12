@@ -26,13 +26,22 @@ void println_bool(int x)
 
 char *read(char *message) 
 {
-  char buffer[1024];
-    printf("%s ", message);
-  if (fgets(buffer, 1024, stdin) == NULL) 
-    {
-    buffer[0] = \'\\0\';
+  char temp[1024];
+  printf("%s ", message);
+  if (fgets(temp, sizeof(temp), stdin) == NULL) 
+  {
+    char *empty = malloc(1);
+    if (empty) empty[0] = \'\\0\';
+    return empty;
   }
-  return buffer;
+
+  temp[strcspn(temp, "\\n")] = \'\\0\';
+
+  char *result = malloc(strlen(temp) + 1);
+  if (!result) return NULL;
+
+  strcpy(result, temp);
+  return result;
 }
 
 char *clone(char *original) {

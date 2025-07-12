@@ -212,7 +212,7 @@ fn parse_function_return_type(mut app structs.App) structs.TokenType {
 }
 
 fn check_if_decay(app structs.App, function_body []structs.AstNode) {
-	if app.all_allocations.len == 0 {
+	if app.all_allocations.len == 0 || app.auto_decay {
 		return
 	}
 

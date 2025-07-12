@@ -7,7 +7,7 @@ pub fn generate(mut app structs.App) {
 	for node in app.ast {
 		match node {
 			structs.FunctionDecl {
-				app.gen_code += gen_function(node)
+				app.gen_code += gen_function(node, &app)
 			}
 			structs.ImportStmt {
 				app.gen_code += gen_import(node)

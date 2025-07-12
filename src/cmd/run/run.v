@@ -16,6 +16,7 @@ mut:
 	preserve_files      bool
 	verbose             bool
 	no_run              bool
+	auto_decay          bool
 
 	args        []string
 	c_compilers []string
@@ -24,11 +25,12 @@ mut:
 
 fn new_context() Context {
 	return Context{
-		display_json_tokens: '--json-tokens' in os.args
+		display_json_tokens: '-json-tokens' in os.args
 		use_diff_compiler:   '-cc' in os.args
 		preserve_files:      '-p' in os.args
 		verbose:             '-v' in os.args
 		no_run:              '-no-run' in os.args
+		auto_decay:          '-auto-decay' in os.args
 
 		args:        os.args.clone()
 		c_compilers: ['tcc', 'gcc', 'clang']
@@ -83,19 +85,18 @@ pub fn run() ! {
 		index:        0
 		line_count:   1
 		column_count: 1
+		auto_decay:   ctx.auto_decay
 	}
 
 	defer {
 		// Just to make sure both the app and the ctx are really freed after compiling
 		$if windows {
 			unsafe {
-				println('[INFO]: Free for Windows')
 				ctx.free()
 				app.free()
 			}
 		} $else $if linux {
 			unsafe {
-				println('[INFO]: Free for Linux')
 				free(&ctx)
 				free(&app)
 			}
