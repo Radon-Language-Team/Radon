@@ -18,6 +18,8 @@ pub fn gen_expression(expr structs.AstNode) string {
 			} else if e_type == .type_string && !e.is_variable {
 				// String epxressions > "Hello ${name}", "Bye"
 				return gen_string(expr)
+			} else if e_type == .type_string && e.is_variable {
+				return e.value
 			} else if e_type == .type_bool {
 				// Boolean expressions > true, false, result -> Any variable with a bool type
 				if e.is_variable {
