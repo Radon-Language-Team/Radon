@@ -44,6 +44,17 @@ char *read(char *message)
   return result;
 }
 
+char *staticRead(char *message) 
+{
+  static char buffer[1024];
+  printf("%s ", message);
+  if (fgets(buffer, 1024, stdin) == NULL) 
+    {
+    buffer[0] = \'\\0\';
+  }
+  return buffer;
+}
+
 char *clone(char *original) {
   if (original == NULL) return NULL;
 
