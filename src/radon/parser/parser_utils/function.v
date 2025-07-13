@@ -3,7 +3,7 @@ module parser_utils
 import structs
 import cmd.util { print_compile_error }
 
-const core_functions = ['println', '@read', '@clone']
+const core_functions = ['println', '@read', 'staticRead', '@clone']
 
 fn get_core_function(name string) structs.FunctionDecl {
 	if name == 'println' {
@@ -32,6 +32,19 @@ fn get_core_function(name string) structs.FunctionDecl {
 			body:        []structs.AstNode{}
 			is_core:     true
 			does_malloc: true
+		}
+	} else if name == 'staticRead' {
+		return structs.FunctionDecl{
+			name:        name
+			params:      [
+				structs.Param{
+					name:   'message'
+					p_type: .type_string
+				},
+			]
+			return_type: .type_string
+			body:        []structs.AstNode{}
+			is_core:     true
 		}
 	} else if name == '@clone' {
 		return structs.FunctionDecl{
@@ -72,6 +85,7 @@ pub fn parse_func_call(mut app structs.App, inside_variable bool) structs.Call {
 	call.callee = callee_name
 
 	app.index++
+
 	// We already know the next toke is `(` since we are parsing a function call right now
 	app.index++
 	callee_function := get_function(&app, callee_name)
