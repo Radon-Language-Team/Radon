@@ -7,5 +7,5 @@ main.rad
 /old_src
 
 # MSVC left overs
-.tmp.obj
+*.tmp.obj
 build.exe
