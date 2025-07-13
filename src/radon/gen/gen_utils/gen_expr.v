@@ -3,6 +3,7 @@ module gen_utils
 import structs
 import cmd.util { print_error }
 
+@[inline]
 pub fn gen_expression(expr structs.AstNode) string {
 	expr_type := expr.type_name()
 
@@ -18,7 +19,10 @@ pub fn gen_expression(expr structs.AstNode) string {
 				// String epxressions > "Hello ${name}", "Bye"
 				return gen_string(expr)
 			} else if e_type == .type_bool {
-				// Boolean expressions > true, false
+				// Boolean expressions > true, false, result -> Any variable with a bool type
+				if e.is_variable {
+					return e.value
+				}
 				return match e.value {
 					'true' {
 						1
@@ -35,6 +39,10 @@ pub fn gen_expression(expr structs.AstNode) string {
 				print_error('Hit unknown expression branch_type > ${e.e_type}')
 				exit(1)
 			}
+		}
+		'radon.structs.Literal' {
+			l := expr as structs.Literal
+			return l.value.str()
 		}
 		else {
 			print_error('Can not generate expression of type `${expr_type}`')

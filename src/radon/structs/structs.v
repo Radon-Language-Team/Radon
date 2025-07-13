@@ -212,7 +212,8 @@ pub type AstNode = Literal
 	| ImportStmt
 	| IfStmt
 
-struct Literal {
+pub struct Literal {
+pub:
 	value int
 }
 

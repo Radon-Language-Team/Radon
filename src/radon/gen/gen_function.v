@@ -159,12 +159,10 @@ fn gen_decay(node structs.DecayStmt) string {
 
 fn gen_if(node structs.IfStmt) string {
 	mut if_stmt_code := ''
-
 	mut if_con_code := ''
 
 	if node.is_simple {
-		if_con_expr := node.condition.con_simple as structs.Expression
-		if_con_code = gen_utils.gen_single_bool_expr(if_con_expr)
+		if_con_code = gen_utils.gen_expression(node.condition.con_simple)
 	} else {
 		if_con_code = gen_utils.gen_bool_expr(node.condition)
 	}

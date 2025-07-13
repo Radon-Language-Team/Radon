@@ -52,6 +52,7 @@ fn parse_if(mut app structs.App, function structs.FunctionDecl) structs.IfStmt {
 	}
 
 	if_stmt := structs.IfStmt{
+		is_simple:   if_expression.is_simple
 		condition:   if_expression
 		then_branch: then_branch
 		else_branch: else_branch
