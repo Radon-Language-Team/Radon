@@ -1,6 +1,8 @@
 react println(string x) :void {}
 react staticRead(string input) :string {}
 
+react toInt(string str) :int {}
+
 // Allocates memory
 react @clone(string input) :string {}
 react @read(string input) :string {}

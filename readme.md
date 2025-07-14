@@ -46,27 +46,24 @@ Radon is built with the following principles in mind:
 
 Here’s what Radon looks like in its current state:
 
-```
+```go
 mixture 'core'
 
-react testFunction(int Age, string Name) :void {
-  println('Hello #(Name) with age #(Age)!')
+react foo() :string {
+  elem input = staticRead('Enter a Number?')
+  emit input
 }
 
-react main() : int {
-  elem greet = true
-  iso name = ''
+react main() {
+  elem numberStr = foo()
+  elem number = toInt(numberStr)
 
-  if greet {
-    elem request = read('What is your name?')
-    name = request
+  if number == 22 {
+    println('YOU WON!')
   } else {
-    name = 'Bob'
+    println('That was not it :)')
   }
-
-  testFunction(21, name)
 }
-
 ```
 ---
 

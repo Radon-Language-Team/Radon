@@ -41,6 +41,7 @@ pub fn clean_up(app &App) {
 	}
 }
 
+@[direct_array_access]
 pub fn (mut a App) get_token() Token {
 	return a.all_tokens[a.index] or {
 		println('Compiler panic: token index `${a.index}` out of range -> Token array length: ${a.all_tokens.len}')
