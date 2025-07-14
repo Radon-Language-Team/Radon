@@ -23,7 +23,7 @@ pub fn parse_expression(expression []structs.Token, mut app structs.App) structs
 	string_expression := token_array_to_string(expression)
 	is_simple_int := is_simple_expr(string_expression)
 
-	if is_simple_int {
+	if is_simple_int && expression[0].t_type != .type_string {
 		return structs.Expression{
 			value:  string_expression
 			e_type: .type_int

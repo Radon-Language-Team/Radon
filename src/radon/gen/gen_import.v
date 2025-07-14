@@ -65,6 +65,10 @@ char *clone(char *original) {
 	strcpy(copy, original);
   return copy;
 }
+
+int toInt(char *s) {
+  return atoi(s);
+}
 '
 
 fn gen_import(node structs.ImportStmt) string {

@@ -3,65 +3,85 @@ module parser_utils
 import structs
 import cmd.util { print_compile_error }
 
-const core_functions = ['println', '@read', 'staticRead', '@clone']
+const core_functions = ['println', '@read', 'staticRead', '@clone', 'toInt']
 
 fn get_core_function(name string) structs.FunctionDecl {
-	if name == 'println' {
-		return structs.FunctionDecl{
-			name:        name
-			params:      [
-				structs.Param{
-					name:   'x'
-					p_type: .type_string
-				},
-			]
-			return_type: .type_void
-			body:        []structs.AstNode{}
-			is_core:     true
+	match name {
+		'println' {
+			return structs.FunctionDecl{
+				name:        name
+				params:      [
+					structs.Param{
+						name:   'x'
+						p_type: .type_string
+					},
+				]
+				return_type: .type_void
+				body:        []structs.AstNode{}
+				is_core:     true
+			}
 		}
-	} else if name == '@read' {
-		return structs.FunctionDecl{
-			name:        name
-			params:      [
-				structs.Param{
-					name:   'message'
-					p_type: .type_string
-				},
-			]
-			return_type: .type_string
-			body:        []structs.AstNode{}
-			is_core:     true
-			does_malloc: true
+		'@read' {
+			return structs.FunctionDecl{
+				name:        name
+				params:      [
+					structs.Param{
+						name:   'message'
+						p_type: .type_string
+					},
+				]
+				return_type: .type_string
+				body:        []structs.AstNode{}
+				is_core:     true
+				does_malloc: true
+			}
 		}
-	} else if name == 'staticRead' {
-		return structs.FunctionDecl{
-			name:        name
-			params:      [
-				structs.Param{
-					name:   'message'
-					p_type: .type_string
-				},
-			]
-			return_type: .type_string
-			body:        []structs.AstNode{}
-			is_core:     true
+		'staticRead' {
+			return structs.FunctionDecl{
+				name:        name
+				params:      [
+					structs.Param{
+						name:   'message'
+						p_type: .type_string
+					},
+				]
+				return_type: .type_string
+				body:        []structs.AstNode{}
+				is_core:     true
+			}
 		}
-	} else if name == '@clone' {
-		return structs.FunctionDecl{
-			name:        name
-			params:      [
-				structs.Param{
-					name:   'input'
-					p_type: .type_string
-				},
-			]
-			return_type: .type_string
-			body:        []structs.AstNode{}
-			is_core:     true
-			does_malloc: true
+		'@clone' {
+			return structs.FunctionDecl{
+				name:        name
+				params:      [
+					structs.Param{
+						name:   'input'
+						p_type: .type_string
+					},
+				]
+				return_type: .type_string
+				body:        []structs.AstNode{}
+				is_core:     true
+				does_malloc: true
+			}
 		}
-	} else {
-		return structs.FunctionDecl{}
+		'toInt' {
+			return structs.FunctionDecl{
+				name:        name
+				params:      [
+					structs.Param{
+						name:   'string'
+						p_type: .type_string
+					},
+				]
+				return_type: .type_int
+				body:        []structs.AstNode{}
+				is_core:     true
+			}
+		}
+		else {
+			return structs.FunctionDecl{}
+		}
 	}
 }
 

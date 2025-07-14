@@ -216,16 +216,8 @@ fn check_if_decay(app structs.App, function_body []structs.AstNode) {
 		return
 	}
 
-	mut decayed_vars := map[string]bool{}
-	for node in function_body {
-		if node.type_name() == 'radon.structs.DecayStmt' {
-			decay_stmt := node as structs.DecayStmt
-			decayed_vars[decay_stmt.name] = true
-		}
-	}
-
 	for alloc in app.all_allocations {
-		if !decayed_vars[alloc] {
+		if alloc !in app.decays {
 			print_compile_error('`${alloc}` allocates memory but is never freed \n> Add `decay ${alloc}` after you are done using the variable',
 				&app)
 			println('\nNote: This requirement will go away once Radon supports automatic memory management')
