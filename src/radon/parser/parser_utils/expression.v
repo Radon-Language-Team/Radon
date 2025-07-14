@@ -181,7 +181,7 @@ pub fn get_variable(app &structs.App, variable_name string) structs.VarDecl {
 * Anything else is still to complicated to parse correctly
 */
 pub fn parse_simple_boolean_expr(expression []structs.Token, mut app structs.App) structs.BoolCondition {
-	operators := ['<', '>', '<=', '>=', '==']
+	operators := ['<', '>', '<=', '>=', '==', '!=']
 	mut final_expr := structs.BoolCondition{}
 	mut i := 0
 
