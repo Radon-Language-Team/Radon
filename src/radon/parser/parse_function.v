@@ -87,7 +87,9 @@ fn parse_function_body(mut app structs.App, function structs.FunctionDecl, insid
 			.close_brace {
 				if app.scope_id == 0 || inside_if {
 					// We hit the closing brace of the function body
-					check_if_decay(app, function_body)
+					if !inside_if {
+						check_if_decay(app, function_body)
+					}
 					return function_body
 				}
 			}
