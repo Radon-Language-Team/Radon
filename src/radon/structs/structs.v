@@ -269,7 +269,7 @@ pub mut:
 	e_type              VarType
 	is_variable         bool
 	is_function         bool
-	string_inter        bool // The string contains `#(...)` > The parsing is done in the expression file but the actual replacement happens during gen
+	string_inter        bool // The string contains `$(...)` > The parsing is done in the expression file but the actual replacement happens during gen
 	string_object       []StringObject
 	advanced_expression AstNode
 }

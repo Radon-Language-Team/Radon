@@ -62,13 +62,22 @@ fn match_token_type(token string) TokenType {
 		'int' {
 			return .type_int
 		}
+		'@int' {
+			return .type_int
+		}
 		'string' {
+			return .type_string
+		}
+		'@string' {
 			return .type_string
 		}
 		'void' {
 			return .type_void
 		}
 		'bool' {
+			return .type_bool
+		}
+		'@bool' {
 			return .type_bool
 		}
 		'+' {
