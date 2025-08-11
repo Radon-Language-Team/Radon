@@ -62,13 +62,22 @@ fn match_token_type(token string) TokenType {
 		'int' {
 			return .type_int
 		}
+		'@int' {
+			return .type_int
+		}
 		'string' {
+			return .type_string
+		}
+		'@string' {
 			return .type_string
 		}
 		'void' {
 			return .type_void
 		}
 		'bool' {
+			return .type_bool
+		}
+		'@bool' {
 			return .type_bool
 		}
 		'+' {
@@ -82,6 +91,12 @@ fn match_token_type(token string) TokenType {
 		}
 		'/' {
 			return .div
+		}
+		'>' {
+			return .greater
+		}
+		'<' {
+			return .smaller
 		}
 		'=' {
 			return .equals
@@ -110,7 +125,7 @@ fn match_token_category(token_type TokenType) structs.TokenCategory {
 		.key_decay, .key_true, .key_false {
 			return .keyword
 		}
-		.plus, .minus, .mult, .div {
+		.plus, .minus, .mult, .div, .greater, .smaller {
 			return .operator
 		}
 		.variable, .literal {

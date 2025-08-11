@@ -30,7 +30,12 @@ fn parse_function(mut app structs.App) !structs.FunctionDecl {
 
 	app.index++
 
-	function_decl.return_type = parse_function_return_type(mut app)
+	function_return_type, return_type_string := parse_function_return_type(mut app)
+	function_decl.return_type = function_return_type
+
+	if return_type_string.contains('@') {
+		function_decl.does_malloc = true
+	}
 
 	app.index++
 
@@ -87,7 +92,9 @@ fn parse_function_body(mut app structs.App, function structs.FunctionDecl, insid
 			.close_brace {
 				if app.scope_id == 0 || inside_if {
 					// We hit the closing brace of the function body
-					check_if_decay(app, function_body)
+					if !inside_if {
+						check_if_decay(app, function_body)
+					}
 					return function_body
 				}
 			}
@@ -179,7 +186,7 @@ fn parse_function_args(mut app structs.App) []structs.Param {
 	return function_params
 }
 
-fn parse_function_return_type(mut app structs.App) structs.TokenType {
+fn parse_function_return_type(mut app structs.App) (structs.TokenType, string) {
 	token := app.get_token()
 
 	if token.t_type == .colon {
@@ -201,27 +208,23 @@ fn parse_function_return_type(mut app structs.App) structs.TokenType {
 			exit(1)
 		}
 
-		return return_type.t_type
+		return return_type.t_type, return_type.t_value
 	} else {
 		if token.t_type != .open_brace {
 			print_compile_error('Expected ` { `, got ` ${token.t_value} `', &app)
 			exit(1)
 		}
-		return .type_void
+		return structs.TokenType.type_void, 'void'
 	}
 }
 
 fn check_if_decay(app structs.App, function_body []structs.AstNode) {
-	mut decayed_vars := map[string]bool{}
-	for node in function_body {
-		if node.type_name() == 'radon.structs.DecayStmt' {
-			decay_stmt := node as structs.DecayStmt
-			decayed_vars[decay_stmt.name] = true
-		}
+	if app.all_allocations.len == 0 || app.auto_decay {
+		return
 	}
 
 	for alloc in app.all_allocations {
-		if !decayed_vars[alloc] {
+		if alloc !in app.decays {
 			print_compile_error('`${alloc}` allocates memory but is never freed \n> Add `decay ${alloc}` after you are done using the variable',
 				&app)
 			println('\nNote: This requirement will go away once Radon supports automatic memory management')

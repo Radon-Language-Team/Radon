@@ -15,6 +15,8 @@ mut:
 	use_diff_compiler   bool
 	preserve_files      bool
 	verbose             bool
+	no_run              bool
+	auto_decay          bool
 
 	args        []string
 	c_compilers []string
@@ -23,10 +25,12 @@ mut:
 
 fn new_context() Context {
 	return Context{
-		display_json_tokens: '--json-tokens' in os.args
+		display_json_tokens: '-json-tokens' in os.args
 		use_diff_compiler:   '-cc' in os.args
 		preserve_files:      '-p' in os.args
 		verbose:             '-v' in os.args
+		no_run:              '-no-run' in os.args
+		auto_decay:          '-auto-decay' in os.args
 
 		args:        os.args.clone()
 		c_compilers: ['tcc', 'gcc', 'clang']
@@ -81,6 +85,22 @@ pub fn run() ! {
 		index:        0
 		line_count:   1
 		column_count: 1
+		auto_decay:   ctx.auto_decay
+	}
+
+	defer {
+		// Just to make sure both the app and the ctx are really freed after compiling
+		$if windows {
+			unsafe {
+				ctx.free()
+				app.free()
+			}
+		} $else $if linux {
+			unsafe {
+				free(&ctx)
+				free(&app)
+			}
+		}
 	}
 
 	lexer.lex_file(mut app)!
@@ -107,6 +127,7 @@ pub fn run() ! {
 	os.write_file(gen_file_path, app.gen_code)!
 
 	gen_file.close()
+
 	mut compile_code := 0
 	mut compiler_command := ''
 
@@ -126,6 +147,14 @@ pub fn run() ! {
 		println(term.red('Got non zero exit code after compiling generated C file!'))
 		println(term.bright_blue('If this is a mistake in the generated code, please open an issue on GitHub!'))
 	} else {
+		// No need to run the C Code > We are done
+		if ctx.no_run {
+			if !ctx.preserve_files {
+				os.rm(gen_file_path)!
+			}
+			return
+		}
+
 		user_os := os.user_os()
 		if user_os == 'linux' {
 			os.system('./${gen_file_exec}')

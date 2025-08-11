@@ -50,7 +50,7 @@ fn parse_variable(mut app structs.App) structs.VarDecl {
 		variable_decl.is_top_const = true
 	}
 
-	variable_look_up := parser_utils.get_variable(app, variable_decl.name)
+	variable_look_up := parser_utils.get_variable(&app, variable_decl.name)
 
 	if variable_look_up != structs.VarDecl{} {
 		// This variable has already been created
@@ -88,7 +88,7 @@ fn parse_redefinition_var(mut app structs.App) structs.VarDecl {
 	mut variable_decl := structs.VarDecl{}
 	mut token := app.get_token()
 	var_name := token.t_value
-	possible_variable := parser_utils.get_variable(app, var_name)
+	possible_variable := parser_utils.get_variable(&app, var_name)
 
 	if possible_variable == structs.VarDecl{} {
 		// The variable has not yet been created

@@ -64,6 +64,12 @@ pub fn lex_file(mut app structs.App) ! {
 			mut token_category := match_token_category(token_type)
 			mut token_var_type := structs.VarType.type_unknown
 
+			// For allocated return types > @string, @int
+			if token_category == .token_type && app.prev_token.t_type == .at {
+				lexed_tokens.pop()
+				app.buffer = '@${app.buffer}'
+			}
+
 			// In case the previous token was a key_element or key_isotope
 			// we know that the current token is a variable
 			if (app.prev_token.t_type == .key_element || app.prev_token.t_type == .key_isotope)

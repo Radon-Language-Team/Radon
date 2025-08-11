@@ -72,7 +72,5 @@ pub fn print_compile_error(error string, app &App) {
 		}
 	}
 
-	unsafe {
-		free(app)
-	}
+	structs.clean_up(app)
 }

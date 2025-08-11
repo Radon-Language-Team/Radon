@@ -54,8 +54,8 @@ pub fn gen_string(node structs.AstNode) string {
 		}
 
 		return string_value
+	} else {
+		print_error('${node.type_name()} does not have it\'s string function yet :)')
+		exit(1)
 	}
-
-	print_error('${node.type_name()} does not have it\'s string function yet :)')
-	exit(1)
 }

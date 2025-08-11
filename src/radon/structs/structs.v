@@ -26,13 +26,27 @@ pub mut:
 	gen_code string
 
 	done_lexing bool
+	auto_decay  bool
 }
 
+pub fn clean_up(app &App) {
+	$if windows {
+		unsafe {
+			app.free()
+		}
+	} $else $if linux {
+		unsafe {
+			free(app)
+		}
+	}
+}
+
+@[direct_array_access]
 pub fn (mut a App) get_token() Token {
 	return a.all_tokens[a.index] or {
 		println('Compiler panic: token index `${a.index}` out of range -> Token array length: ${a.all_tokens.len}')
 		print_backtrace()
-		unsafe { free(a) }
+		unsafe { free(&a) }
 		exit(1)
 	}
 }
@@ -64,11 +78,13 @@ pub enum TokenType {
 	type_void   // void
 	type_bool   // bool
 
-	plus   // +
-	minus  // -
-	mult   // *
-	div    // /
-	equals // =
+	plus    // +
+	minus   // -
+	mult    // *
+	div     // /
+	equals  // =
+	greater // >
+	smaller // <
 
 	variable // variable
 	literal  // literal
@@ -197,7 +213,8 @@ pub type AstNode = Literal
 	| ImportStmt
 	| IfStmt
 
-struct Literal {
+pub struct Literal {
+pub:
 	value int
 }
 
@@ -241,8 +258,8 @@ pub mut:
 
 pub struct StringObject {
 pub mut:
-	replacement       AstNode
-	replacement_pos   ReplacementPos // {5, 10}, {15, 23}...
+	replacement      AstNode
+	replacement_pos  ReplacementPos // {5, 10}, {15, 23}...
 	replacement_type TokenType
 }
 
@@ -252,7 +269,7 @@ pub mut:
 	e_type              VarType
 	is_variable         bool
 	is_function         bool
-	string_inter        bool // The string contains `#(...)` > The parsing is done in the expression file but the actual replacement happens during gen
+	string_inter        bool // The string contains `$(...)` > The parsing is done in the expression file but the actual replacement happens during gen
 	string_object       []StringObject
 	advanced_expression AstNode
 }
@@ -293,9 +310,21 @@ pub mut:
 	name string
 }
 
+pub struct BoolCondition {
+pub mut:
+	con_lhs AstNode
+	con_op  string
+	con_rhs AstNode
+
+	// For simple expressions, e.g length one
+	is_simple  bool
+	con_simple AstNode
+}
+
 pub struct IfStmt {
 pub:
-	condition   AstNode
+	is_simple   bool
+	condition   BoolCondition
 	then_branch []AstNode
 	else_branch ?[]AstNode
 }

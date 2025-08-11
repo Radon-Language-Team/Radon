@@ -3,7 +3,7 @@ module gen
 import structs
 import gen_utils
 
-fn gen_function(function_decl structs.FunctionDecl) string {
+fn gen_function(function_decl structs.FunctionDecl, app &structs.App) string {
 	mut function_code := ''
 
 	mut function_type := structs.radon_type_to_c_type(function_decl.return_type)
@@ -48,6 +48,11 @@ fn gen_function(function_decl structs.FunctionDecl) string {
 				exit(1)
 			}
 		}
+	}
+
+	if app.auto_decay {
+		added_decays := gen_utils.insert_decays(app)
+		function_body_code += added_decays
 	}
 
 	function_code += '// Generated from react ${function_name}\n'
@@ -96,14 +101,7 @@ fn gen_var_decl(var_decl structs.VarDecl) string {
 
 	var_decl_value := var_decl.value as structs.Expression
 
-	if var_decl_value.e_type == .type_string && !var_decl_value.is_variable
-		&& !var_decl_value.is_function {
-		// In case it's a variable, we don't want to put quotes around it
-		// element foo = 'Hello'
-		// foo -> "foo" > No
-		// foo -> foo > Yes
-		var_decl_code += gen_utils.gen_string(var_decl_value)
-	} else if var_decl_value.is_function {
+	if var_decl_value.is_function {
 		type_name_of_expression := var_decl_value.advanced_expression.type_name()
 		match type_name_of_expression {
 			'radon.structs.Call' {
@@ -115,21 +113,8 @@ fn gen_var_decl(var_decl structs.VarDecl) string {
 				exit(1)
 			}
 		}
-	} else if var_decl_value.e_type == .type_bool {
-		var_decl_code += match var_decl_value.value {
-			'true' {
-				1
-			}
-			'false' {
-				0
-			}
-			else {
-				println('Unknown bool value > Defaulting to 0')
-				0
-			}
-		}.str()
 	} else {
-		var_decl_code += '${var_decl_value.value.trim_space()}'
+		var_decl_code += gen_utils.gen_expression(var_decl.value)
 	}
 
 	if var_decl.is_top_const {
@@ -143,27 +128,8 @@ fn gen_var_decl(var_decl structs.VarDecl) string {
 }
 
 fn gen_emit_stmt(emit_stmt structs.EmitStmt) string {
-	emit_stmt_value := emit_stmt.emit as structs.Expression
-
-	if emit_stmt_value.e_type == .type_string && !emit_stmt_value.is_variable {
-		return 'return ${gen_utils.gen_string(emit_stmt_value)}; \n'
-	} else if emit_stmt_value.e_type == .type_bool {
-		bool_return := match emit_stmt_value.value {
-			'true' {
-				1
-			}
-			'false' {
-				0
-			}
-			else {
-				println('Unknown bool value > Defaulting to 0')
-				0
-			}
-		}.str()
-		return 'return ${bool_return}; \n'
-	}
-
-	return 'return ${emit_stmt_value.value.trim_space()}; \n'
+	emit_value := gen_utils.gen_expression(emit_stmt.emit)
+	return 'return ${emit_value}; \n'
 }
 
 fn gen_call(node structs.Call) string {
@@ -177,25 +143,7 @@ fn gen_call(node structs.Call) string {
 
 	for arg in node.args {
 		argument := arg as structs.Expression
-
-		if argument.e_type == .type_string && !argument.is_variable {
-			call_args += gen_utils.gen_string(argument)
-		} else if argument.e_type == .type_bool && !argument.is_variable {
-			call_args += match argument.value {
-				'true' {
-					1
-				}
-				'false' {
-					0
-				}
-				else {
-					println('Unknown bool value > Defaulting to 0')
-					0
-				}
-			}.str()
-		} else {
-			call_args += argument.value
-		}
+		call_args += gen_utils.gen_expression(argument)
 
 		if arg != node.args.last() {
 			call_args += ','
@@ -211,26 +159,12 @@ fn gen_decay(node structs.DecayStmt) string {
 
 fn gen_if(node structs.IfStmt) string {
 	mut if_stmt_code := ''
-
-	// Only plain bools for now
-	if_con_node := node.condition as structs.Expression
 	mut if_con_code := ''
 
-	if if_con_node.value in ['false', 'true'] {
-		if_con_code = match if_con_node.value {
-			'true' {
-				'1'
-			}
-			'false' {
-				'0'
-			}
-			else {
-				println('Unknown bool value > Defaulting to 0')
-				'0'
-			}
-		}
+	if node.is_simple {
+		if_con_code = gen_utils.gen_expression(node.condition.con_simple)
 	} else {
-		if_con_code = if_con_node.value
+		if_con_code = gen_utils.gen_bool_expr(node.condition)
 	}
 
 	mut if_then_code := ''
