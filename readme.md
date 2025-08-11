@@ -49,20 +49,18 @@ Here’s what Radon looks like in its current state:
 ```go
 mixture 'core'
 
-react foo() :string {
-  elem input = staticRead('Enter a Number?')
-  emit input
+react greet(string name) :void {
+  println('Hello ${name}')
 }
 
 react main() {
-  elem numberStr = foo()
-  elem number = toInt(numberStr)
+  elem name = @read('What is your name?')
 
-  if number == 22 {
-    println('YOU WON!')
-  } else {
-    println('That was not it :)')
+  if name != '' {
+    greet(name)
   }
+
+  decay name
 }
 ```
 ---
