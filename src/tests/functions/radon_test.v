@@ -1,3 +1,5 @@
+module tests
+
 import os
 
 fn test_simple_print() {
@@ -14,4 +16,18 @@ fn test_complex_print() {
 
 	assert output.exit_code == 0
 	assert output.output == 'Success!\n'
+}
+
+fn test_if_statements() {
+	file_path := 'src/tests/control/if_statements.rad'
+	output := os.execute('radon run ${file_path}')
+
+	exit_code := output.exit_code
+
+	if exit_code != 0 {
+		println(output.output)
+	}
+
+	assert exit_code == 0
+	assert output.output == 'All if tests passed!\n'
 }

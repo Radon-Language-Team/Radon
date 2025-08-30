@@ -95,6 +95,26 @@ pub enum TokenType {
 	radon_null // Only used by the compiler for unmatched token
 }
 
+pub fn (t TokenType) is_op() bool {
+	return match t {
+		.plus {
+			true
+		}
+		.minus {
+			true
+		}
+		.mult {
+			true
+		}
+		.div {
+			true
+		}
+		else {
+			false
+		}
+	}
+}
+
 pub enum TokenCategory {
 	keyword
 	operator
@@ -212,6 +232,7 @@ pub type AstNode = Literal
 	| ReturnStmt
 	| ImportStmt
 	| IfStmt
+	| AugAssign
 
 pub struct Literal {
 pub:
@@ -327,4 +348,11 @@ pub:
 	condition   BoolCondition
 	then_branch []AstNode
 	else_branch ?[]AstNode
+}
+
+pub struct AugAssign {
+pub mut:
+	target AstNode
+	op     string
+	value  AstNode
 }

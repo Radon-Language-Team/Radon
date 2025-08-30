@@ -4,7 +4,7 @@ import cmd.util { print_compile_error }
 import parser_utils
 import structs
 
-fn parse_variable(mut app structs.App) structs.VarDecl {
+fn parse_variable(mut app structs.App) structs.AstNode {
 	mut variable_decl := structs.VarDecl{}
 	mut token := app.get_token()
 
@@ -84,7 +84,7 @@ fn parse_variable(mut app structs.App) structs.VarDecl {
 	return variable_decl
 }
 
-fn parse_redefinition_var(mut app structs.App) structs.VarDecl {
+fn parse_redefinition_var(mut app structs.App) structs.AstNode {
 	mut variable_decl := structs.VarDecl{}
 	mut token := app.get_token()
 	var_name := token.t_value
@@ -105,6 +105,9 @@ fn parse_redefinition_var(mut app structs.App) structs.VarDecl {
 	app.index++
 	token = app.get_token()
 	if token.t_type != .equals {
+		if token.t_type.is_op() {
+			return parse_aug_assign(mut app)
+		}
 		print_compile_error('Expected `=`, got token of type `${token.t_type}` and value `${token.t_value}`',
 			&app)
 		exit(1)
@@ -129,4 +132,25 @@ fn parse_redefinition_var(mut app structs.App) structs.VarDecl {
 	variable_decl.is_mut = true
 	app.all_variables << variable_decl
 	return variable_decl
+}
+
+fn parse_aug_assign(mut app structs.App) structs.AugAssign {
+	mut aug_assign := structs.AugAssign{}
+	app.index--
+
+	mut token := app.get_token()
+	var_name := token.t_value
+	variable := parser_utils.get_variable(&app, var_name)
+	aug_assign.target = variable
+
+	app.index++
+	operator := app.get_token()
+
+	if variable.variable_type != .type_int {
+		print_compile_error('`${operator.t_value}` can only be used on variables with type `int` > Got `${variable.variable_type}`',
+			&app)
+		exit(1)
+	}
+
+	return aug_assign
 }

@@ -1,0 +1,39 @@
+mixture 'core'
+
+react main() :int {
+    iso count = 0
+    elem flag = true
+    if flag {
+
+    count += 1// TODO!!!
+    count++
+
+    } else {
+        stringEmit('Bool test failed\n')
+    }
+
+    elem a = 5
+    elem b = 10
+    if a < b {
+        stringEmit('Int comparelemn passed\n')
+    } else {
+        stringEmit('Int comparelemn failed\n')
+    }
+
+    elem strOne = 'hello'
+    elem strTwo = 'hello'
+    if strOne == strTwo {
+        stringEmit('String comparelemn passed\n')
+    } else {
+        stringEmit('String comparelemn failed\n')
+    }
+
+    elem num = toInt('20')
+    if num == 20 {
+        stringEmit('toInt test passed\n')
+    } else {
+        stringEmit('toInt test failed\n')
+    }
+
+    stringEmit('All if tests passed!\n')
+}
