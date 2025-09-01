@@ -1,0 +1,37 @@
+mixture 'core'
+
+react main() :int {
+    iso count = 0
+    elem flag = true
+    if flag {
+        count++
+    } else {
+        count--
+    }
+
+    elem a = 5
+    elem b = 10
+    if a < b {
+        count++
+    } else {
+        count--
+    }
+
+    elem strOne = 'hello'
+    elem strTwo = 'hello'
+    if strOne == strTwo {
+        count++
+    } else {
+        count--
+    }
+
+    elem num = toInt('20')
+    if num == 20 {
+        count++
+    } else {
+        count--
+    }
+
+    println(count)
+    emit count
+}

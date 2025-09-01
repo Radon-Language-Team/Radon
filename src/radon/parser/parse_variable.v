@@ -4,7 +4,7 @@ import cmd.util { print_compile_error }
 import parser_utils
 import structs
 
-fn parse_variable(mut app structs.App) structs.VarDecl {
+fn parse_variable(mut app structs.App) structs.AstNode {
 	mut variable_decl := structs.VarDecl{}
 	mut token := app.get_token()
 
@@ -84,7 +84,7 @@ fn parse_variable(mut app structs.App) structs.VarDecl {
 	return variable_decl
 }
 
-fn parse_redefinition_var(mut app structs.App) structs.VarDecl {
+fn parse_redefinition_var(mut app structs.App) structs.AstNode {
 	mut variable_decl := structs.VarDecl{}
 	mut token := app.get_token()
 	var_name := token.t_value
@@ -105,6 +105,9 @@ fn parse_redefinition_var(mut app structs.App) structs.VarDecl {
 	app.index++
 	token = app.get_token()
 	if token.t_type != .equals {
+		if token.t_type.is_op() {
+			return parse_aug_assign(mut app)
+		}
 		print_compile_error('Expected `=`, got token of type `${token.t_type}` and value `${token.t_value}`',
 			&app)
 		exit(1)
@@ -129,4 +132,61 @@ fn parse_redefinition_var(mut app structs.App) structs.VarDecl {
 	variable_decl.is_mut = true
 	app.all_variables << variable_decl
 	return variable_decl
+}
+
+fn parse_aug_assign(mut app structs.App) structs.AugAssign {
+	mut aug_assign := structs.AugAssign{}
+	app.index--
+
+	mut token := app.get_token()
+	var_name := token.t_value
+	variable := parser_utils.get_variable(&app, var_name)
+	aug_assign.target = variable
+
+	app.index++
+	operator := app.get_token()
+	app.index++
+	second_operator := app.get_token()
+
+	possible_ops := ['++', '--', '+=', '-=', '*=']
+
+	// Augmented assignments are only possible on strings or numeric values
+	if variable.variable_type != .type_int && variable.variable_type != .type_string {
+		print_compile_error('Augmented assignments can only be used on numeric values or strings > Got `${variable.variable_type}`',
+			&app)
+		exit(1)
+	}
+
+	if '${operator.t_value}${second_operator.t_value}' !in possible_ops {
+		print_compile_error('Unknown operator `${operator.t_value}${second_operator.t_value}`',
+			&app)
+		exit(1)
+	}
+
+	// ++ / -- > Can only be used on numeric values
+	if operator.t_type == second_operator.t_type && variable.variable_type != .type_int {
+		print_compile_error('Operator `${operator.t_value}${second_operator}` can only be used on numeric values > Got `${variable.variable_type}`',
+			&app)
+		exit(1)
+	}
+
+	aug_assign.op = '${operator.t_value}${second_operator.t_value}'
+
+	if operator.t_type == second_operator.t_type {
+		aug_assign.value = structs.Expression{
+			value:               '1'
+			e_type:              .type_int
+			advanced_expression: structs.AstNode{}
+		}
+
+		app.index++
+		return aug_assign
+	}
+
+	app.index++
+	expression := parser_utils.get_expression(mut &app)
+	parsed_expression := parser_utils.parse_expression(expression, mut &app)
+
+	aug_assign.value = parsed_expression
+	return aug_assign
 }
