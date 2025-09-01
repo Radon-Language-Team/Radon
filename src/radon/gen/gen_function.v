@@ -43,8 +43,11 @@ fn gen_function(function_decl structs.FunctionDecl, app &structs.App) string {
 			structs.IfStmt {
 				function_body_code += gen_if(node)
 			}
+			structs.AugAssign {
+				function_body_code += gen_aug_assign(node)
+			}
 			else {
-				println('Those kind of nodes are not supported in function bodies for now :)')
+				println('Those kind of nodes are not supported in function bodies for now :) > Tried to generate ${node.type_name()}')
 				exit(1)
 			}
 		}
@@ -77,8 +80,11 @@ fn gen_function_body_scope(node structs.AstNode) string {
 		structs.IfStmt {
 			return gen_if(node)
 		}
+		structs.AugAssign {
+			return gen_aug_assign(node)
+		}
 		else {
-			println('Those kind of nodes are not supported in function bodies for now :)')
+			println('Those kind of nodes are not supported in function bodies for now :) > Tried to generate ${node.type_name()}')
 			exit(1)
 		}
 	}
@@ -187,4 +193,13 @@ fn gen_if(node structs.IfStmt) string {
 	${if_else_code}  }\n'
 	}
 	return if_stmt_code
+}
+
+fn gen_aug_assign(node structs.AugAssign) string {
+	if node.op == '++' || node.op == '--' {
+		return '${node.target.name}${node.op}; \n'
+	}
+
+	aug_value := gen_utils.gen_expression(node.value as structs.Expression)
+	return '${node.target.name} ${node.op} ${aug_value}; \n'
 }

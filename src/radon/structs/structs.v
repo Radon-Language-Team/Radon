@@ -352,7 +352,7 @@ pub:
 
 pub struct AugAssign {
 pub mut:
-	target AstNode
+	target VarDecl
 	op     string
 	value  AstNode
 }

@@ -4,36 +4,34 @@ react main() :int {
     iso count = 0
     elem flag = true
     if flag {
-
-    count += 1// TODO!!!
-    count++
-
+        count++
     } else {
-        stringEmit('Bool test failed\n')
+        count--
     }
 
     elem a = 5
     elem b = 10
     if a < b {
-        stringEmit('Int comparelemn passed\n')
+        count++
     } else {
-        stringEmit('Int comparelemn failed\n')
+        count--
     }
 
     elem strOne = 'hello'
     elem strTwo = 'hello'
     if strOne == strTwo {
-        stringEmit('String comparelemn passed\n')
+        count++
     } else {
-        stringEmit('String comparelemn failed\n')
+        count--
     }
 
     elem num = toInt('20')
     if num == 20 {
-        stringEmit('toInt test passed\n')
+        count++
     } else {
-        stringEmit('toInt test failed\n')
+        count--
     }
 
-    stringEmit('All if tests passed!\n')
+    println(count)
+    emit count
 }

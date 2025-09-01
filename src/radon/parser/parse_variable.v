@@ -145,12 +145,48 @@ fn parse_aug_assign(mut app structs.App) structs.AugAssign {
 
 	app.index++
 	operator := app.get_token()
+	app.index++
+	second_operator := app.get_token()
 
-	if variable.variable_type != .type_int {
-		print_compile_error('`${operator.t_value}` can only be used on variables with type `int` > Got `${variable.variable_type}`',
+	possible_ops := ['++', '--', '+=', '-=', '*=']
+
+	// Augmented assignments are only possible on strings or numeric values
+	if variable.variable_type != .type_int && variable.variable_type != .type_string {
+		print_compile_error('Augmented assignments can only be used on numeric values or strings > Got `${variable.variable_type}`',
 			&app)
 		exit(1)
 	}
 
+	if '${operator.t_value}${second_operator.t_value}' !in possible_ops {
+		print_compile_error('Unknown operator `${operator.t_value}${second_operator.t_value}`',
+			&app)
+		exit(1)
+	}
+
+	// ++ / -- > Can only be used on numeric values
+	if operator.t_type == second_operator.t_type && variable.variable_type != .type_int {
+		print_compile_error('Operator `${operator.t_value}${second_operator}` can only be used on numeric values > Got `${variable.variable_type}`',
+			&app)
+		exit(1)
+	}
+
+	aug_assign.op = '${operator.t_value}${second_operator.t_value}'
+
+	if operator.t_type == second_operator.t_type {
+		aug_assign.value = structs.Expression{
+			value:               '1'
+			e_type:              .type_int
+			advanced_expression: structs.AstNode{}
+		}
+
+		app.index++
+		return aug_assign
+	}
+
+	app.index++
+	expression := parser_utils.get_expression(mut &app)
+	parsed_expression := parser_utils.parse_expression(expression, mut &app)
+
+	aug_assign.value = parsed_expression
 	return aug_assign
 }

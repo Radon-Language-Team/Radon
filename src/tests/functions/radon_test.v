@@ -28,6 +28,8 @@ fn test_if_statements() {
 		println(output.output)
 	}
 
+	println(output.output)
+
 	assert exit_code == 0
-	assert output.output == 'All if tests passed!\n'
+	assert output.output == '4\n'
 }
