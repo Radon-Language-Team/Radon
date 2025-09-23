@@ -6,7 +6,7 @@ import gen_utils
 fn gen_function(function_decl structs.FunctionDecl, app &structs.App) string {
 	mut function_code := ''
 
-	mut function_type := structs.radon_type_to_c_type(function_decl.return_type)
+	mut function_type := function_decl.return_type.to_c_type()
 
 	if function_decl.name == 'main' && function_decl.return_type == .type_void {
 		function_type = 'int'
@@ -16,7 +16,7 @@ fn gen_function(function_decl structs.FunctionDecl, app &structs.App) string {
 	mut function_params := ''
 	mut i := 0
 	for arg in function_decl.params {
-		function_params += structs.radon_type_to_c_type(arg.p_type)
+		function_params += arg.p_type.to_c_type()
 		function_params += ' ${arg.name}'
 		i++
 
@@ -98,7 +98,7 @@ fn gen_var_decl(var_decl structs.VarDecl) string {
 	} else {
 		if !var_decl.is_redi {
 			// In case of a redefinition, we don't need the type
-			var_decl_code += structs.radon_var_type_to_c_type(var_decl.variable_type)
+			var_decl_code += var_decl.variable_type.to_c_type()
 			var_decl_code += ' ${var_decl.name} = '
 		} else {
 			var_decl_code += '${var_decl.name} = '

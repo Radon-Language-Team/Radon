@@ -21,9 +21,15 @@ pub fn get_expression(mut app structs.App) []structs.Token {
 pub fn parse_expression(expression []structs.Token, mut app structs.App) structs.AstNode {
 	// If the expression is a simple expression (just numbers and operators), we can just return the whole thing
 	string_expression := token_array_to_string(expression)
-	is_simple_int := is_simple_expr(string_expression)
+	is_simple_math := is_simple_math_expr(string_expression)
 
-	if is_simple_int && expression[0].t_type != .type_string {
+	println('String expression: ${string_expression}')
+
+	if is_simple_math && expression[0].t_type != .type_string {
+		if expression[0].token_is_op() && expression.len == 1 {
+			print_compile_error('Unexpected end of expression', &app)
+			exit(1)
+		}
 		return structs.Expression{
 			value:  string_expression
 			e_type: .type_int
@@ -69,7 +75,7 @@ pub fn parse_expression(expression []structs.Token, mut app structs.App) structs
 					radon_assert(variable == structs.VarDecl{}, 'Variable `${buffer.str()}` is not defined',
 						&app)
 					string_object.replacement = variable
-					string_object.replacement_type = structs.var_type_to_token_type(variable.variable_type)
+					string_object.replacement_type = variable.variable_type.to_token_type()
 					string_inter = true
 					string_objects << string_object
 				}
@@ -82,8 +88,19 @@ pub fn parse_expression(expression []structs.Token, mut app structs.App) structs
 			string_inter:  string_inter
 			string_object: string_objects
 		}
-	} else if expression[0].t_type == .variable {
-		variable := get_variable(app, expression[0].t_value)
+	} else if expression[0].t_type == .variable || expression[0].token_is_op() {
+		mut operator_placeholder := ''
+		if expression[0].token_is_op() && expression.len == 1 {
+			print_compile_error('Unexpected end of expression', &app)
+			exit(1)
+		}
+
+		variable := if expression[0].token_is_op() {
+			operator_placeholder += expression[0].t_value
+			get_variable(app, expression[1].t_value)
+		} else {
+			get_variable(app, expression[0].t_value)
+		}
 
 		if variable == structs.VarDecl{} {
 			print_compile_error('Variable `${expression[0].t_value}` is not defined',
@@ -92,7 +109,7 @@ pub fn parse_expression(expression []structs.Token, mut app structs.App) structs
 		}
 
 		return structs.Expression{
-			value:       expression[0].t_value
+			value:       '${operator_placeholder}${variable.name}'
 			e_type:      variable.variable_type
 			is_variable: true
 		}
@@ -128,10 +145,12 @@ pub fn parse_expression(expression []structs.Token, mut app structs.App) structs
 
 		return structs.Expression{
 			value:               ''
-			e_type:              structs.token_type_to_var_type(function.return_type)
+			e_type:              function.return_type.to_var_type()
 			is_function:         true
 			advanced_expression: function_call
 		}
+	} else {
+		println('Expression case of ${expression[0].t_type} (${expression[0].t_value}) is not yet handled!')
 	}
 
 	return structs.AstNode{}
@@ -141,13 +160,13 @@ pub fn token_array_to_string(tokens []structs.Token) string {
 	mut token_string := ''
 
 	for token in tokens {
-		token_string += '${token.t_value}'
+		token_string += token.t_value
 	}
 
 	return token_string
 }
 
-fn is_simple_expr(expr string) bool {
+fn is_simple_math_expr(expr string) bool {
 	mut re := regex.regex_opt(r'^[0-9+\-*/(). \t]+$') or { panic('Invalid regex') }
 	start, end := re.find(expr)
 	return start == 0 && end == expr.len

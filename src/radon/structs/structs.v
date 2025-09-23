@@ -115,6 +115,63 @@ pub fn (t TokenType) is_op() bool {
 	}
 }
 
+pub fn (t TokenType) is_data_type() bool {
+	return match t {
+		.type_string {
+			true
+		}
+		.type_int {
+			true
+		}
+		.type_bool {
+			true
+		}
+		.type_void {
+			true
+		}
+		else {
+			false
+		}
+	}
+}
+
+pub fn (t TokenType) to_var_type() VarType {
+	return match t {
+		.type_string {
+			.type_string
+		}
+		.type_int {
+			.type_int
+		}
+		.type_bool {
+			.type_bool
+		}
+		else {
+			.type_unknown
+		}
+	}
+}
+
+pub fn (t TokenType) to_c_type() string {
+	return match t {
+		.type_string {
+			'char*'
+		}
+		.type_int {
+			'int'
+		}
+		.type_void {
+			'void'
+		}
+		.type_bool {
+			'int'
+		}
+		else {
+			''
+		}
+	}
+}
+
 pub enum TokenCategory {
 	keyword
 	operator
@@ -133,20 +190,8 @@ pub enum VarType {
 	type_unknown
 }
 
-pub struct Token {
-pub mut:
-	t_type     TokenType
-	t_value    string
-	t_line     int
-	t_column   int
-	t_length   int
-	t_filename string
-	t_category TokenCategory
-	t_var_type VarType
-}
-
-pub fn var_type_to_token_type(var_type VarType) TokenType {
-	return match var_type {
+pub fn (v VarType) to_token_type() TokenType {
+	return match v {
 		.type_string {
 			.type_string
 		}
@@ -162,26 +207,8 @@ pub fn var_type_to_token_type(var_type VarType) TokenType {
 	}
 }
 
-pub fn token_type_to_var_type(token_type TokenType) VarType {
-	return match token_type {
-		.type_string {
-			.type_string
-		}
-		.type_int {
-			.type_int
-		}
-		.type_bool {
-			.type_bool
-		}
-		else {
-			.type_unknown
-		}
-	}
-}
-
-// TODO: What is this... They both do the same stuff
-pub fn radon_type_to_c_type(radon_type TokenType) string {
-	return match radon_type {
+pub fn (v VarType) to_c_type() string {
+	return match v {
 		.type_string {
 			'char*'
 		}
@@ -200,22 +227,34 @@ pub fn radon_type_to_c_type(radon_type TokenType) string {
 	}
 }
 
-pub fn radon_var_type_to_c_type(radon_type VarType) string {
-	return match radon_type {
-		.type_string {
-			'char*'
+pub struct Token {
+pub mut:
+	t_type     TokenType
+	t_value    string
+	t_line     int
+	t_column   int
+	t_length   int
+	t_filename string
+	t_category TokenCategory
+	t_var_type VarType
+}
+
+pub fn (t Token) token_is_op() bool {
+	return match t.t_type {
+		.plus {
+			true
 		}
-		.type_int {
-			'int'
+		.minus {
+			true
 		}
-		.type_void {
-			'void'
+		.mult {
+			true
 		}
-		.type_bool {
-			'int'
+		.div {
+			true
 		}
 		else {
-			''
+			false
 		}
 	}
 }
@@ -337,7 +376,7 @@ pub mut:
 	con_op  string
 	con_rhs AstNode
 
-	// For simple expressions, e.g length one
+	// For simple expressions, e.g "length one" like "true", "false", "x" > x : bool
 	is_simple  bool
 	con_simple AstNode
 }

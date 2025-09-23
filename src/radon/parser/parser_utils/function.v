@@ -145,6 +145,10 @@ pub fn parse_func_call(mut app structs.App, inside_variable bool) structs.Call {
 			}
 		} else {
 			if buffer[i].t_type !in [.literal, .variable, .type_string, .key_true, .key_false] {
+				if buffer[i].token_is_op() {
+					i++
+					continue
+				}
 				print_compile_error('Invalid value in argument list: `${buffer[i].t_value}`',
 					&app)
 				exit(1)
@@ -152,32 +156,35 @@ pub fn parse_func_call(mut app structs.App, inside_variable bool) structs.Call {
 		}
 	}
 
+	// We ignore all the commas and operators
 	final_arg_list := buffer.filter(it.t_type != .comma)
 
-	if callee_function.params.len != final_arg_list.len {
+	if callee_function.params.len != final_arg_list.filter(!it.token_is_op()).len {
 		print_compile_error('Argument count mismatch: Function `${callee_function.name}` expects ${callee_function.params.len} argument(s), but ${final_arg_list.len} were provided',
 			&app)
 		exit(1)
 	}
 
-	for i, arg in final_arg_list {
-		if i >= callee_function.params.len {
-			panic('Compiler panic: Argument index out of bounds')
-			unsafe {
-				free(app)
-			}
-		}
-		callee_arg := callee_function.params[i]
-		arg_expression := parse_expression([arg], mut app) as structs.Expression
-		arg_type := structs.var_type_to_token_type(arg_expression.e_type)
+	println('${final_arg_list.str()}')
 
-		if arg_type != callee_arg.p_type && callee_name != 'println' {
-			print_compile_error('Argument type mismatch in function `${callee_function.name}`: Parameter `${callee_arg.name}` expects `${callee_arg.p_type}`, but got `${arg_type}`',
+	if callee_function.params.len == 1 {
+		parsed_arg := parse_expression(final_arg_list, mut &app) as structs.Expression
+		parsed_arg_type := parsed_arg.e_type.to_token_type()
+		callee_arg := callee_function.params[0]
+
+		if parsed_arg_type != callee_arg.p_type && callee_name != 'println' {
+			print_compile_error('Argument type mismatch in function `${callee_function.name}`: Parameter `${callee_arg.name}` expects `${callee_arg.p_type}`, but got `${parsed_arg_type}`',
 				&app)
 			exit(1)
 		}
 
-		call.args << arg_expression
+		call.args << parsed_arg
+	} else {
+		println('Working on it')
+		unsafe {
+			free(&app)
+		}
+		exit(1)
 	}
 
 	if callee_name == 'println' {

@@ -64,7 +64,7 @@ fn parse_function_body(mut app structs.App, function structs.FunctionDecl, insid
 			}
 			.key_emit {
 				emit_stmt := parse_emit(mut app)
-				emit_type := structs.var_type_to_token_type(emit_stmt.emit_type)
+				emit_type := emit_stmt.emit_type.to_token_type()
 				function_return_type := function.return_type
 
 				if emit_type != function_return_type {
@@ -93,7 +93,7 @@ fn parse_function_body(mut app structs.App, function structs.FunctionDecl, insid
 				if app.scope_id == 0 || inside_if {
 					// We hit the closing brace of the function body
 					if !inside_if {
-						check_if_decay(app, function_body)
+						check_if_decay(&app, function_body)
 					}
 					return function_body
 				}
@@ -145,8 +145,7 @@ fn parse_function_args(mut app structs.App) []structs.Param {
 				exit(1)
 			}
 
-			// TODO: Make this a function or something
-			if tok_type.t_type !in [.type_int, .type_string, .type_bool] {
+			if !tok_type.t_type.is_data_type() {
 				print_compile_error('Expected a type before the parameter name, got ` ${tok_type.t_value} `',
 					&app)
 				exit(1)
@@ -168,11 +167,11 @@ fn parse_function_args(mut app structs.App) []structs.Param {
 				function_name: app.current_parsing_function
 				value:         structs.Expression{
 					value:       tok_name.t_value
-					e_type:      structs.token_type_to_var_type(tok_type.t_type)
+					e_type:      tok_type.t_type.to_var_type()
 					is_variable: true
 				}
 				is_mut:        false
-				variable_type: structs.token_type_to_var_type(tok_type.t_type)
+				variable_type: tok_type.t_type.to_var_type()
 			}
 
 			app.all_variables << function_param
@@ -194,8 +193,7 @@ fn parse_function_return_type(mut app structs.App) (structs.TokenType, string) {
 
 		return_type := app.get_token()
 
-		// TODO: Same as above, turn this into a function
-		if return_type.t_type !in [.type_string, .type_int, .type_void, .type_bool] {
+		if !return_type.t_type.is_data_type() {
 			print_compile_error('Expected a function return type, got `${return_type.t_value}`',
 				&app)
 			exit(1)
@@ -218,7 +216,7 @@ fn parse_function_return_type(mut app structs.App) (structs.TokenType, string) {
 	}
 }
 
-fn check_if_decay(app structs.App, function_body []structs.AstNode) {
+fn check_if_decay(app &structs.App, function_body []structs.AstNode) {
 	if app.all_allocations.len == 0 || app.auto_decay {
 		return
 	}
@@ -226,7 +224,7 @@ fn check_if_decay(app structs.App, function_body []structs.AstNode) {
 	for alloc in app.all_allocations {
 		if alloc !in app.decays {
 			print_compile_error('`${alloc}` allocates memory but is never freed \n> Add `decay ${alloc}` after you are done using the variable',
-				&app)
+				app)
 			println('\nNote: This requirement will go away once Radon supports automatic memory management')
 			exit(1)
 		}
