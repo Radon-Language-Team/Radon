@@ -239,26 +239,6 @@ pub mut:
 	t_var_type VarType
 }
 
-pub fn (t Token) token_is_op() bool {
-	return match t.t_type {
-		.plus {
-			true
-		}
-		.minus {
-			true
-		}
-		.mult {
-			true
-		}
-		.div {
-			true
-		}
-		else {
-			false
-		}
-	}
-}
-
 pub type AstNode = Literal
 	| Identifier
 	| BinaryOp

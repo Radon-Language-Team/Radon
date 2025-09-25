@@ -22,11 +22,10 @@ pub fn parse_expression(expression []structs.Token, mut app structs.App) structs
 	// If the expression is a simple expression (just numbers and operators), we can just return the whole thing
 	string_expression := token_array_to_string(expression)
 	is_simple_math := is_simple_math_expr(string_expression)
+	first_token := expression[0]
 
-	println('String expression: ${string_expression}')
-
-	if is_simple_math && expression[0].t_type != .type_string {
-		if expression[0].token_is_op() && expression.len == 1 {
+	if is_simple_math && first_token.t_type != .type_string {
+		if first_token.t_category == .operator && expression.len == 1 {
 			print_compile_error('Unexpected end of expression', &app)
 			exit(1)
 		}
@@ -34,13 +33,13 @@ pub fn parse_expression(expression []structs.Token, mut app structs.App) structs
 			value:  string_expression
 			e_type: .type_int
 		}
-	} else if expression[0].t_type == .key_true || expression[0].t_type == .key_false {
+	} else if first_token.t_type == .key_true || first_token.t_type == .key_false {
 		return structs.Expression{
-			value:  expression[0].t_value
+			value:  first_token.t_value
 			e_type: .type_bool
 		}
-	} else if expression[0].t_type == .type_string {
-		mut string_value := expression[0].t_value
+	} else if first_token.t_type == .type_string {
+		mut string_value := first_token.t_value
 		mut string_inter := false
 		mut string_objects := []structs.StringObject{}
 		// This just checks if the variable mentioned in the string exists in the first place > The actual replacement takes place while generating the string
@@ -83,28 +82,27 @@ pub fn parse_expression(expression []structs.Token, mut app structs.App) structs
 		}
 
 		return structs.Expression{
-			value:         expression[0].t_value
+			value:         first_token.t_value
 			e_type:        .type_string
 			string_inter:  string_inter
 			string_object: string_objects
 		}
-	} else if expression[0].t_type == .variable || expression[0].token_is_op() {
+	} else if first_token.t_type == .variable || first_token.t_category == .operator {
 		mut operator_placeholder := ''
-		if expression[0].token_is_op() && expression.len == 1 {
+		if first_token.t_category == .operator && expression.len == 1 {
 			print_compile_error('Unexpected end of expression', &app)
 			exit(1)
 		}
 
-		variable := if expression[0].token_is_op() {
-			operator_placeholder += expression[0].t_value
+		variable := if first_token.t_category == .operator {
+			operator_placeholder += first_token.t_value
 			get_variable(app, expression[1].t_value)
 		} else {
-			get_variable(app, expression[0].t_value)
+			get_variable(app, first_token.t_value)
 		}
 
 		if variable == structs.VarDecl{} {
-			print_compile_error('Variable `${expression[0].t_value}` is not defined',
-				&app)
+			print_compile_error('Variable `${first_token.t_value}` is not defined', &app)
 			exit(1)
 		}
 
@@ -113,10 +111,10 @@ pub fn parse_expression(expression []structs.Token, mut app structs.App) structs
 			e_type:      variable.variable_type
 			is_variable: true
 		}
-	} else if expression[0].t_type == .function_call {
+	} else if first_token.t_type == .function_call {
 		// function_call := parse_func_call(mut app)
 		// println(function_call)
-		starting_token := expression[0]
+		starting_token := first_token
 
 		// We get the line and the column of the expression, so we know which expression to later jump back to
 		// If, for example, we use the same function twice, without line/column the compiler will get stuck on the first usage of that function
@@ -150,7 +148,7 @@ pub fn parse_expression(expression []structs.Token, mut app structs.App) structs
 			advanced_expression: function_call
 		}
 	} else {
-		println('Expression case of ${expression[0].t_type} (${expression[0].t_value}) is not yet handled!')
+		println('Expression case of ${first_token.t_type} (${first_token.t_value}) is not yet handled!')
 	}
 
 	return structs.AstNode{}
