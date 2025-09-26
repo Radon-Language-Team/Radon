@@ -131,56 +131,140 @@ fn parse_function_args(mut app structs.App) []structs.Param {
 	}
 
 	if args_buffer.len != 0 {
-		for i := 0; i < args_buffer.len; i += 2 {
-			if i + 1 >= args_buffer.len {
-				print_compile_error('Expected a type followed by a name', &app)
-				exit(1)
+		for i := 0; i < args_buffer.len; i++ {
+			arg := args_buffer[i]
+			mut arg_is_iso := false
+			mut arg_type := structs.Token{}
+			mut arg_name := structs.Token{}
+			match arg.t_type {
+				.key_isotope {
+					if i + 2 >= args_buffer.len {
+						print_compile_error('Missing argument name after `iso [arg_type] [???]`',
+							&app)
+						exit(1)
+					}
+					arg_is_iso = true
+
+					arg_type = args_buffer[i + 1]
+					arg_name = args_buffer[i + 2]
+
+					if !arg_type.t_type.is_data_type() {
+						print_compile_error('Expected a type before the parameter name, got ` ${arg_type.t_value} `',
+							&app)
+						exit(1)
+					}
+
+					if arg_name.t_type != .variable {
+						print_compile_error('Expected parameter name, got ` ${arg_name.t_value} `',
+							&app)
+						exit(1)
+					}
+					i += 2
+				}
+				.type_string, .type_int, .type_bool {
+					if i + 1 >= args_buffer.len {
+						print_compile_error('Missing argument name after `iso [arg_type] [???]`',
+							&app)
+						exit(1)
+					}
+
+					arg_type = args_buffer[i]
+					arg_name = args_buffer[i + 1]
+
+					if !arg_type.t_type.is_data_type() {
+						print_compile_error('Expected a type before the parameter name, got ` ${arg_type.t_value} `',
+							&app)
+						exit(1)
+					}
+
+					if arg_name.t_type != .variable {
+						print_compile_error('Expected parameter name, got ` ${arg_name.t_value} `',
+							&app)
+						exit(1)
+					}
+					i++
+				}
+				.comma {
+					continue
+				}
+				else {
+					print_compile_error('Unkown token type `${arg.t_type}` in function parameter section',
+						&app)
+					exit(1)
+				}
 			}
-
-			tok_type := args_buffer[i]
-			tok_name := args_buffer[i + 1]
-
-			if tok_type.t_type == .comma || tok_name.t_type == .comma {
-				print_compile_error('Unexpected comma in parameter list', &app)
-				exit(1)
-			}
-
-			if !tok_type.t_type.is_data_type() {
-				print_compile_error('Expected a type before the parameter name, got ` ${tok_type.t_value} `',
-					&app)
-				exit(1)
-			}
-
-			if tok_name.t_type != .variable {
-				print_compile_error('Expected parameter name, got ` ${tok_name.t_value} `',
-					&app)
-				exit(1)
-			}
-
 			function_params << structs.Param{
-				name:   tok_name.t_value
-				p_type: tok_type.t_type
+				name:   arg_name.t_value
+				p_type: arg_type.t_type
 			}
-
 			function_param := structs.VarDecl{
-				name:          tok_name.t_value
+				name:          arg_name.t_value
 				function_name: app.current_parsing_function
 				value:         structs.Expression{
-					value:       tok_name.t_value
-					e_type:      tok_type.t_type.to_var_type()
+					value:       arg_name.t_value
+					e_type:      arg_type.t_type.to_var_type()
 					is_variable: true
 				}
-				is_mut:        false
-				variable_type: tok_type.t_type.to_var_type()
+				is_mut:        arg_is_iso
+				variable_type: arg_type.t_type.to_var_type()
 			}
-
 			app.all_variables << function_param
 
-			// Skip comma if any
-			if i + 2 < args_buffer.len && args_buffer[i + 2].t_type == .comma {
-				i++
-			}
+			arg_is_iso = false
+			arg_type = structs.Token{}
+			arg_name = structs.Token{}
 		}
+
+		// for i := 0; i < args_buffer.len; i += 2 {
+		// 	if i + 1 >= args_buffer.len {
+		// 		print_compile_error('Expected a type followed by a name', &app)
+		// 		exit(1)
+		// 	}
+
+		// 	tok_type := args_buffer[i]
+		// 	tok_name := args_buffer[i + 1]
+
+		// 	if tok_type.t_type == .comma || tok_name.t_type == .comma {
+		// 		print_compile_error('Unexpected comma in parameter list', &app)
+		// 		exit(1)
+		// 	}
+
+		// 	if !tok_type.t_type.is_data_type() {
+		// 		print_compile_error('Expected a type before the parameter name, got ` ${tok_type.t_value} `',
+		// 			&app)
+		// 		exit(1)
+		// 	}
+
+		// 	if tok_name.t_type != .variable {
+		// 		print_compile_error('Expected parameter name, got ` ${tok_name.t_value} `',
+		// 			&app)
+		// 		exit(1)
+		// 	}
+
+		// 	function_params << structs.Param{
+		// 		name:   tok_name.t_value
+		// 		p_type: tok_type.t_type
+		// 	}
+
+		// 	function_param := structs.VarDecl{
+		// 		name:          tok_name.t_value
+		// 		function_name: app.current_parsing_function
+		// 		value:         structs.Expression{
+		// 			value:       tok_name.t_value
+		// 			e_type:      tok_type.t_type.to_var_type()
+		// 			is_variable: true
+		// 		}
+		// 		is_mut:        false
+		// 		variable_type: tok_type.t_type.to_var_type()
+		// 	}
+
+		// 	app.all_variables << function_param
+
+		// 	// Skip comma if any
+		// 	if i + 2 < args_buffer.len && args_buffer[i + 2].t_type == .comma {
+		// 		i++
+		// 	}
+		// }
 	}
 	return function_params
 }

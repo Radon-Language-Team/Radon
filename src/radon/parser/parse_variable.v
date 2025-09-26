@@ -97,7 +97,7 @@ fn parse_redefinition_var(mut app structs.App) structs.AstNode {
 	}
 
 	if !possible_variable.is_mut {
-		print_compile_error('Variable `${var_name}` is not mutable > Use `isotope ${var_name} = ...` instead',
+		print_compile_error('Variable `${var_name}` is not mutable > Use `iso ${var_name}` instead',
 			&app)
 		exit(1)
 	}
