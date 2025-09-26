@@ -195,6 +195,7 @@ fn parse_function_args(mut app structs.App) []structs.Param {
 			}
 			function_params << structs.Param{
 				name:   arg_name.t_value
+				is_mut: arg_is_iso
 				p_type: arg_type.t_type
 			}
 			function_param := structs.VarDecl{

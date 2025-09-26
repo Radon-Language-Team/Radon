@@ -1,7 +1,7 @@
 module parser_utils
 
 import structs
-import cmd.util { print_compile_error }
+import cmd.util { print_compile_error, print_warning }
 
 const core_functions = ['println', '@read', 'staticRead', '@clone', 'toInt']
 
@@ -176,6 +176,16 @@ pub fn parse_func_call(mut app structs.App, inside_variable bool) structs.Call {
 			exit(1)
 		}
 
+		if callee_arg.is_mut && parsed_arg.is_variable {
+			var := get_variable(&app, parsed_arg.value)
+
+			if !var.is_mut {
+				print_warning('Immutable variable `${var.name}` copied when passed to mutable parameter `${callee_arg.name}`',
+					&app)
+				println('Note: Consider making `${var.name}` mutable via `iso ${var.name}`')
+			}
+		}
+
 		call.args << parsed_arg
 	} else if callee_function.params.len > 1 {
 		mut op_buffer := []structs.Token{}
@@ -201,6 +211,16 @@ pub fn parse_func_call(mut app structs.App, inside_variable bool) structs.Call {
 					print_compile_error('Argument type mismatch in function `${callee_function.name}`: Parameter `${callee_arg.name}` expects `${callee_arg.p_type}`, but got `${parsed_arg_type}`',
 						&app)
 					exit(1)
+				}
+
+				if callee_arg.is_mut && parsed_arg.is_variable {
+					var := get_variable(&app, parsed_arg.value)
+
+					if !var.is_mut {
+						print_warning('Immutable variable `${var.name}` copied when passed to mutable parameter `${callee_arg.name}`',
+							&app)
+						println('Note: Consider making `${var.name}` mutable via `iso ${var.name}`')
+					}
 				}
 				call.args << parsed_arg
 				op_buffer.clear()

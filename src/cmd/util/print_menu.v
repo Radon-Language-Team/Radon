@@ -49,6 +49,18 @@ pub fn radon_assert(assertion bool, message string, possible_app ?&App) {
 	}
 }
 
+pub fn print_warning(warning string, app &App) {
+	mut line_string := ''
+
+	if app.done_lexing {
+		line_string = '${app.file_name}:${app.all_tokens[app.index].t_line}:${app.all_tokens[app.index].t_column}'
+	} else {
+		line_string = '${app.file_name}:${app.line_count}:${app.column_count}'
+	}
+
+	println('${term.bright_blue('${line_string}: Radon Compiler Warning >> ')}${term.bright_yellow(warning)}')
+}
+
 pub fn print_error(error string) {
 	println('${term.bright_blue('Radon Error >> ')}${term.red(error)}')
 }

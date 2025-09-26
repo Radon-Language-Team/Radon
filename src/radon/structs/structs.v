@@ -317,6 +317,7 @@ pub mut:
 pub struct Param {
 pub mut:
 	name   string
+	is_mut bool
 	p_type TokenType
 }
 
