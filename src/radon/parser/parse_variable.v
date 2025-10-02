@@ -42,6 +42,8 @@ fn parse_variable(mut app structs.App) structs.AstNode {
 	expression := parser_utils.get_expression(mut app)
 	parsed_expression := parser_utils.parse_expression(expression, mut app) as structs.Expression
 
+	// println('Very old: ${parsed_expression}')
+
 	variable_decl.function_name = app.current_parsing_function
 	variable_decl.variable_type = parsed_expression.e_type
 	variable_decl.value = parsed_expression

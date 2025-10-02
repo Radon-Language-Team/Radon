@@ -84,5 +84,7 @@ pub fn print_compile_error(error string, app &App) {
 		}
 	}
 
-	structs.clean_up(app)
+	$if !windows {
+		structs.clean_up(app)
+	}
 }

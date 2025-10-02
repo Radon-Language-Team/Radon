@@ -81,3 +81,86 @@ amount += 5
 ```
 
 This way, immutability is the default (safer, predictable), while mutability is explicit with `iso`.  
+
+---
+
+### Functions
+
+In Radon, functions are declared using the `react` keyword.  
+
+A simple function without parameters looks like this:
+```go
+react foo() {
+  println('Hello')
+}
+```
+
+#### Return types
+If a function does not return anything, you can omit the return type.  
+Functions that return values must explicitly declare their return type.  
+You return a value using the `emit` keyword:
+```go
+react addTen() :int {
+  emit 10 + 10
+}
+```
+
+#### Parameters
+Functions can also take parameters. Multiple parameters are separated by commas:
+```go
+react greet(string name, int age) :void {
+  println('Hello ${name}')
+  println('You are ${toString(age)} years old')
+}
+```
+
+#### Mutable parameters
+By default, parameters are immutable. If you want a parameter to be mutable, you must declare it with `iso`:
+```go
+react increment(iso int x) :int {
+  x++
+  emit x
+}
+```
+
+#### The `main` function
+Every Radon program starts execution in the `main` function:
+```go
+mixture 'core'
+
+react main() :int {
+  greet('Alice', 25)
+  emit 0
+}
+```
+---
+
+### Control Flow
+
+Radon supports the usual control flow constructs such as `if`/`else` and loops.
+
+#### If / Else
+Conditions are written using `if`. Optionally, you can add an `else` branch:
+```go
+react checkNumber(int x) :void {
+  if x > 0 {
+    println('Positive')
+  } else {
+    println('Zero or Negative')
+  }
+}
+```
+
+#### For loops
+```go
+react loopExample() :void {
+  iso loop = true
+  iso i = 0
+  for loop {
+    if i >= 10 {
+      loop = false
+    }
+    i++
+  }
+}
+```

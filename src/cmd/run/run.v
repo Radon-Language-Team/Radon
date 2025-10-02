@@ -88,14 +88,8 @@ pub fn run() ! {
 		auto_decay:   ctx.auto_decay
 	}
 
-	defer {
-		// Just to make sure both the app and the ctx are really freed after compiling
-		$if windows {
-			unsafe {
-				ctx.free()
-				app.free()
-			}
-		} $else $if linux {
+	$if !windows {
+		defer {
 			unsafe {
 				free(&ctx)
 				free(&app)

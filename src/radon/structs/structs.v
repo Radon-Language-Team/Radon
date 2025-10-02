@@ -29,12 +29,8 @@ pub mut:
 	auto_decay  bool
 }
 
-pub fn clean_up(app &App) {
-	$if windows {
-		unsafe {
-			app.free()
-		}
-	} $else $if linux {
+$if !windows {
+	pub fn clean_up(app &App) {
 		unsafe {
 			free(app)
 		}

@@ -18,7 +18,11 @@ pub fn get_expression(mut app structs.App) []structs.Token {
 	return expression
 }
 
-pub fn parse_expression(expression []structs.Token, mut app structs.App) structs.AstNode {
+pub fn parse_expression(expression []structs.Token, mut app structs.App) structs.Expression {
+	// test_expr := better_expression(expression, mut app)
+
+	// println(test_expr)
+
 	// If the expression is a simple expression (just numbers and operators), we can just return the whole thing
 	string_expression := token_array_to_string(expression)
 	is_simple_math := is_simple_math_expr(string_expression)
@@ -151,7 +155,7 @@ pub fn parse_expression(expression []structs.Token, mut app structs.App) structs
 		println('Expression case of ${first_token.t_type} (${first_token.t_value}) is not yet handled!')
 	}
 
-	return structs.AstNode{}
+	return structs.Expression{}
 }
 
 pub fn token_array_to_string(tokens []structs.Token) string {
@@ -247,4 +251,88 @@ pub fn parse_simple_boolean_expr(expression []structs.Token, mut app structs.App
 	}
 
 	return final_expr
+}
+
+fn better_expression(expression_array []structs.Token, mut app structs.App) structs.AstNode {
+	mut index := 0
+	mut expected_operator := false
+	mut last_type := structs.TokenType.radon_null
+	mut expression_value := ''
+
+	for e in expression_array {
+		next_token := expression_array[index + 1] or { structs.Token{} }
+
+		radon_assert(next_token == structs.Token{} && index != expression_array.len - 1,
+			'Unexpected end of expression', &app)
+
+		match e.t_type {
+			.literal {
+				radon_assert(expected_operator, 'Unsupported expression > Stopped at: `${e.t_value}` with type `${e.t_type}`',
+					&app)
+
+				last_type = .type_int
+				expression_value += e.t_value
+				expected_operator = true
+			}
+			.type_string {
+				radon_assert(expected_operator, 'Unsupported expression > Stopped at: `${e.t_value}` with type `${e.t_type}`',
+					&app)
+
+				last_type = .type_string
+				expression_value += e.t_value
+				expected_operator = true
+			}
+			.variable {
+				radon_assert(expected_operator, 'Unsupported expression > Stopped at: `${e.t_value}` with type `${e.t_type}`',
+					&app)
+
+				variable := get_variable(&app, e.t_value)
+
+				if variable == structs.VarDecl{} {
+					print_compile_error('Variable `${e.t_value}` is not defined', &app)
+					exit(1)
+				}
+
+				last_type = variable.variable_type.to_token_type()
+				expression_value += variable.name
+				expected_operator = true
+			}
+			.plus {
+				mut next_token_type := next_token.t_type
+
+				if next_token_type == .variable {
+					variable := get_variable(&app, next_token.t_value)
+					if variable == structs.VarDecl{} {
+						print_compile_error('Variable `${e.t_value}` is not defined',
+							&app)
+						exit(1)
+					}
+					next_token_type = variable.variable_type.to_token_type()
+				}
+
+				radon_assert(last_type != next_token_type, 'Can not use `${next_token_type}` (rigth expression) as `${last_type}`',
+					&app)
+
+				expression_value += e.t_value
+				expected_operator = false
+			}
+			else {
+				print_compile_error('Unkown expression `${e.t_value}` of type `${e.t_type}`',
+					&app)
+				exit(1)
+			}
+		}
+		index++
+	}
+
+	expression := structs.Expression{
+		value:               expression_value
+		e_type:              last_type.to_var_type()
+		is_variable:         false
+		is_function:         false
+		string_inter:        false
+		string_object:       []structs.StringObject{}
+		advanced_expression: structs.AstNode{}
+	}
+	return expression
 }
