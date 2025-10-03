@@ -1,6 +1,5 @@
 module parser_utils
 
-import regex
 import structs
 import cmd.util { print_compile_error, radon_assert }
 
@@ -18,160 +17,135 @@ pub fn get_expression(mut app structs.App) []structs.Token {
 	return expression
 }
 
-pub fn parse_expression(expression []structs.Token, mut app structs.App) structs.Expression {
-	// test_expr := better_expression(expression, mut app)
+pub fn parse_expression(expression_array []structs.Token, mut app structs.App) structs.Expression {
+	mut index := 0
+	mut expected_operator := false
+	mut last_type := structs.TokenType.radon_null
+	mut expression_value := ''
 
-	// println(test_expr)
+	for index < expression_array.len {
+		e := expression_array[index]
+		next_token := expression_array[index + 1] or { structs.Token{} }
 
-	// If the expression is a simple expression (just numbers and operators), we can just return the whole thing
-	string_expression := token_array_to_string(expression)
-	is_simple_math := is_simple_math_expr(string_expression)
-	first_token := expression[0]
+		radon_assert(next_token == structs.Token{} && index != expression_array.len - 1,
+			'Unexpected end of expression', &app)
 
-	if is_simple_math && first_token.t_type != .type_string {
-		if first_token.t_category == .operator && expression.len == 1 {
-			print_compile_error('Unexpected end of expression', &app)
-			exit(1)
-		}
-		return structs.Expression{
-			value:  string_expression
-			e_type: .type_int
-		}
-	} else if first_token.t_type == .key_true || first_token.t_type == .key_false {
-		return structs.Expression{
-			value:  first_token.t_value
-			e_type: .type_bool
-		}
-	} else if first_token.t_type == .type_string {
-		mut string_value := first_token.t_value
-		mut string_inter := false
-		mut string_objects := []structs.StringObject{}
-		// This just checks if the variable mentioned in the string exists in the first place > The actual replacement takes place while generating the string
-		if string_value.contains('\${') {
-			for i, c in string_value {
-				mut string_object := structs.StringObject{}
-				ascii_char := c.ascii_str()
-				if ascii_char == '$' {
-					mut buffer := ''
-					mut buffer_index := 0
-					buffer_index = i
-					string_object.replacement_pos.start = i
-					buffer_index++
+		match e.t_type {
+			.literal {
+				radon_assert(expected_operator, 'Unsupported expression > Stopped at: `${e.t_value}` with type `${e.t_type}`',
+					&app)
 
-					radon_assert(string_value[buffer_index].ascii_str() != '{', 'Expected `{` after `$` in string but got `${string_value[buffer_index].ascii_str()}`',
-						&app)
+				radon_assert(last_type != .type_int && index != 0, 'Can not use `${structs.TokenType.type_int}` (rigth expression) as `${last_type}`',
+					&app)
 
-					buffer_index++
+				last_type = .type_int
+				expression_value += e.t_value
+				expected_operator = true
+			}
+			.type_string {
+				radon_assert(expected_operator, 'Unsupported expression > Stopped at: `${e.t_value}` with type `${e.t_type}`',
+					&app)
 
-					for string_value[buffer_index].ascii_str() != '}' {
-						radon_assert(buffer_index + 1 >= string_value.len, '`\${` never closed inside string',
-							&app)
+				radon_assert(last_type != .type_string && index != 0, 'Can not use `${structs.TokenType.type_string}` (rigth expression) as `${last_type}`',
+					&app)
 
-						// No out of bounds check because the lexer would have already errored if the string grew out of bounds
-						buffer += string_value[buffer_index].ascii_str()
-						buffer_index++
+				last_type = .type_string
+				expression_value += e.t_value
+				expected_operator = true
+			}
+			.key_true, .key_false {
+				radon_assert(expected_operator, 'Unsupported expression > Stopped at: `${e.t_value}` with type `${e.t_type}`',
+					&app)
+
+				radon_assert(last_type != .type_bool && index != 0, 'Can not use `${structs.TokenType.type_bool}` (rigth expression) as `${last_type}`',
+					&app)
+
+				last_type = .type_bool
+				expression_value += if e.t_value == 'true' {
+					'1'
+				} else {
+					'0'
+				}
+				expected_operator = true
+			}
+			.variable {
+				radon_assert(expected_operator, 'Unsupported expression > Stopped at: `${e.t_value}` with type `${e.t_type}`',
+					&app)
+
+				variable := get_variable(&app, e.t_value)
+
+				if variable == structs.VarDecl{} {
+					print_compile_error('Variable `${e.t_value}` is not defined', &app)
+					exit(1)
+				}
+
+				radon_assert(last_type != variable.variable_type.to_token_type() && index != 0,
+					'Can not use `${variable.variable_type.to_token_type()}` (rigth expression) as `${last_type}`',
+					&app)
+
+				last_type = variable.variable_type.to_token_type()
+				expression_value += variable.name
+				expected_operator = true
+			}
+			.function_call {
+				original_app_index := app.index
+				starting_line := e.t_line
+				starting_column := e.t_column
+
+				mut token_pos := -1
+				for i, tok in app.all_tokens {
+					if tok.t_type == e.t_type && tok.t_value == e.t_value
+						&& tok.t_line == starting_line && tok.t_column == starting_column {
+						token_pos = i
+						break
 					}
-					string_object.replacement_pos.end = buffer_index
+				}
 
-					// Only works with plain variables for now
-					variable := get_variable(app, buffer.str())
-					radon_assert(variable == structs.VarDecl{}, 'Variable `${buffer.str()}` is not defined',
-						&app)
-					string_object.replacement = variable
-					string_object.replacement_type = variable.variable_type.to_token_type()
-					string_inter = true
-					string_objects << string_object
+				app.index = token_pos
+
+				parse_func_call(mut app, true)
+				parsed_function := get_function(&app, e.t_value)
+
+				radon_assert(parsed_function.return_type == .type_void, 'Function `${e.t_value}` does not return anything',
+					&app)
+
+				radon_assert(last_type != parsed_function.return_type && index != 0, 'Can not use `${parsed_function.return_type}` (rigth expression) as `${last_type}`',
+					&app)
+
+				last_type = parsed_function.return_type
+
+				expression_value += e.t_value
+				expected_operator = true
+				app.index = original_app_index
+
+				for expression_array[index].t_type != .close_paren && index < expression_array.len {
+					index++
+					expression_value += expression_array[index].t_value
 				}
 			}
-		}
-
-		return structs.Expression{
-			value:         first_token.t_value
-			e_type:        .type_string
-			string_inter:  string_inter
-			string_object: string_objects
-		}
-	} else if first_token.t_type == .variable || first_token.t_category == .operator {
-		mut operator_placeholder := ''
-		if first_token.t_category == .operator && expression.len == 1 {
-			print_compile_error('Unexpected end of expression', &app)
-			exit(1)
-		}
-
-		variable := if first_token.t_category == .operator {
-			operator_placeholder += first_token.t_value
-			get_variable(app, expression[1].t_value)
-		} else {
-			get_variable(app, first_token.t_value)
-		}
-
-		if variable == structs.VarDecl{} {
-			print_compile_error('Variable `${first_token.t_value}` is not defined', &app)
-			exit(1)
-		}
-
-		return structs.Expression{
-			value:       '${operator_placeholder}${variable.name}'
-			e_type:      variable.variable_type
-			is_variable: true
-		}
-	} else if first_token.t_type == .function_call {
-		// function_call := parse_func_call(mut app)
-		// println(function_call)
-		starting_token := first_token
-
-		// We get the line and the column of the expression, so we know which expression to later jump back to
-		// If, for example, we use the same function twice, without line/column the compiler will get stuck on the first usage of that function
-		starting_token_line := starting_token.t_line
-		starting_token_column := starting_token.t_column
-
-		mut token_pos := -1
-		for i, tok in app.all_tokens {
-			if tok.t_type == starting_token.t_type && tok.t_value == starting_token.t_value
-				&& tok.t_line == starting_token_line && tok.t_column == starting_token_column {
-				token_pos = i
-				break
+			.plus, .mult {
+				expression_value += e.t_value
+				expected_operator = false
+			}
+			else {
+				print_compile_error('Unkown expression `${e.t_value}` of type `${e.t_type}`',
+					&app)
+				exit(1)
 			}
 		}
-		app.index = token_pos
-		// We are parsing the function call, so our index sits at the right position
-		function_call := parse_func_call(mut app, true)
-
-		function := get_function(&app, starting_token.t_value)
-
-		if function.return_type == .type_void {
-			print_compile_error('Function `${starting_token.t_value}` does not return anything',
-				&app)
-			exit(1)
-		}
-
-		return structs.Expression{
-			value:               ''
-			e_type:              function.return_type.to_var_type()
-			is_function:         true
-			advanced_expression: function_call
-		}
-	} else {
-		println('Expression case of ${first_token.t_type} (${first_token.t_value}) is not yet handled!')
+		index++
 	}
 
-	return structs.Expression{}
-}
-
-pub fn token_array_to_string(tokens []structs.Token) string {
-	mut token_string := ''
-
-	for token in tokens {
-		token_string += token.t_value
+	expression := structs.Expression{
+		value:               expression_value
+		e_type:              last_type.to_var_type()
+		is_variable:         false
+		is_function:         false
+		string_inter:        false
+		string_object:       []structs.StringObject{}
+		advanced_expression: structs.AstNode{}
 	}
-
-	return token_string
-}
-
-fn is_simple_math_expr(expr string) bool {
-	mut re := regex.regex_opt(r'^[0-9+\-*/(). \t]+$') or { panic('Invalid regex') }
-	start, end := re.find(expr)
-	return start == 0 && end == expr.len
+	return expression
 }
 
 pub fn get_variable(app &structs.App, variable_name string) structs.VarDecl {
@@ -251,88 +225,4 @@ pub fn parse_simple_boolean_expr(expression []structs.Token, mut app structs.App
 	}
 
 	return final_expr
-}
-
-fn better_expression(expression_array []structs.Token, mut app structs.App) structs.AstNode {
-	mut index := 0
-	mut expected_operator := false
-	mut last_type := structs.TokenType.radon_null
-	mut expression_value := ''
-
-	for e in expression_array {
-		next_token := expression_array[index + 1] or { structs.Token{} }
-
-		radon_assert(next_token == structs.Token{} && index != expression_array.len - 1,
-			'Unexpected end of expression', &app)
-
-		match e.t_type {
-			.literal {
-				radon_assert(expected_operator, 'Unsupported expression > Stopped at: `${e.t_value}` with type `${e.t_type}`',
-					&app)
-
-				last_type = .type_int
-				expression_value += e.t_value
-				expected_operator = true
-			}
-			.type_string {
-				radon_assert(expected_operator, 'Unsupported expression > Stopped at: `${e.t_value}` with type `${e.t_type}`',
-					&app)
-
-				last_type = .type_string
-				expression_value += e.t_value
-				expected_operator = true
-			}
-			.variable {
-				radon_assert(expected_operator, 'Unsupported expression > Stopped at: `${e.t_value}` with type `${e.t_type}`',
-					&app)
-
-				variable := get_variable(&app, e.t_value)
-
-				if variable == structs.VarDecl{} {
-					print_compile_error('Variable `${e.t_value}` is not defined', &app)
-					exit(1)
-				}
-
-				last_type = variable.variable_type.to_token_type()
-				expression_value += variable.name
-				expected_operator = true
-			}
-			.plus {
-				mut next_token_type := next_token.t_type
-
-				if next_token_type == .variable {
-					variable := get_variable(&app, next_token.t_value)
-					if variable == structs.VarDecl{} {
-						print_compile_error('Variable `${e.t_value}` is not defined',
-							&app)
-						exit(1)
-					}
-					next_token_type = variable.variable_type.to_token_type()
-				}
-
-				radon_assert(last_type != next_token_type, 'Can not use `${next_token_type}` (rigth expression) as `${last_type}`',
-					&app)
-
-				expression_value += e.t_value
-				expected_operator = false
-			}
-			else {
-				print_compile_error('Unkown expression `${e.t_value}` of type `${e.t_type}`',
-					&app)
-				exit(1)
-			}
-		}
-		index++
-	}
-
-	expression := structs.Expression{
-		value:               expression_value
-		e_type:              last_type.to_var_type()
-		is_variable:         false
-		is_function:         false
-		string_inter:        false
-		string_object:       []structs.StringObject{}
-		advanced_expression: structs.AstNode{}
-	}
-	return expression
 }
