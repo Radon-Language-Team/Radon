@@ -2,10 +2,10 @@ module parser
 
 import cmd.util { print_compile_error }
 import parser_utils
-import structs
+import ast
 
-fn parse_variable(mut app structs.App) structs.AstNode {
-	mut variable_decl := structs.VarDecl{}
+fn parse_variable(mut app ast.App) ast.AstNode {
+	mut variable_decl := ast.VarDecl{}
 	mut token := app.get_token()
 
 	if token.t_type == .variable {
@@ -40,7 +40,7 @@ fn parse_variable(mut app structs.App) structs.AstNode {
 	app.index++
 
 	expression := parser_utils.get_expression(mut app)
-	parsed_expression := parser_utils.parse_expression(expression, mut app) as structs.Expression
+	parsed_expression := parser_utils.parse_expression(expression, mut app) as ast.Expression
 
 	// println('Very old: ${parsed_expression}')
 
@@ -54,7 +54,7 @@ fn parse_variable(mut app structs.App) structs.AstNode {
 
 	variable_look_up := parser_utils.get_variable(&app, variable_decl.name)
 
-	if variable_look_up != structs.VarDecl{} {
+	if variable_look_up != ast.VarDecl{} {
 		// This variable has already been created
 		print_compile_error('Variable `${variable_decl.name}` has already been created',
 			&app)
@@ -64,8 +64,8 @@ fn parse_variable(mut app structs.App) structs.AstNode {
 	if parsed_expression.is_function {
 		advanced_expression := parsed_expression.advanced_expression
 		match advanced_expression.type_name() {
-			'radon.structs.Call' {
-				expression_as_call := advanced_expression as structs.Call
+			'radon.ast.Call' {
+				expression_as_call := advanced_expression as ast.Call
 				if expression_as_call.callee.contains('@') {
 					if variable_decl.is_top_const {
 						print_compile_error('Can not use function `${expression_as_call.callee}` on top-level expression',
@@ -86,13 +86,13 @@ fn parse_variable(mut app structs.App) structs.AstNode {
 	return variable_decl
 }
 
-fn parse_redefinition_var(mut app structs.App) structs.AstNode {
-	mut variable_decl := structs.VarDecl{}
+fn parse_redefinition_var(mut app ast.App) ast.AstNode {
+	mut variable_decl := ast.VarDecl{}
 	mut token := app.get_token()
 	var_name := token.t_value
 	possible_variable := parser_utils.get_variable(&app, var_name)
 
-	if possible_variable == structs.VarDecl{} {
+	if possible_variable == ast.VarDecl{} {
 		// The variable has not yet been created
 		print_compile_error('Variable `${var_name}` is not defined', &app)
 		exit(1)
@@ -118,7 +118,7 @@ fn parse_redefinition_var(mut app structs.App) structs.AstNode {
 	app.index++
 
 	expression := parser_utils.get_expression(mut app)
-	parsed_expression := parser_utils.parse_expression(expression, mut app) as structs.Expression
+	parsed_expression := parser_utils.parse_expression(expression, mut app) as ast.Expression
 
 	if parsed_expression.e_type != possible_variable.variable_type {
 		print_compile_error('Can not assign `${parsed_expression.e_type}` to variable `${var_name}` (${possible_variable.variable_type})',
@@ -136,8 +136,8 @@ fn parse_redefinition_var(mut app structs.App) structs.AstNode {
 	return variable_decl
 }
 
-fn parse_aug_assign(mut app structs.App) structs.AugAssign {
-	mut aug_assign := structs.AugAssign{}
+fn parse_aug_assign(mut app ast.App) ast.AugAssign {
+	mut aug_assign := ast.AugAssign{}
 	app.index--
 
 	mut token := app.get_token()
@@ -175,10 +175,10 @@ fn parse_aug_assign(mut app structs.App) structs.AugAssign {
 	aug_assign.op = '${operator.t_value}${second_operator.t_value}'
 
 	if operator.t_type == second_operator.t_type {
-		aug_assign.value = structs.Expression{
+		aug_assign.value = ast.Expression{
 			value:               '1'
 			e_type:              .type_int
-			advanced_expression: structs.AstNode{}
+			advanced_expression: ast.AstNode{}
 		}
 
 		app.index++

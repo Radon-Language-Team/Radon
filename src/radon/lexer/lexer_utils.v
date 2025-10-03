@@ -1,6 +1,6 @@
 module lexer
 
-import structs { TokenType }
+import ast { TokenType }
 import encoding.utf8 { is_letter, is_number }
 
 fn match_token_type(token string) TokenType {
@@ -119,7 +119,7 @@ fn match_token_type(token string) TokenType {
 	}
 }
 
-fn match_token_category(token_type TokenType) structs.TokenCategory {
+fn match_token_category(token_type TokenType) ast.TokenCategory {
 	match token_type {
 		.key_mixture, .key_react, .key_if, .key_else, .key_emit, .key_element, .key_isotope,
 		.key_decay, .key_true, .key_false {

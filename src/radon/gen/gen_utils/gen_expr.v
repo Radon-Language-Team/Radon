@@ -1,15 +1,15 @@
 module gen_utils
 
-import structs
+import ast
 import cmd.util { print_error }
 
 @[inline]
-pub fn gen_expression(expr structs.AstNode) string {
+pub fn gen_expression(expr ast.AstNode) string {
 	expr_type := expr.type_name()
 
 	match expr_type {
-		'radon.structs.Expression' {
-			e := expr as structs.Expression
+		'radon.ast.Expression' {
+			e := expr as ast.Expression
 			e_type := e.e_type
 
 			if e_type == .type_int {
@@ -42,8 +42,8 @@ pub fn gen_expression(expr structs.AstNode) string {
 				exit(1)
 			}
 		}
-		'radon.structs.Literal' {
-			l := expr as structs.Literal
+		'radon.ast.Literal' {
+			l := expr as ast.Literal
 			return l.value.str()
 		}
 		else {

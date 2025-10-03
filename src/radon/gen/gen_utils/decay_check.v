@@ -1,8 +1,8 @@
 module gen_utils
 
-import structs
+import ast
 
-pub fn insert_decays(app &structs.App) string {
+pub fn insert_decays(app &ast.App) string {
 	all_allocs := app.all_allocations
 	all_decays := app.decays
 

@@ -1,8 +1,8 @@
 module gen_utils
 
-import structs
+import ast
 
-pub fn gen_bool_expr(node structs.BoolCondition) string {
+pub fn gen_bool_expr(node ast.BoolCondition) string {
 	lhs := node.con_lhs
 	rhs := node.con_rhs
 	op := node.con_op
@@ -10,8 +10,8 @@ pub fn gen_bool_expr(node structs.BoolCondition) string {
 	mut lhs_code := gen_expression(lhs)
 	mut rhs_code := gen_expression(rhs)
 
-	lhs_as_expr := lhs as structs.Expression
-	rhs_as_expr := rhs as structs.Expression
+	lhs_as_expr := lhs as ast.Expression
+	rhs_as_expr := rhs as ast.Expression
 
 	mut bool_expr := ''
 

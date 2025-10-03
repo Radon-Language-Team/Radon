@@ -1,6 +1,6 @@
 module gen
 
-import structs
+import ast
 
 const core_import_string = '#include <stdio.h>
 #include <stdlib.h>
@@ -71,7 +71,7 @@ int toInt(char *s) {
 }
 '
 
-fn gen_import(node structs.ImportStmt) string {
+fn gen_import(node ast.ImportStmt) string {
 	if node.path.contains('.rad') {
 		return gen_custom_import(node)
 	} else {
@@ -79,7 +79,7 @@ fn gen_import(node structs.ImportStmt) string {
 	}
 }
 
-fn gen_radon_import(node structs.ImportStmt) string {
+fn gen_radon_import(node ast.ImportStmt) string {
 	if node.path == 'core' {
 		return core_import_string
 	} else {
@@ -87,7 +87,7 @@ fn gen_radon_import(node structs.ImportStmt) string {
 	}
 }
 
-fn gen_custom_import(node structs.ImportStmt) string {
+fn gen_custom_import(node ast.ImportStmt) string {
 	println('[NOT YET GENERATED] Custom import -> ${node.path}')
 	return ''
 }

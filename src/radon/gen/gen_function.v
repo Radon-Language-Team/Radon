@@ -1,9 +1,9 @@
 module gen
 
-import structs
+import ast
 import gen_utils
 
-fn gen_function(function_decl structs.FunctionDecl, app &structs.App) string {
+fn gen_function(function_decl ast.FunctionDecl, app &ast.App) string {
 	mut function_code := ''
 
 	mut function_type := function_decl.return_type.to_c_type()
@@ -28,22 +28,22 @@ fn gen_function(function_decl structs.FunctionDecl, app &structs.App) string {
 	mut function_body_code := ''
 	for node in function_decl.body {
 		match node {
-			structs.VarDecl {
+			ast.VarDecl {
 				function_body_code += gen_var_decl(node)
 			}
-			structs.EmitStmt {
+			ast.EmitStmt {
 				function_body_code += gen_emit_stmt(node)
 			}
-			structs.Call {
+			ast.Call {
 				function_body_code += gen_call(node)
 			}
-			structs.DecayStmt {
+			ast.DecayStmt {
 				function_body_code += gen_decay(node)
 			}
-			structs.IfStmt {
+			ast.IfStmt {
 				function_body_code += gen_if(node)
 			}
-			structs.AugAssign {
+			ast.AugAssign {
 				function_body_code += gen_aug_assign(node)
 			}
 			else {
@@ -63,24 +63,24 @@ fn gen_function(function_decl structs.FunctionDecl, app &structs.App) string {
 	return function_code
 }
 
-fn gen_function_body_scope(node structs.AstNode) string {
+fn gen_function_body_scope(node ast.AstNode) string {
 	match node {
-		structs.VarDecl {
+		ast.VarDecl {
 			return gen_var_decl(node)
 		}
-		structs.EmitStmt {
+		ast.EmitStmt {
 			return gen_emit_stmt(node)
 		}
-		structs.Call {
+		ast.Call {
 			return gen_call(node)
 		}
-		structs.DecayStmt {
+		ast.DecayStmt {
 			return gen_decay(node)
 		}
-		structs.IfStmt {
+		ast.IfStmt {
 			return gen_if(node)
 		}
-		structs.AugAssign {
+		ast.AugAssign {
 			return gen_aug_assign(node)
 		}
 		else {
@@ -90,7 +90,7 @@ fn gen_function_body_scope(node structs.AstNode) string {
 	}
 }
 
-fn gen_var_decl(var_decl structs.VarDecl) string {
+fn gen_var_decl(var_decl ast.VarDecl) string {
 	mut var_decl_code := ''
 
 	if var_decl.is_top_const {
@@ -105,13 +105,13 @@ fn gen_var_decl(var_decl structs.VarDecl) string {
 		}
 	}
 
-	var_decl_value := var_decl.value as structs.Expression
+	var_decl_value := var_decl.value as ast.Expression
 
 	if var_decl_value.is_function {
 		type_name_of_expression := var_decl_value.advanced_expression.type_name()
 		match type_name_of_expression {
-			'radon.structs.Call' {
-				var_decl_as_call := var_decl_value.advanced_expression as structs.Call
+			'radon.ast.Call' {
+				var_decl_as_call := var_decl_value.advanced_expression as ast.Call
 				var_decl_code += gen_call(var_decl_as_call)
 			}
 			else {
@@ -133,12 +133,12 @@ fn gen_var_decl(var_decl structs.VarDecl) string {
 	return var_decl_code
 }
 
-fn gen_emit_stmt(emit_stmt structs.EmitStmt) string {
+fn gen_emit_stmt(emit_stmt ast.EmitStmt) string {
 	emit_value := gen_utils.gen_expression(emit_stmt.emit)
 	return 'return ${emit_value}; \n'
 }
 
-fn gen_call(node structs.Call) string {
+fn gen_call(node ast.Call) string {
 	mut callee_name := node.callee
 
 	if callee_name.contains('@') {
@@ -148,7 +148,7 @@ fn gen_call(node structs.Call) string {
 	mut call_args := ''
 
 	for arg in node.args {
-		argument := arg as structs.Expression
+		argument := arg as ast.Expression
 		call_args += gen_utils.gen_expression(argument)
 
 		if arg != node.args.last() {
@@ -159,11 +159,11 @@ fn gen_call(node structs.Call) string {
 	return function_call
 }
 
-fn gen_decay(node structs.DecayStmt) string {
+fn gen_decay(node ast.DecayStmt) string {
 	return 'free(${node.name}); \n'
 }
 
-fn gen_if(node structs.IfStmt) string {
+fn gen_if(node ast.IfStmt) string {
 	mut if_stmt_code := ''
 	mut if_con_code := ''
 
@@ -195,11 +195,11 @@ fn gen_if(node structs.IfStmt) string {
 	return if_stmt_code
 }
 
-fn gen_aug_assign(node structs.AugAssign) string {
+fn gen_aug_assign(node ast.AugAssign) string {
 	if node.op == '++' || node.op == '--' {
 		return '${node.target.name}${node.op}; \n'
 	}
 
-	aug_value := gen_utils.gen_expression(node.value as structs.Expression)
+	aug_value := gen_utils.gen_expression(node.value as ast.Expression)
 	return '${node.target.name} ${node.op} ${aug_value}; \n'
 }

@@ -1,7 +1,7 @@
 module util
 
 import term
-import radon.structs { App }
+import radon.ast { App }
 
 pub fn print_menu() {
 	term_colums, term_rows := term.get_terminal_size()
@@ -85,6 +85,6 @@ pub fn print_compile_error(error string, app &App) {
 	}
 
 	$if !windows {
-		structs.clean_up(app)
+		ast.clean_up(app)
 	}
 }

@@ -1,11 +1,11 @@
 module parser_utils
 
-import structs
+import ast
 import cmd.util { print_compile_error, radon_assert }
 
-pub fn get_expression(mut app structs.App) []structs.Token {
+pub fn get_expression(mut app ast.App) []ast.Token {
 	starting_line := app.get_token().t_line
-	mut expression := []structs.Token{}
+	mut expression := []ast.Token{}
 	for app.index < app.all_tokens.len {
 		if app.get_token().t_line != starting_line {
 			break
@@ -17,25 +17,25 @@ pub fn get_expression(mut app structs.App) []structs.Token {
 	return expression
 }
 
-pub fn parse_expression(expression_array []structs.Token, mut app structs.App) structs.Expression {
+pub fn parse_expression(expression_array []ast.Token, mut app ast.App) ast.Expression {
 	mut index := 0
 	mut expected_operator := false
-	mut last_type := structs.TokenType.radon_null
+	mut last_type := ast.TokenType.radon_null
 	mut expression_value := ''
 
 	for index < expression_array.len {
 		e := expression_array[index]
-		next_token := expression_array[index + 1] or { structs.Token{} }
+		next_token := expression_array[index + 1] or { ast.Token{} }
 
-		radon_assert(next_token == structs.Token{} && index != expression_array.len - 1,
-			'Unexpected end of expression', &app)
+		radon_assert(next_token == ast.Token{} && index != expression_array.len - 1, 'Unexpected end of expression',
+			&app)
 
 		match e.t_type {
 			.literal {
 				radon_assert(expected_operator, 'Unsupported expression > Stopped at: `${e.t_value}` with type `${e.t_type}`',
 					&app)
 
-				radon_assert(last_type != .type_int && index != 0, 'Can not use `${structs.TokenType.type_int}` (rigth expression) as `${last_type}`',
+				radon_assert(last_type != .type_int && index != 0, 'Can not use `${ast.TokenType.type_int}` (rigth expression) as `${last_type}`',
 					&app)
 
 				last_type = .type_int
@@ -46,7 +46,7 @@ pub fn parse_expression(expression_array []structs.Token, mut app structs.App) s
 				radon_assert(expected_operator, 'Unsupported expression > Stopped at: `${e.t_value}` with type `${e.t_type}`',
 					&app)
 
-				radon_assert(last_type != .type_string && index != 0, 'Can not use `${structs.TokenType.type_string}` (rigth expression) as `${last_type}`',
+				radon_assert(last_type != .type_string && index != 0, 'Can not use `${ast.TokenType.type_string}` (rigth expression) as `${last_type}`',
 					&app)
 
 				last_type = .type_string
@@ -57,7 +57,7 @@ pub fn parse_expression(expression_array []structs.Token, mut app structs.App) s
 				radon_assert(expected_operator, 'Unsupported expression > Stopped at: `${e.t_value}` with type `${e.t_type}`',
 					&app)
 
-				radon_assert(last_type != .type_bool && index != 0, 'Can not use `${structs.TokenType.type_bool}` (rigth expression) as `${last_type}`',
+				radon_assert(last_type != .type_bool && index != 0, 'Can not use `${ast.TokenType.type_bool}` (rigth expression) as `${last_type}`',
 					&app)
 
 				last_type = .type_bool
@@ -74,7 +74,7 @@ pub fn parse_expression(expression_array []structs.Token, mut app structs.App) s
 
 				variable := get_variable(&app, e.t_value)
 
-				if variable == structs.VarDecl{} {
+				if variable == ast.VarDecl{} {
 					print_compile_error('Variable `${e.t_value}` is not defined', &app)
 					exit(1)
 				}
@@ -136,19 +136,19 @@ pub fn parse_expression(expression_array []structs.Token, mut app structs.App) s
 		index++
 	}
 
-	expression := structs.Expression{
+	expression := ast.Expression{
 		value:               expression_value
 		e_type:              last_type.to_var_type()
 		is_variable:         false
 		is_function:         false
 		string_inter:        false
-		string_object:       []structs.StringObject{}
-		advanced_expression: structs.AstNode{}
+		string_object:       []ast.StringObject{}
+		advanced_expression: ast.AstNode{}
 	}
 	return expression
 }
 
-pub fn get_variable(app &structs.App, variable_name string) structs.VarDecl {
+pub fn get_variable(app &ast.App, variable_name string) ast.VarDecl {
 	if variable_name in app.decays {
 		print_compile_error('Variable `${variable_name}` has already been freed once',
 			app)
@@ -157,7 +157,7 @@ pub fn get_variable(app &structs.App, variable_name string) structs.VarDecl {
 	variables := app.all_variables.filter(it.name == variable_name)
 
 	if variables.len == 0 {
-		return structs.VarDecl{}
+		return ast.VarDecl{}
 	} else {
 		for variable in variables {
 			if variable.function_name == '' {
@@ -175,9 +175,9 @@ pub fn get_variable(app &structs.App, variable_name string) structs.VarDecl {
 * > Simple expressions such as [value] > / >= / < / <= / == [value_two]
 * Anything else is still to complicated to parse correctly
 */
-pub fn parse_simple_boolean_expr(expression []structs.Token, mut app structs.App) structs.BoolCondition {
+pub fn parse_simple_boolean_expr(expression []ast.Token, mut app ast.App) ast.BoolCondition {
 	operators := ['<', '>', '<=', '>=', '==', '!=']
-	mut final_expr := structs.BoolCondition{}
+	mut final_expr := ast.BoolCondition{}
 	mut i := 0
 
 	if expression.len == 0 {
@@ -187,14 +187,14 @@ pub fn parse_simple_boolean_expr(expression []structs.Token, mut app structs.App
 
 	if expression.len == 1 {
 		final_expr.is_simple = true
-		final_expr.con_simple = parse_expression(expression, mut app) as structs.Expression
+		final_expr.con_simple = parse_expression(expression, mut app) as ast.Expression
 		return final_expr
 	}
 
 	if expression.len >= 3 && expression.len <= 4 {
 		lhs := expression[i]
 		i++
-		mut operator := []structs.Token{}
+		mut operator := []ast.Token{}
 		mut operator_str := ''
 		operator << expression[i]
 		operator_str += expression[i].t_value
@@ -209,8 +209,8 @@ pub fn parse_simple_boolean_expr(expression []structs.Token, mut app structs.App
 		radon_assert(operator_str !in operators, 'Operator `${operator_str}` not available in a boolean expression',
 			&app)
 
-		lhs_expr := parse_expression([lhs], mut app) as structs.Expression
-		rhs_expr := parse_expression([rhs], mut app) as structs.Expression
+		lhs_expr := parse_expression([lhs], mut app) as ast.Expression
+		rhs_expr := parse_expression([rhs], mut app) as ast.Expression
 
 		radon_assert(lhs_expr.e_type != rhs_expr.e_type, 'Can not compare `${rhs_expr.e_type}` (right expression) with `${lhs_expr.e_type}`',
 			&app)

@@ -1,105 +1,105 @@
 module parser_utils
 
-import structs
+import ast
 import cmd.util { print_compile_error, print_warning }
 
 const core_functions = ['println', '@read', 'staticRead', '@clone', 'toInt']
 
-fn get_core_function(name string) structs.FunctionDecl {
+fn get_core_function(name string) ast.FunctionDecl {
 	match name {
 		'println' {
-			return structs.FunctionDecl{
+			return ast.FunctionDecl{
 				name:        name
 				params:      [
-					structs.Param{
+					ast.Param{
 						name:   'x'
 						p_type: .type_string
 					},
 				]
 				return_type: .type_void
-				body:        []structs.AstNode{}
+				body:        []ast.AstNode{}
 				is_core:     true
 			}
 		}
 		'@read' {
-			return structs.FunctionDecl{
+			return ast.FunctionDecl{
 				name:        name
 				params:      [
-					structs.Param{
+					ast.Param{
 						name:   'message'
 						p_type: .type_string
 					},
 				]
 				return_type: .type_string
-				body:        []structs.AstNode{}
+				body:        []ast.AstNode{}
 				is_core:     true
 				does_malloc: true
 			}
 		}
 		'staticRead' {
-			return structs.FunctionDecl{
+			return ast.FunctionDecl{
 				name:        name
 				params:      [
-					structs.Param{
+					ast.Param{
 						name:   'message'
 						p_type: .type_string
 					},
 				]
 				return_type: .type_string
-				body:        []structs.AstNode{}
+				body:        []ast.AstNode{}
 				is_core:     true
 			}
 		}
 		'@clone' {
-			return structs.FunctionDecl{
+			return ast.FunctionDecl{
 				name:        name
 				params:      [
-					structs.Param{
+					ast.Param{
 						name:   'input'
 						p_type: .type_string
 					},
 				]
 				return_type: .type_string
-				body:        []structs.AstNode{}
+				body:        []ast.AstNode{}
 				is_core:     true
 				does_malloc: true
 			}
 		}
 		'toInt' {
-			return structs.FunctionDecl{
+			return ast.FunctionDecl{
 				name:        name
 				params:      [
-					structs.Param{
+					ast.Param{
 						name:   'string'
 						p_type: .type_string
 					},
 				]
 				return_type: .type_int
-				body:        []structs.AstNode{}
+				body:        []ast.AstNode{}
 				is_core:     true
 			}
 		}
 		else {
-			return structs.FunctionDecl{}
+			return ast.FunctionDecl{}
 		}
 	}
 }
 
-pub fn get_function(app &structs.App, name string) structs.FunctionDecl {
+pub fn get_function(app &ast.App, name string) ast.FunctionDecl {
 	function := app.all_functions.filter(it.name == name)
 
 	if function.len == 0 {
 		if name in core_functions {
 			return get_core_function(name)
 		}
-		return structs.FunctionDecl{}
+		return ast.FunctionDecl{}
 	} else {
 		return function[0]
 	}
 }
 
-pub fn parse_func_call(mut app structs.App, inside_variable bool) structs.Call {
-	mut call := structs.Call{}
+pub fn parse_func_call(mut app ast.App, inside_variable bool) ast.Call {
+	mut call := ast.Call{}
 
 	callee_name := app.get_token().t_value
 	call.callee = callee_name
@@ -110,7 +110,7 @@ pub fn parse_func_call(mut app structs.App, inside_variable bool) structs.Call {
 	app.index++
 	callee_function := get_function(&app, callee_name)
 
-	if callee_function == structs.FunctionDecl{} {
+	if callee_function == ast.FunctionDecl{} {
 		print_compile_error('Unknown function `${callee_name}`', &app)
 		exit(1)
 	}
@@ -123,7 +123,7 @@ pub fn parse_func_call(mut app structs.App, inside_variable bool) structs.Call {
 		}
 	}
 
-	mut buffer := []structs.Token{}
+	mut buffer := []ast.Token{}
 
 	for app.get_token().t_type != .close_paren {
 		if app.index >= app.all_tokens.len {
@@ -166,7 +166,7 @@ pub fn parse_func_call(mut app structs.App, inside_variable bool) structs.Call {
 	}
 
 	if callee_function.params.len == 1 {
-		parsed_arg := parse_expression(final_arg_list, mut &app) as structs.Expression
+		parsed_arg := parse_expression(final_arg_list, mut &app) as ast.Expression
 		parsed_arg_type := parsed_arg.e_type.to_token_type()
 		callee_arg := callee_function.params[0]
 
@@ -188,7 +188,7 @@ pub fn parse_func_call(mut app structs.App, inside_variable bool) structs.Call {
 
 		call.args << parsed_arg
 	} else if callee_function.params.len > 1 {
-		mut op_buffer := []structs.Token{}
+		mut op_buffer := []ast.Token{}
 		c := callee_function.params.len + final_arg_list.filter(it.t_category == .operator).len
 		for i, arg in final_arg_list {
 			if arg.t_category == .operator {
@@ -197,13 +197,13 @@ pub fn parse_func_call(mut app structs.App, inside_variable bool) structs.Call {
 				if i == c {
 					break
 				}
-				mut expression_buffer := []structs.Token{}
+				mut expression_buffer := []ast.Token{}
 				if op_buffer.len != 0 {
 					expression_buffer << op_buffer
 				}
 				expression_buffer << arg
 
-				parsed_arg := parse_expression(expression_buffer, mut &app) as structs.Expression
+				parsed_arg := parse_expression(expression_buffer, mut &app) as ast.Expression
 				parsed_arg_type := parsed_arg.e_type.to_token_type()
 				callee_arg := callee_function.params[i - op_buffer.len]
 
@@ -229,7 +229,7 @@ pub fn parse_func_call(mut app structs.App, inside_variable bool) structs.Call {
 	}
 
 	if callee_name == 'println' {
-		println_argument := call.args[0] as structs.Expression
+		println_argument := call.args[0] as ast.Expression
 
 		if println_argument.e_type == .type_string {
 			call.callee = 'println_str'
@@ -255,8 +255,8 @@ pub fn parse_func_call(mut app structs.App, inside_variable bool) structs.Call {
 	return call
 }
 
-pub fn parse_decay(mut app structs.App) structs.DecayStmt {
-	mut decay := structs.DecayStmt{}
+pub fn parse_decay(mut app ast.App) ast.DecayStmt {
+	mut decay := ast.DecayStmt{}
 
 	app.index++
 	token := app.get_token()
@@ -269,7 +269,7 @@ pub fn parse_decay(mut app structs.App) structs.DecayStmt {
 	}
 
 	expression := get_expression(mut app)
-	parsed_expression := parse_expression(expression, mut app) as structs.Expression
+	parsed_expression := parse_expression(expression, mut app) as ast.Expression
 
 	if parsed_expression.e_type != .type_string {
 		print_compile_error('Can only free variables of type `string`, got `${parsed_expression.e_type}` with value `${parsed_expression.value}`',
@@ -277,14 +277,14 @@ pub fn parse_decay(mut app structs.App) structs.DecayStmt {
 		exit(1)
 	}
 
-	variable := get_variable(app, parsed_expression.value).value as structs.Expression
+	variable := get_variable(app, parsed_expression.value).value as ast.Expression
 
 	if !variable.is_function {
 		print_compile_error('Variable `${parsed_expression.value}` does not represent a heap-allocated function result',
 			&app)
 		exit(1)
 	} else {
-		function_to_free := variable.advanced_expression as structs.Call
+		function_to_free := variable.advanced_expression as ast.Call
 		function_header := get_function(&app, function_to_free.callee)
 
 		if !function_header.does_malloc {

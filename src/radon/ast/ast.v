@@ -1,4 +1,4 @@
-module structs
+module ast
 
 @[heap]
 pub struct App {

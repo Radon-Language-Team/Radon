@@ -4,7 +4,7 @@ import os
 import term
 import json
 import util
-import radon.structs { App }
+import radon.ast { App }
 import radon.lexer
 import radon.parser
 import radon.gen

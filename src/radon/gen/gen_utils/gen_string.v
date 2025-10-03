@@ -1,11 +1,11 @@
 module gen_utils
 
-import structs
+import ast
 import cmd.util { print_error }
 
-pub fn gen_string(node structs.AstNode) string {
-	if node.type_name() == 'radon.structs.Expression' {
-		expression := node as structs.Expression
+pub fn gen_string(node ast.AstNode) string {
+	if node.type_name() == 'radon.ast.Expression' {
+		expression := node as ast.Expression
 		mut string_value := ''
 
 		if expression.string_inter {
@@ -37,7 +37,7 @@ pub fn gen_string(node structs.AstNode) string {
 				// Move this up by one too, since we stopped on the closing brace
 				last_index = obj.replacement_pos.end + 1
 
-				replacement_obj := obj.replacement as structs.VarDecl
+				replacement_obj := obj.replacement as ast.VarDecl
 				expressions += '${replacement_obj.name} '
 
 				if obj != expression.string_object.last() {

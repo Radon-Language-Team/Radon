@@ -1,9 +1,9 @@
 module parser
 
-import structs
+import ast
 import cmd.util { print_compile_error }
 
-fn parse_import(mut app structs.App) structs.ImportStmt {
+fn parse_import(mut app ast.App) ast.ImportStmt {
 	app.index++
 
 	import_string := app.get_token()
@@ -14,7 +14,7 @@ fn parse_import(mut app structs.App) structs.ImportStmt {
 		exit(1)
 	}
 
-	import_stmt := structs.ImportStmt{
+	import_stmt := ast.ImportStmt{
 		path: import_string.t_value
 	}
 

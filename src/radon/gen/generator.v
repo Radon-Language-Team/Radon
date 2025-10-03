@@ -1,18 +1,18 @@
 module gen
 
-import structs
+import ast
 import cmd.util { print_error }
 
-pub fn generate(mut app structs.App) {
+pub fn generate(mut app ast.App) {
 	for node in app.ast {
 		match node {
-			structs.FunctionDecl {
+			ast.FunctionDecl {
 				app.gen_code += gen_function(node, &app)
 			}
-			structs.ImportStmt {
+			ast.ImportStmt {
 				app.gen_code += gen_import(node)
 			}
-			structs.VarDecl {
+			ast.VarDecl {
 				app.gen_code += gen_var_decl(node)
 			}
 			else {

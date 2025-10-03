@@ -2,10 +2,10 @@ module parser
 
 import cmd.util { print_compile_error, radon_assert }
 import parser_utils
-import structs
+import ast
 
-fn parse_function(mut app structs.App) !structs.FunctionDecl {
-	mut function_decl := structs.FunctionDecl{}
+fn parse_function(mut app ast.App) !ast.FunctionDecl {
+	mut function_decl := ast.FunctionDecl{}
 
 	app.index++
 
@@ -20,7 +20,7 @@ fn parse_function(mut app structs.App) !structs.FunctionDecl {
 
 	function_look_up := parser_utils.get_function(&app, token.t_value)
 
-	radon_assert(function_look_up != structs.FunctionDecl{}, 'Function `${token.t_value}` has already been created',
+	radon_assert(function_look_up != ast.FunctionDecl{}, 'Function `${token.t_value}` has already been created',
 		&app)
 
 	app.index++
@@ -52,8 +52,8 @@ fn parse_function(mut app structs.App) !structs.FunctionDecl {
 	return function_decl
 }
 
-fn parse_function_body(mut app structs.App, function structs.FunctionDecl, inside_if bool) []structs.AstNode {
-	mut function_body := []structs.AstNode{}
+fn parse_function_body(mut app ast.App, function ast.FunctionDecl, inside_if bool) []ast.AstNode {
+	mut function_body := []ast.AstNode{}
 	for app.index < app.all_tokens.len {
 		token := app.all_tokens[app.index]
 
@@ -108,8 +108,8 @@ fn parse_function_body(mut app structs.App, function structs.FunctionDecl, insid
 	return function_body
 }
 
-fn parse_function_args(mut app structs.App) []structs.Param {
-	mut function_params := []structs.Param{}
+fn parse_function_args(mut app ast.App) []ast.Param {
+	mut function_params := []ast.Param{}
 	mut token := app.get_token()
 	if token.t_type != .open_paren {
 		print_compile_error('Expected ` ( `, got ` ${token.t_value} ` with type `${token.t_type}`',
@@ -118,7 +118,7 @@ fn parse_function_args(mut app structs.App) []structs.Param {
 	}
 
 	app.index++
-	mut args_buffer := []structs.Token{}
+	mut args_buffer := []ast.Token{}
 
 	for app.get_token().t_type != .close_paren {
 		if app.index >= app.all_tokens.len {
@@ -134,8 +134,8 @@ fn parse_function_args(mut app structs.App) []structs.Param {
 		for i := 0; i < args_buffer.len; i++ {
 			arg := args_buffer[i]
 			mut arg_is_iso := false
-			mut arg_type := structs.Token{}
-			mut arg_name := structs.Token{}
+			mut arg_type := ast.Token{}
+			mut arg_name := ast.Token{}
 			match arg.t_type {
 				.key_isotope {
 					if i + 2 >= args_buffer.len {
@@ -193,15 +193,15 @@ fn parse_function_args(mut app structs.App) []structs.Param {
 					exit(1)
 				}
 			}
-			function_params << structs.Param{
+			function_params << ast.Param{
 				name:   arg_name.t_value
 				is_mut: arg_is_iso
 				p_type: arg_type.t_type
 			}
-			function_param := structs.VarDecl{
+			function_param := ast.VarDecl{
 				name:          arg_name.t_value
 				function_name: app.current_parsing_function
-				value:         structs.Expression{
+				value:         ast.Expression{
 					value:       arg_name.t_value
 					e_type:      arg_type.t_type.to_var_type()
 					is_variable: true
@@ -212,14 +212,14 @@ fn parse_function_args(mut app structs.App) []structs.Param {
 			app.all_variables << function_param
 
 			arg_is_iso = false
-			arg_type = structs.Token{}
-			arg_name = structs.Token{}
+			arg_type = ast.Token{}
+			arg_name = ast.Token{}
 		}
 	}
 	return function_params
 }
 
-fn parse_function_return_type(mut app structs.App) (structs.TokenType, string) {
+fn parse_function_return_type(mut app ast.App) (ast.TokenType, string) {
 	token := app.get_token()
 
 	if token.t_type == .colon {
@@ -246,11 +246,11 @@ fn parse_function_return_type(mut app structs.App) (structs.TokenType, string) {
 			print_compile_error('Expected ` { `, got ` ${token.t_value} `', &app)
 			exit(1)
 		}
-		return structs.TokenType.type_void, 'void'
+		return ast.TokenType.type_void, 'void'
 	}
 }
 
-fn check_if_decay(app &structs.App, function_body []structs.AstNode) {
+fn check_if_decay(app &ast.App, function_body []ast.AstNode) {
 	if app.all_allocations.len == 0 || app.auto_decay {
 		return
 	}

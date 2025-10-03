@@ -1,12 +1,12 @@
 module parser
 
-import structs
+import ast
 import cmd.util { radon_assert }
 import parser_utils
 
-fn parse_if(mut app structs.App, function structs.FunctionDecl) structs.IfStmt {
+fn parse_if(mut app ast.App, function ast.FunctionDecl) ast.IfStmt {
 	app.index++
-	mut if_expression_buffer := []structs.Token{}
+	mut if_expression_buffer := []ast.Token{}
 
 	for app.get_token().t_type != .open_brace {
 		radon_assert(app.index + 1 >= app.all_tokens.len, 'If-statement is not properly opened',
@@ -17,10 +17,10 @@ fn parse_if(mut app structs.App, function structs.FunctionDecl) structs.IfStmt {
 	}
 
 	if_expression := parser_utils.parse_simple_boolean_expr(if_expression_buffer, mut
-		app) as structs.BoolCondition
+		app) as ast.BoolCondition
 
 	if if_expression.is_simple {
-		expression := if_expression.con_simple as structs.Expression
+		expression := if_expression.con_simple as ast.Expression
 		radon_assert(expression.e_type != .type_bool, 'Non-bool type used as if-statement',
 			&app)
 	}
@@ -30,7 +30,7 @@ fn parse_if(mut app structs.App, function structs.FunctionDecl) structs.IfStmt {
 	app.scope_id++
 	then_branch := parse_function_body(mut app, function, true)
 
-	mut else_branch := []structs.AstNode{}
+	mut else_branch := []ast.AstNode{}
 
 	// Consume the closing `}` of the then branch
 	app.index++
@@ -51,7 +51,7 @@ fn parse_if(mut app structs.App, function structs.FunctionDecl) structs.IfStmt {
 		app.scope_id--
 	}
 
-	if_stmt := structs.IfStmt{
+	if_stmt := ast.IfStmt{
 		is_simple:   if_expression.is_simple
 		condition:   if_expression
 		then_branch: then_branch

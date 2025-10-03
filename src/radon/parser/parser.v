@@ -3,9 +3,9 @@ module parser
 import term
 import cmd.util { print_compile_error, print_error }
 import parser_utils
-import structs
+import ast
 
-pub fn parse(mut app structs.App) ! {
+pub fn parse(mut app ast.App) ! {
 	for app.index < app.all_tokens.len {
 		token := app.all_tokens[app.index]
 
@@ -31,7 +31,7 @@ pub fn parse(mut app structs.App) ! {
 	}
 
 	main_function := parser_utils.get_function(&app, 'main')
-	if main_function == structs.FunctionDecl{} {
+	if main_function == ast.FunctionDecl{} {
 		print_error('Unkown function `main`')
 		println(term.yellow('A `main` function is required as the entry point of your program'))
 		exit(1)

@@ -3,10 +3,10 @@ module lexer
 import os
 import encoding.utf8 { is_letter, is_number, is_space }
 import cmd.util { radon_assert }
-import structs
+import ast
 
-pub fn lex_file(mut app structs.App) ! {
-	mut lexed_tokens := []structs.Token{}
+pub fn lex_file(mut app ast.App) ! {
+	mut lexed_tokens := []ast.Token{}
 
 	file_content := os.read_file(app.file_path)!
 	app.file_content = file_content
@@ -62,7 +62,7 @@ pub fn lex_file(mut app structs.App) ! {
 			}
 
 			mut token_category := match_token_category(token_type)
-			mut token_var_type := structs.VarType.type_unknown
+			mut token_var_type := ast.VarType.type_unknown
 
 			// For allocated return types > @string, @int
 			if token_category == .token_type && app.prev_token.t_type == .at {
@@ -76,14 +76,14 @@ pub fn lex_file(mut app structs.App) ! {
 				&& token_type == .variable {
 				token_type = .variable
 				token_category = .identifier
-				token_var_type = structs.VarType.type_string // TODO: Actually find out what kind of variable this is
+				token_var_type = ast.VarType.type_string // TODO: Actually find out what kind of variable this is
 			}
 
 			radon_assert(token_type == .variable && token_category == .identifier
 				&& token_var_type == .type_unknown, 'Found an unkown token of type ${token_type}',
 				&app)
 
-			lexed_tokens << structs.Token{
+			lexed_tokens << ast.Token{
 				t_type:     token_type
 				t_value:    app.buffer.str()
 				t_line:     app.line_count
@@ -93,6 +93,7 @@ pub fn lex_file(mut app structs.App) ! {
 				t_category: token_category
 				t_var_type: token_var_type
 			}
+
 			app.buffer = ''
 		} else if is_number(current_char[0]) {
 			app.buffer += current_char
@@ -115,7 +116,7 @@ pub fn lex_file(mut app structs.App) ! {
 			radon_assert(token_type == .radon_null, 'Unknown token: `${app.buffer.str()}` >> `t_type: ${token_type}` and `t_category: ${token_category}`',
 				&app)
 
-			lexed_tokens << structs.Token{
+			lexed_tokens << ast.Token{
 				t_type:     token_type
 				t_value:    app.buffer.str()
 				t_line:     app.line_count
@@ -126,6 +127,7 @@ pub fn lex_file(mut app structs.App) ! {
 				t_var_type: .type_int // We only support normal ints for now anyway
 				// TODO: Add support for other types such as floats
 			}
+
 			app.buffer = ''
 		} else if is_space(current_char[0]) {
 			if current_char == '\n' || current_char == '\r\n' {
@@ -143,7 +145,7 @@ pub fn lex_file(mut app structs.App) ! {
 
 			token_category := match_token_category(token_type)
 			if token_type != .s_quote {
-				lexed_tokens << structs.Token{
+				lexed_tokens << ast.Token{
 					t_type:     token_type
 					t_value:    current_char
 					t_line:     app.line_count
@@ -170,7 +172,7 @@ pub fn lex_file(mut app structs.App) ! {
 					app.column_count++
 				}
 
-				lexed_tokens << structs.Token{
+				lexed_tokens << ast.Token{
 					t_type:     .type_string
 					t_value:    string_buffer
 					t_line:     app.line_count
